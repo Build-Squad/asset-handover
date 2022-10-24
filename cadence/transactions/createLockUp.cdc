@@ -1,11 +1,21 @@
 import AssetHandover from "../contracts/AssetHandover.cdc"
-import FungibleToken from "../contracts/interfaces/FungibleToken.cdc"
+import FlowToken from "../contracts/tokens/FlowToken.cdc"
 
 transaction(releasedAt: UFix64, recipient: Address) {
+    let vaultCap: Capability<&FlowToken.Vault>
+
     prepare(account: AuthAccount) {
-        let providerCap = account.getCapability<&{FungibleToken.Provider}>(AssetHandover.LockUpPrivatePath)
-        let lockUp <- AssetHandover.createLockUp(releasedAt: releasedAt, recipient: recipient, providerCap: providerCap)
+        let lockUp <- AssetHandover.createLockUp(releasedAt: releasedAt, recipient: recipient)
         account.save<@AssetHandover.LockUp>(<- lockUp, to: AssetHandover.LockUpStoragePath)
-        account.link<&AssetHandover.LockUp>(AssetHandover.LockUpPublicPath, target: AssetHandover.LockUpStoragePath)
+
+        account.link<&{AssetHandover.LockUpPublic}>(AssetHandover.LockUpPublicPath, target: AssetHandover.LockUpStoragePath)
+        account.link<&{AssetHandover.LockUpPrivate}>(AssetHandover.LockUpPrivatePath, target: AssetHandover.LockUpStoragePath)
+
+        account.link<&FlowToken.Vault>(/private/flowTokenVault, target: /storage/flowTokenVault)
+        self.vaultCap = account.getCapability<&FlowToken.Vault>(/private/flowTokenVault)
+    }
+
+    execute {
+        AssetHandover.registerVault(recipient: recipient, vault: self.vaultCap)
     }
 }
