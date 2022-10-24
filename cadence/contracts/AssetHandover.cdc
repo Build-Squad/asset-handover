@@ -20,11 +20,18 @@ pub contract AssetHandover {
         pub let owner: Address?
         pub let releasedAt: UFix64
         pub let recipient: Address
+        pub let balance: UFix64?
 
-        init(owner: Address?, releasedAt: UFix64, recipient: Address) {
+        init(
+        owner: Address?,
+         releasedAt: UFix64,
+         recipient: Address,
+         balance: UFix64?
+         ) {
             self.owner = owner
             self.releasedAt = releasedAt
             self.recipient = recipient
+            self.balance = balance
         }
     }
 
@@ -41,17 +48,24 @@ pub contract AssetHandover {
     pub resource LockUp: LockUpPublic, LockUpPrivate {
         access(account) var releasedAt: UFix64
         access(account) var recipient: Address
+        access(account) var balance: UFix64?
 
-        init(releasedAt: UFix64, recipient: Address) {
+        init(
+        releasedAt: UFix64,
+        recipient: Address,
+        balance: UFix64?
+        )  {
             self.releasedAt = releasedAt
             self.recipient = recipient
+            self.balance = balance
         }
 
         pub fun getInfo(): LockUpInfo {
             return LockUpInfo(
                 owner: self.owner?.address,
                 releasedAt: self.releasedAt,
-                recipient: self.recipient
+                recipient: self.recipient,
+                balance: self.balance
             )
         }
 
@@ -65,11 +79,18 @@ pub contract AssetHandover {
                 panic("Non authorized recipient!")
             }
 
+            if self.balance != nil && amount > self.balance! {
+              panic("You cannot withdraw more than the remaining balance of: ".concat(self.balance!.toString()))
+            }
+
             let vaultCap = AssetHandover.vaultMappings[self.recipient] ?? panic("Unable to get FlowToken.Vault mapping for recipient")
 
             let vault = receiver.borrow() ?? panic("Could not borrow vault reference")
             // Withdraws the requested amount from the provided Vault, to one of the recipients
             vault.deposit(from: <- vaultCap.borrow()!.withdraw(amount: amount))
+            if self.balance != nil {
+              self.balance = self.balance! - amount
+            }
         }
 
         pub fun setReleasedAt(releasedAt: UFix64) {
@@ -81,8 +102,8 @@ pub contract AssetHandover {
         }
     }
 
-    pub fun createLockUp(releasedAt: UFix64, recipient: Address): @LockUp {
-        return <- create LockUp(releasedAt: releasedAt, recipient: recipient)
+    pub fun createLockUp(releasedAt: UFix64, recipient: Address, balance: UFix64?): @LockUp {
+        return <- create LockUp(releasedAt: releasedAt, recipient: recipient, balance: balance)
     }
 
     pub fun registerVault(recipient: Address, vault: Capability<&FlowToken.Vault>) {
