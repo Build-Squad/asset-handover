@@ -8,6 +8,14 @@ pub contract AssetHandover {
     pub let LockUpPrivatePath: PrivatePath
     pub let LockUpPublicPath: PublicPath
 
+    pub event LockUpCreated(owner: Address, recipient: Address)
+    pub event LockUpDestroyed(owner: Address, recipient: Address)
+    pub event LockUpRecipientChanged(owner: Address, recipient: Address)
+    pub event LockUpReleasedAtChanged(owner: Address, releasedAt: UFix64)
+    pub event LockUpBalanceChanged(owner: Address, balance: UFix64)
+    pub event LockUpWithdrawn(owner: Address, recipient: Address, amount: UFix64)
+    pub event LockUpBalanceWithdrawn(owner: Address, recipient: Address)
+
     init() {
         self.vaultMappings = {}
 
@@ -23,11 +31,11 @@ pub contract AssetHandover {
         pub let balance: UFix64?
 
         init(
-        owner: Address?,
-         releasedAt: UFix64,
-         recipient: Address,
-         balance: UFix64?
-         ) {
+            owner: Address?,
+            releasedAt: UFix64,
+            recipient: Address,
+            balance: UFix64?
+        ) {
             self.owner = owner
             self.releasedAt = releasedAt
             self.recipient = recipient
@@ -43,6 +51,7 @@ pub contract AssetHandover {
     pub resource interface LockUpPrivate {
         pub fun setReleasedAt(releasedAt: UFix64)
         pub fun setRecipient(recipient: Address)
+        pub fun setBalance(balance: UFix64)
     }
 
     pub resource LockUp: LockUpPublic, LockUpPrivate {
@@ -51,10 +60,10 @@ pub contract AssetHandover {
         access(account) var balance: UFix64?
 
         init(
-        releasedAt: UFix64,
-        recipient: Address,
-        balance: UFix64?
-        )  {
+            releasedAt: UFix64,
+            recipient: Address,
+            balance: UFix64?
+        ) {
             self.releasedAt = releasedAt
             self.recipient = recipient
             self.balance = balance
@@ -80,7 +89,7 @@ pub contract AssetHandover {
             }
 
             if self.balance != nil && amount > self.balance! {
-              panic("You cannot withdraw more than the remaining balance of: ".concat(self.balance!.toString()))
+                panic("You cannot withdraw more than the remaining balance of: ".concat(self.balance!.toString()))
             }
 
             let vaultCap = AssetHandover.vaultMappings[self.recipient] ?? panic("Unable to get FlowToken.Vault mapping for recipient")
@@ -88,22 +97,48 @@ pub contract AssetHandover {
             let vault = receiver.borrow() ?? panic("Could not borrow vault reference")
             // Withdraws the requested amount from the provided Vault, to one of the recipients
             vault.deposit(from: <- vaultCap.borrow()!.withdraw(amount: amount))
+
             if self.balance != nil {
-              self.balance = self.balance! - amount
+                self.balance = self.balance! - amount
+
+                if self.balance! == 0.0 {
+                    emit LockUpBalanceWithdrawn(owner: self.owner!.address, recipient: self.recipient)
+                }
             }
+
+            emit LockUpWithdrawn(owner: self.owner!.address, recipient: self.recipient, amount: amount)
         }
 
         pub fun setReleasedAt(releasedAt: UFix64) {
             self.releasedAt = releasedAt
+            emit LockUpReleasedAtChanged(owner: self.owner!.address, releasedAt: releasedAt)
         }
 
         pub fun setRecipient(recipient: Address) {
             self.recipient = recipient
+            emit LockUpRecipientChanged(owner: self.owner!.address, recipient: recipient)
+        }
+
+        pub fun setBalance(balance: UFix64) {
+            self.balance = balance
+            emit LockUpBalanceChanged(owner: self.owner!.address, balance: balance)
         }
     }
 
-    pub fun createLockUp(releasedAt: UFix64, recipient: Address, balance: UFix64?): @LockUp {
-        return <- create LockUp(releasedAt: releasedAt, recipient: recipient, balance: balance)
+    pub fun createLockUp(owner: Address, releasedAt: UFix64, recipient: Address, balance: UFix64?): @LockUp {
+        let lockUp <- create LockUp(releasedAt: releasedAt, recipient: recipient, balance: balance)
+
+        emit LockUpCreated(owner: owner, recipient: recipient)
+
+        return <- lockUp
+    }
+
+    pub fun destroyLockUp(lockUp: @LockUp) {
+        let lockUpInfo = lockUp.getInfo()
+
+        destroy lockUp
+
+        emit LockUpDestroyed(owner: lockUpInfo.owner!, recipient: lockUpInfo.recipient)
     }
 
     pub fun registerVault(recipient: Address, vault: Capability<&FlowToken.Vault>) {
