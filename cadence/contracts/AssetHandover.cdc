@@ -52,16 +52,16 @@ pub contract AssetHandover {
     }
 
     pub resource LockUp: LockUpPublic, LockUpPrivate {
-        access(account) var releasedAt: UFix64
-        access(account) var recipient: Address
-        access(account) var balance: UFix64?
-        access(account) let vault: Capability<&FlowToken.Vault>
+        access(self) var releasedAt: UFix64
+        access(self) var recipient: Address
+        access(self) var balance: UFix64?
+        access(self) let vault: Capability<&FungibleToken.Vault>
 
         init(
             releasedAt: UFix64,
             recipient: Address,
             balance: UFix64?,
-            vault: Capability<&FlowToken.Vault>
+            vault: Capability<&FungibleToken.Vault>
         ) {
             self.releasedAt = releasedAt
             self.recipient = recipient
@@ -124,7 +124,7 @@ pub contract AssetHandover {
         }
     }
 
-    pub fun createLockUp(releasedAt: UFix64, recipient: Address, balance: UFix64?, vault: Capability<&FlowToken.Vault>): @LockUp {
+    pub fun createLockUp(releasedAt: UFix64, recipient: Address, balance: UFix64?, vault: Capability<&FungibleToken.Vault>): @LockUp {
         let lockUp <- create LockUp(releasedAt: releasedAt, recipient: recipient, balance: balance, vault: vault)
 
         emit LockUpCreated(owner: vault.address, recipient: recipient)
