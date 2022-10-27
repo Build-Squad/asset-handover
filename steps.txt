@@ -2,8 +2,6 @@
 flow transactions send ./cadence/transactions/createLockUp.cdc 1667215622.0 0x2d8be05f3e3f3b4a --network=testnet --signer=mario
 # Call the LockUpInfo script, to view the resource info
 flow scripts execute ./cadence/scripts/getLockUpInfo.cdc 0x2f416cf94d1bffe6 --network=testnet
-# Check that the FlowToken.Vault mapping was registered for the recipient
-flow scripts execute ./cadence/scripts/checkRecipientVault.cdc 0x2d8be05f3e3f3b4a --network=testnet
 # Attempt to withdraw the Vault. This should raise an error: The assets are still in lock-up period!
 flow transactions send ./cadence/transactions/withdrawLockUp.cdc 0x2f416cf94d1bffe6 50.0 --network=testnet --signer=peter
 # Change the releasedAt timestamp, to a time in the past

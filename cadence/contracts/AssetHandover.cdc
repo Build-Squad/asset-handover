@@ -1,12 +1,12 @@
 import FungibleToken from "./interfaces/FungibleToken.cdc"
-import FlowToken from "./tokens/FlowToken.cdc"
 
 pub contract AssetHandover {
-
+    // Define constants for all the available paths
     pub let LockUpStoragePath: StoragePath
     pub let LockUpPrivatePath: PrivatePath
     pub let LockUpPublicPath: PublicPath
 
+    // Define the events emitted from the contract
     pub event LockUpCreated(owner: Address, recipient: Address)
     pub event LockUpDestroyed(owner: Address, recipient: Address)
     pub event LockUpRecipientChanged(owner: Address, recipient: Address)
@@ -16,7 +16,6 @@ pub contract AssetHandover {
     pub event LockUpBalanceWithdrawn(owner: Address, recipient: Address)
 
     init() {
-
         self.LockUpStoragePath = /storage/AssetHandover
         self.LockUpPrivatePath = /private/AssetHandover
         self.LockUpPublicPath = /public/AssetHandover
@@ -56,7 +55,7 @@ pub contract AssetHandover {
         access(account) var releasedAt: UFix64
         access(account) var recipient: Address
         access(account) var balance: UFix64?
-        access(account) var vault: Capability<&FlowToken.Vault>
+        access(account) let vault: Capability<&FlowToken.Vault>
 
         init(
             releasedAt: UFix64,
@@ -93,11 +92,10 @@ pub contract AssetHandover {
                 panic("You cannot withdraw more than the remaining balance of: ".concat(self.balance!.toString()))
             }
 
-            let vaultRefference = self.vault.borrow() ?? panic("Unable to get owner vault refference for recipient")
-
-            let vault = receiver.borrow() ?? panic("Could not borrow vault reference")
-            // Withdraws the requested amount from the provided Vault, to one of the recipients
-            vault.deposit(from: <- vaultRefference!.withdraw(amount: amount))
+            let ownerVault = self.vault.borrow() ?? panic("Could not borrow owner vault reference!")
+            let recipientvault = receiver.borrow() ?? panic("Could not borrow recipient vault reference!")
+            // Withdraws the requested amount from the owner's vault, to the one of the recipient
+            recipientvault.deposit(from: <- ownerVault.withdraw(amount: amount))
 
             if self.balance != nil {
                 self.balance = self.balance! - amount
@@ -126,10 +124,10 @@ pub contract AssetHandover {
         }
     }
 
-    pub fun createLockUp(owner: Address, releasedAt: UFix64, recipient: Address, balance: UFix64?, vault: Capability<&FlowToken.Vault>): @LockUp {
+    pub fun createLockUp(releasedAt: UFix64, recipient: Address, balance: UFix64?, vault: Capability<&FlowToken.Vault>): @LockUp {
         let lockUp <- create LockUp(releasedAt: releasedAt, recipient: recipient, balance: balance, vault: vault)
 
-        emit LockUpCreated(owner: owner, recipient: recipient)
+        emit LockUpCreated(owner: vault.address, recipient: recipient)
 
         return <- lockUp
     }
@@ -141,5 +139,4 @@ pub contract AssetHandover {
 
         emit LockUpDestroyed(owner: lockUpInfo.owner!, recipient: lockUpInfo.recipient)
     }
-
 }
