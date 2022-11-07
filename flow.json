@@ -1,21 +1,53 @@
 {
-	"emulators": {
-		"default": {
-			"port": 3569,
-			"serviceAccount": "emulator-account"
-		}
-	},
-	"contracts": {},
-	"networks": {
-		"emulator": "127.0.0.1:3569",
-		"mainnet": "access.mainnet.nodes.onflow.org:9000",
-		"testnet": "access.devnet.nodes.onflow.org:9000"
-	},
-	"accounts": {
-		"emulator-account": {
-			"address": "f8d6e0586b0a20c7",
-			"key": "2619878f0e2ff438d17835c2a4561cb87b4d24d72d12ec34569acd0dd4af7c21"
-		}
-	},
-	"deployments": {}
+    "emulators": {
+        "default": {
+            "port": 3569,
+            "serviceAccount": "emulator-account"
+        }
+    },
+    "contracts": {
+        "FungibleToken": {
+            "source": "./cadence/contracts/interfaces/FungibleToken.cdc",
+            "aliases": {
+                "testnet": "0x9a0766d93b6608b7"
+            }
+        },
+        "FlowToken": {
+            "source": "./cadence/contracts/tokens/FlowToken.cdc",
+            "aliases": {
+                "testnet": "0x7e60df042a9c0868"
+            }
+        },
+        "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
+    },
+    "networks": {
+        "emulator": "127.0.0.1:3569",
+        "mainnet": "access.mainnet.nodes.onflow.org:9000",
+        "testnet": "access.devnet.nodes.onflow.org:9000"
+    },
+    "accounts": {
+        "emulator-account": {
+            "address": "f8d6e0586b0a20c7",
+            "key": "2619878f0e2ff438d17835c2a4561cb87b4d24d72d12ec34569acd0dd4af7c21"
+        },
+        "hero": {
+            "address": "dfb83cb1b6c131f4",
+            "key": "4540debf778927158861629e6c2590e75c060fcc106bae773183d273c2e1d423"
+        },
+        "peter": {
+            "address": "2d8be05f3e3f3b4a",
+            "key": "70645d9238889ede4f3d1de4ae0035904660cc183ef61490172b10b56a979522"
+        },
+        "mario": {
+            "address": "2f416cf94d1bffe6",
+            "key": "037f61289562c7d61ee4ab755c4eca772b79059b9d858dc0a8e70e3c3d7cd856"
+        }
+    },
+    "deployments": {
+        "testnet": {
+            "hero": [
+                "AssetHandover"
+            ]
+        }
+    }
 }
