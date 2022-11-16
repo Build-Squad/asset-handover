@@ -8,7 +8,7 @@ transaction(identifier: String) {
     let switchboardRef:  &FungibleTokenSwitchboard.Switchboard
 
     prepare(account: AuthAccount) {
-        let info = AssetHandover.getTokenInfoMapping()[identifier]
+        let info = AssetHandover.getFungibleTokenInfoMapping()[identifier]
             ?? panic("Non-supported token.")
 
         self.vaultCapabilty = account.getCapability<&{FungibleToken.Receiver}>(
@@ -20,6 +20,10 @@ transaction(identifier: String) {
             account.save<@FungibleToken.Vault>(<- vault, to: info.storagePath)
             account.link<&CONTRACT_NAME.Vault{FungibleToken.Receiver}>(
                 info.receiverPath,
+                target: info.storagePath
+            )
+            account.link<&CONTRACT_NAME.Vault{FungibleToken.Balance}>(
+                info.balancePath,
                 target: info.storagePath
             )
         }

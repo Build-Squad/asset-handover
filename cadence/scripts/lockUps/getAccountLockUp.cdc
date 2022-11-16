@@ -1,10 +1,10 @@
-import AssetHandover from "../contracts/AssetHandover.cdc"
+import AssetHandover from "../../contracts/AssetHandover.cdc"
 
 pub fun main(address: Address): AssetHandover.LockUpInfo {
     let lockUpRef = getAccount(address)
         .getCapability(AssetHandover.LockUpPublicPath)
         .borrow<&AssetHandover.LockUp{AssetHandover.LockUpPublic}>()
-        ?? panic("Could not borrow AssetHandover.LockUp reference!")
+        ?? panic("Could not borrow AssetHandover.LockUpPublic reference!")
 
     return lockUpRef.getInfo()
 }

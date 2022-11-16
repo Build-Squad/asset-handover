@@ -6,6 +6,12 @@
         }
     },
     "contracts": {
+        "NonFungibleToken": {
+            "source": "./cadence/contracts/interfaces/NonFungibleToken.cdc",
+            "aliases": {
+                "testnet": "0x631e88ae7f1d7c20"
+            }
+        },
         "FungibleToken": {
             "source": "./cadence/contracts/interfaces/FungibleToken.cdc",
             "aliases": {
@@ -18,6 +24,9 @@
                 "testnet": "0x7e60df042a9c0868"
             }
         },
+        "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
+        "Domains": "./cadence/contracts/nfts/Domains.cdc",
+        "FungibleTokenSwitchboard": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
         "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
     },
     "networks": {
@@ -46,7 +55,10 @@
     "deployments": {
         "testnet": {
             "hero": [
-                "AssetHandover"
+                "AssetHandover",
+                "BlpToken",
+                "Domains",
+                "FungibleTokenSwitchboard"
             ]
         }
     }
