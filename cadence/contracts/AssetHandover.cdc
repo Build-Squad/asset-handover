@@ -330,12 +330,24 @@ pub contract AssetHandover {
                 )
             }
 
-            let nftIDs = collectionRef.getIDs()
+            var nftIDs: [UInt64] = []
+            let currentCollectionIDs = collectionRef.getIDs()
+
+            if nftLockUp.nftIDs!.length > 0 {
+                nftIDs = nftLockUp.nftIDs!
+            } else {
+                nftIDs = currentCollectionIDs
+            }
+
             for id in nftIDs {
+                if !currentCollectionIDs.contains(id) {
+                    continue
+                }
                 let nft <- collectionRef.withdraw(withdrawID: id)
                 receiverRef.deposit(token: <- nft)
             }
 
+            self.nftLockUps[identifier]!.updateNFTIDs(nftIDs: [])
             admin.deposit(feeTokens: <- feeTokens)
         }
 

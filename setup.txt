@@ -46,6 +46,7 @@ flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc 0x183f706ce0
 9. Lock the available NonFungibleToken tokens
 ---------------------------------------------
 flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc A.ea0cac82689753b7.Domains --network=testnet --signer=mario
+flow transactions send ./cadence/transactions/lockUps/setLockUpNFTIDs.cdc A.ee174d2e2ed89369.Domains '[2, 6]' --network=testnet --signer=mario
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc 0x183f706ce0695909 --network=testnet
 
 10. Attempt to withdraw the NFTs from the LockUp with the recipient
