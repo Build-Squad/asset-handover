@@ -1,0 +1,25 @@
+{
+  "name": "asset-handover",
+  "version": "1.0.0",
+  "description": "AssetHandover is a Dapp that enables account owners to hand over their assets to a recipient, at a future release date.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Build-Squad/asset-handover.git"
+  },
+  "keywords": [
+    "flow",
+    "cadence",
+    "web3"
+  ],
+  "author": "BuildSquad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Build-Squad/asset-handover/issues"
+  },
+  "homepage": "https://github.com/Build-Squad/asset-handover#readme"
+}

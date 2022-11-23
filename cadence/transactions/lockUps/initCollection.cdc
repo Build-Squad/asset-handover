@@ -14,7 +14,7 @@ transaction(identifier: String) {
         if !receiverRef.check() {
             let collection <- Domains.createEmptyCollection()
             account.save<@NonFungibleToken.Collection>(<- collection, to: info.storagePath)
-            account.link<&Domains.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, Domains.CollectionPublic}>(
+            account.link<&Domains.Collection{NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,Domains.CollectionPublic}>(
                 info.publicPath,
                 target: info.storagePath
             )

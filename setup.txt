@@ -52,8 +52,7 @@ flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc 0x183f706ce0
 10. Attempt to withdraw the NFTs from the LockUp with the recipient
 -------------------------------------------------------------------
 flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc A.ea0cac82689753b7.Domains 0x183f706ce0695909 --network=testnet --signer=peter
-./cadence/transactions/lockUps/generateInitCollectionTransaction.sh 'A.ea0cac82689753b7.Domains' '\&Domains.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, Domains.CollectionPublic}' '\&Domains.Collection'
-flow transactions send ./cadence/transactions/lockUps/initCollection.cdc A.ea0cac82689753b7.Domains --network=testnet --signer=peter
+node cadence/transactions/lockUps/initCollection.js A.ea0cac82689753b7.Domains peter
 flow scripts execute ./cadence/scripts/domains/getCollectionIDs.cdc 0xfc58c9b1f19359d6 --network=testnet
 flow transactions send ./cadence/transactions/lockUps/setLockUpReleasedAt.cdc 1663224523.0 --network=testnet --signer=mario
 flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc A.ea0cac82689753b7.Domains 0x183f706ce0695909 --network=testnet --signer=peter
@@ -64,13 +63,11 @@ flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc 
 flow transactions send ./cadence/transactions/fungibleTokenSwitchboard/setupAccount.cdc --network=testnet --signer=peter
 flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc A.7e60df042a9c0868.FlowToken 0x183f706ce0695909 550.0 --network=testnet --signer=peter
 flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc A.7e60df042a9c0868.FlowToken 0x183f706ce0695909 150.0 --network=testnet --signer=peter
-./cadence/transactions/fungibleTokenSwitchboard/generateAddVaultCapabilityTransaction.sh A.7e60df042a9c0868.FlowToken
-flow transactions send ./cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.cdc A.7e60df042a9c0868.FlowToken --network=testnet --signer=peter
+node cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.js A.7e60df042a9c0868.FlowToken peter
 flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc A.7e60df042a9c0868.FlowToken 0x183f706ce0695909 150.0 --network=testnet --signer=peter
 flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc A.7e60df042a9c0868.FlowToken 0x183f706ce0695909 450.0 --network=testnet --signer=peter
 
 flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc A.ea0cac82689753b7.BlpToken 0x183f706ce0695909 500.0 --network=testnet --signer=peter
-./cadence/transactions/fungibleTokenSwitchboard/generateAddVaultCapabilityTransaction.sh 'A.7e60df042a9c0868.BlpToken'
-flow transactions send ./cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.cdc A.4d452103055f8f21.BlpToken --network=testnet --signer=peter
+node cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.js A.ea0cac82689753b7.BlpToken peter
 flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc A.ea0cac82689753b7.BlpToken 0x183f706ce0695909 500.0 --network=testnet --signer=peter
 flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc 0xfc58c9b1f19359d6 --network=testnet
