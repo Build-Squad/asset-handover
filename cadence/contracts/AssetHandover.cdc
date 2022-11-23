@@ -367,6 +367,13 @@ pub contract AssetHandover {
             collection: Capability<&NonFungibleToken.Collection>,
             nftIDs: [UInt64]?
         ) {
+            if nftIDs != nil && nftIDs!.length > 0 {
+                self.checkNFTExistence(
+                    collection: collection,
+                    nftIDs: nftIDs!
+                )
+            }
+
             self.nftLockUps[identifier] = NFTLockUp(
                 collection: collection,
                 nftIDs: nftIDs
@@ -396,7 +403,27 @@ pub contract AssetHandover {
             if !self.nftLockUps.containsKey(identifier) {
                 panic("Non-supported NonFungibleToken.")
             }
+
+            if nftIDs.length > 0 {
+                self.checkNFTExistence(
+                    collection: self.nftLockUps[identifier]!.collection,
+                    nftIDs: nftIDs
+                )
+            }
+
             self.nftLockUps[identifier]!.updateNFTIDs(nftIDs: nftIDs)
+        }
+
+        priv fun checkNFTExistence(
+            collection: Capability<&NonFungibleToken.Collection>,
+            nftIDs: [UInt64]
+        ) {
+            let collectionRef = collection.borrow()
+                ?? panic("Could not borrow NonFungibleToken.Collection reference.")
+
+            for nftID in nftIDs {
+                let nft = collectionRef.borrowNFT(id: nftID)
+            }
         }
 
         destroy() {
