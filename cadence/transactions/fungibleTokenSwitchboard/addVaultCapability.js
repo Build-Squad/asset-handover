@@ -37,7 +37,7 @@ try {
   );
 
   const transactionCommand = `
-    flow transactions send ${transactionPath} ${contractIdentifier} --network=testnet --signer=${signer}
+    flow transactions send ${transactionPath} ${contractIdentifier} --network=testnet --signer=${signer} -f flow.testnet.json
   `;
   console.log(transactionCommand);
 

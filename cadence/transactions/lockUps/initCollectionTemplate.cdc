@@ -1,5 +1,6 @@
 import AssetHandover from "../../contracts/AssetHandover.cdc"
 import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
+import MetadataViews from 0x631e88ae7f1d7c20
 import CONTRACT_NAME from 0xCONTRACT_ADDRESS
 
 transaction(identifier: String) {

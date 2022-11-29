@@ -478,6 +478,10 @@ pub contract AssetHandover {
         recipient: Address,
         feeTokens: @FungibleToken.Vault
     ): @LockUp {
+        pre {
+            releasedAt > getCurrentBlock().timestamp : "releasedAt should be a future date timestamp"
+        }
+
         let admin = self.getAdmin()
         let feeSent = feeTokens.balance
 

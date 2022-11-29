@@ -16,7 +16,7 @@ transaction(identifier: String) {
         )
 
         if !self.vaultCapabilty.check() {
-            let vault <- CONTRACT_NAME.createEmptyVault()
+            let vault <- CONTRACT_NAME.createEmptyVault() as! @FungibleToken.Vault
             account.save<@FungibleToken.Vault>(<- vault, to: info.storagePath)
             account.link<&CONTRACT_NAME.Vault{FungibleToken.Receiver}>(
                 info.receiverPath,
