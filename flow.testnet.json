@@ -1,33 +1,27 @@
 {
-    "emulators": {
-        "default": {
-            "port": 3569,
-            "serviceAccount": "emulator-account"
-        }
-    },
     "contracts": {
         "NonFungibleToken": {
             "source": "./cadence/contracts/interfaces/NonFungibleToken.cdc",
             "aliases": {
-                "emulator": "0xf8d6e0586b0a20c7"
+                "testnet": "0x631e88ae7f1d7c20"
             }
         },
         "FungibleToken": {
             "source": "./cadence/contracts/interfaces/FungibleToken.cdc",
             "aliases": {
-                "emulator": "0xee82856bf20e2aa6"
+                "testnet": "0x9a0766d93b6608b7"
             }
         },
         "FlowToken": {
             "source": "./cadence/contracts/tokens/FlowToken.cdc",
             "aliases": {
-                "emulator": "0x0ae53cb6e3f42a79"
+                "testnet": "0x7e60df042a9c0868"
             }
         },
         "FUSD": {
             "source": "./cadence/contracts/tokens/FUSD.cdc",
             "aliases": {
-                "emulator": "0x0ae53cb6e3f42a79"
+                "testnet": "0xe223d8a629e49c68"
             }
         },
         "FungibleTokenSwitchboard": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
@@ -36,18 +30,25 @@
         "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
     },
     "networks": {
-        "emulator": "127.0.0.1:3569",
         "testnet": "access.devnet.nodes.onflow.org:9000"
     },
     "accounts": {
-        "emulator-account": {
-            "address": "f8d6e0586b0a20c7",
-            "key": "2619878f0e2ff438d17835c2a4561cb87b4d24d72d12ec34569acd0dd4af7c21"
+        "testnet-account": {
+            "address": "0xea683bfbae90f2c7",
+            "key": "2951d7e987c81f8f58536aca42854aa081c67be3f3f8f2522c52e8d679192e30"
+        },
+        "holder": {
+            "address": "0xf4b9a6a4b1a37885",
+            "key": "87d766cca402b1ac59e600caab141cabf824812586a6f90186526a4a30b8afff"
+        },
+        "recipient": {
+            "address": "0x68fbe6c913d0479d",
+            "key": "e46349fe76e39cbe28ddf1a1b02211449f8fe52a78ceedf1829b17a1b0662cbf"
         }
     },
     "deployments": {
-        "emulator": {
-            "emulator-account": [
+        "testnet": {
+            "testnet-account": [
                 "FungibleTokenSwitchboard",
                 "BlpToken",
                 "Domains",
