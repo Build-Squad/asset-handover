@@ -1,5 +1,6 @@
 import Domains from "../../contracts/nfts/Domains.cdc"
 import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
+import MetadataViews from "../../contracts/utility/MetadataViews.cdc"
 
 transaction() {
     prepare(account: AuthAccount) {
@@ -8,7 +9,7 @@ transaction() {
             to: Domains.DomainsStoragePath
         )
 
-        account.link<&Domains.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, Domains.CollectionPublic}>(
+        account.link<&Domains.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, Domains.CollectionPublic, MetadataViews.ResolverCollection}>(
             Domains.DomainsPublicPath,
             target: Domains.DomainsStoragePath
         )

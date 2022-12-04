@@ -1,5 +1,6 @@
 import AssetHandover from "../../contracts/AssetHandover.cdc"
 import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
+import MetadataViews from "../../contracts/utility/MetadataViews.cdc"
 import FlowToken from "../../contracts/tokens/FlowToken.cdc"
 import BlpToken from "../../contracts/tokens/BlpToken.cdc"
 import Domains from "../../contracts/nfts/Domains.cdc"
@@ -41,7 +42,7 @@ transaction() {
             publicPath: /public/flowNameServiceDomains,
             privatePath: /private/flowNameServiceDomains,
             storagePath: /storage/flowNameServiceDomains,
-            publicType: Type<&Domains.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, Domains.CollectionPublic}>(),
+            publicType: Type<&Domains.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, Domains.CollectionPublic, MetadataViews.ResolverCollection}>(),
             privateType: Type<&Domains.Collection>()
         )
         self.admin.addNonFungibleTokenInfo(identifier: identifier, tokenInfo: nonFungibleTokenInfo)

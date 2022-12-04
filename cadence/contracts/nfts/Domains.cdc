@@ -1,6 +1,7 @@
 import FungibleToken from "../interfaces/FungibleToken.cdc"
 import FlowToken from "../tokens/FlowToken.cdc"
 import NonFungibleToken from "../interfaces/NonFungibleToken.cdc"
+import MetadataViews from "../utility/MetadataViews.cdc"
 
 pub contract Domains: NonFungibleToken {
     // Chars that are forbidden from being present in Domain names
@@ -58,7 +59,9 @@ pub contract Domains: NonFungibleToken {
         // Create the Collection resource and save it in the DomainsStoragePath
         self.account.save(<- self.createEmptyCollection(), to: Domains.DomainsStoragePath)
         // This Capability only allows for calling these functions: deposit() / getIDs() / borrowNFT() / borrowDomain()
-        self.account.link<&Domains.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, Domains.CollectionPublic}>(self.DomainsPublicPath, target: self.DomainsStoragePath)
+        self.account.link<&Domains.Collection{NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, Domains.CollectionPublic, MetadataViews.ResolverCollection}>(
+            self.DomainsPublicPath, target: self.DomainsStoragePath
+        )
         // This Capability allows accessing all fields and functions of the Domains.Collection resource
         self.account.link<&Domains.Collection>(self.DomainsPrivatePath, target: self.DomainsStoragePath)
 
@@ -129,7 +132,7 @@ pub contract Domains: NonFungibleToken {
         pub fun setAddress(addr: Address)
     }
 
-    pub resource NFT: DomainPublic, DomainPrivate, NonFungibleToken.INFT {
+    pub resource NFT: DomainPublic, DomainPrivate, NonFungibleToken.INFT, MetadataViews.Resolver {
         pub let id: UInt64
         pub let name: String
         pub let nameHash: String
@@ -146,6 +149,27 @@ pub contract Domains: NonFungibleToken {
             self.createdAt = getCurrentBlock().timestamp
             self.address = nil
             self.bio = ""
+        }
+
+        pub fun getViews(): [Type] {
+            return [
+                Type<MetadataViews.Display>()
+            ]
+        }
+
+        pub fun resolveView(_ view: Type): AnyStruct? {
+            switch view {
+                case Type<MetadataViews.Display>():
+                    return MetadataViews.Display(
+                        name: self.name,
+                        description: self.bio,
+                        thumbnail: MetadataViews.HTTPFile(
+                            url: "https://www.flow-domains.com/".concat(self.nameHash)
+                        )
+                    )
+
+            }
+            return nil
         }
 
         pub fun getBio(): String {
@@ -215,7 +239,7 @@ pub contract Domains: NonFungibleToken {
         pub fun borrowDomainPrivate(id: UInt64): &Domains.NFT
     }
 
-    pub resource Collection: CollectionPublic, CollectionPrivate, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
+    pub resource Collection: CollectionPublic, CollectionPrivate, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, MetadataViews.ResolverCollection {
         // Mapping that associates the NFT Token IDs with their resources
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
 
@@ -318,6 +342,19 @@ pub contract Domains: NonFungibleToken {
             // We need an authorized reference, to downcast to &Domains.NFT
             let ref = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
             return ref as! &Domains.NFT
+        }
+
+        /// Gets a reference to the NFT only conforming to the `{MetadataViews.Resolver}`
+        /// interface so that the caller can retrieve the views that the NFT
+        /// is implementing and resolve them
+        ///
+        /// @param id: The ID of the wanted NFT
+        /// @return The resource reference conforming to the Resolver interface
+        ///
+        pub fun borrowViewResolver(id: UInt64): &AnyResource{MetadataViews.Resolver} {
+            let nft = (&self.ownedNFTs[id] as auth &NonFungibleToken.NFT?)!
+            let domainsNFT = nft as! &Domains.NFT
+            return domainsNFT
         }
 
         // Destructor for the ownedNFTs mapping

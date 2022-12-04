@@ -24,6 +24,12 @@
                 "testnet": "0xe223d8a629e49c68"
             }
         },
+        "MetadataViews": {
+            "source": "./cadence/contracts/utility/MetadataViews.cdc",
+            "aliases": {
+                "testnet": "0x631e88ae7f1d7c20"
+            }
+        },
         "FungibleTokenSwitchboard": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
         "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
         "Domains": "./cadence/contracts/nfts/Domains.cdc",
