@@ -1,7 +1,7 @@
 import AssetHandover from "../../contracts/AssetHandover.cdc"
 import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
+import MetadataViews from "../../contracts/utility/MetadataViews.cdc"
 import TopShot from 0x877931736ee77cff
-import MetadataViews from 0x631e88ae7f1d7c20
 
 transaction {
     let admin: &AssetHandover.Admin
