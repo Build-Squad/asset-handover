@@ -27,11 +27,17 @@
         "FUSD": {
             "source": "./cadence/contracts/tokens/FUSD.cdc",
             "aliases": {
-                "emulator": "0x0ae53cb6e3f42a79"
+                "emulator": "0xf8d6e0586b0a20c7"
             }
         },
-        "MetadataViews": "./cadence/contracts/utility/MetadataViews.cdc",
+        "MetadataViews": {
+            "source": "./cadence/contracts/utility/MetadataViews.cdc",
+            "aliases": {
+                "emulator": "0xf8d6e0586b0a20c7"
+            }
+        },
         "FungibleTokenSwitchboard": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
+        "FungibleTokenMetadataViews": "./cadence/contracts/utility/FungibleTokenMetadataViews.cdc",
         "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
         "Domains": "./cadence/contracts/nfts/Domains.cdc",
         "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
@@ -43,13 +49,14 @@
     },
     "accounts": {
         "emulator-account": {
-            "address": "f8d6e0586b0a20c7",
+            "address": "0xf8d6e0586b0a20c7",
             "key": "2619878f0e2ff438d17835c2a4561cb87b4d24d72d12ec34569acd0dd4af7c21"
         }
     },
     "deployments": {
         "emulator": {
             "emulator-account": [
+                "FungibleTokenMetadataViews",
                 "FungibleTokenSwitchboard",
                 "BlpToken",
                 "Domains",

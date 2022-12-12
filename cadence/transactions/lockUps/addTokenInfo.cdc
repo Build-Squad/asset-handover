@@ -30,7 +30,7 @@ transaction() {
         fungibleTokenInfo = AssetHandover.FungibleTokenInfo(
             name: "BLP",
             receiverPath: /public/blpTokenReceiver,
-            balancePath: /public/blpTokenBalance,
+            balancePath: /public/blpTokenMetadata,
             privatePath: /private/blpTokenVault,
             storagePath: /storage/blpTokenVault
         )

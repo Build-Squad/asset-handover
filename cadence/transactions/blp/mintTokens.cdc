@@ -7,7 +7,7 @@ transaction(amount: UFix64) {
         ) ?? panic("Could not borrow BlpToken.Minter reference")
 
         let vault = account.borrow<&BlpToken.Vault>(
-            from: BlpToken.vaultPath
+            from: BlpToken.storagePath
         ) ?? panic("Could not borrow BlpToken.Vault reference")
 
         let blpTokens <- minter.mintTokens(amount: amount)
