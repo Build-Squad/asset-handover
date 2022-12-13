@@ -1,5 +1,4 @@
 import Domains from "../../contracts/nfts/Domains.cdc"
-import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
 import MetadataViews from "../../contracts/utility/MetadataViews.cdc"
 
 pub struct DomainNFT {
@@ -25,9 +24,10 @@ pub struct DomainNFT {
 }
 
 pub fun main(address: Address, nftID: UInt64): DomainNFT? {
-    let collectionRef = getAccount(address).getCapability<&Domains.Collection{MetadataViews.ResolverCollection}>(
-        Domains.DomainsPublicPath
-    ).borrow() ?? panic("Could not borrow Collection reference")
+    let collectionRef = getAccount(address)
+        .getCapability<&Domains.Collection{MetadataViews.ResolverCollection}>(
+            Domains.DomainsPublicPath
+        ).borrow() ?? panic("Could not borrow Collection reference")
 
     let nft = collectionRef.borrowViewResolver(id: nftID)
 

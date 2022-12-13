@@ -218,8 +218,14 @@ flow transactions send ./cadence/transactions/blp/transferTokens.cdc ${HOLDER_AD
 # View BLP balance of holder account.
 flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
 
-=>
+# => Output:
 Result: 3000.00000000
+
+# View the FungibleTokenMetadataViews.FTDisplay for a BlpToken.Vault resource
+flow scripts execute ./cadence/scripts/blp/getDisplayView.cdc ${HOLDER_ADDRESS}
+
+# => Output:
+Result: A.f8d6e0586b0a20c7.FungibleTokenMetadataViews.FTDisplay(name: "Blp Fungible Token", symbol: "BLP", description: "This fungible token is used as an example to help you develop your next FT #onFlow.", externalURL: A.f8d6e0586b0a20c7.MetadataViews.ExternalURL(url: "https://blp-ft.onflow.org"), logos: A.f8d6e0586b0a20c7.MetadataViews.Medias(items: [A.f8d6e0586b0a20c7.MetadataViews.Media(file: A.f8d6e0586b0a20c7.MetadataViews.HTTPFile(url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"), mediaType: "image/svg+xml")]), socials: {"twitter": A.f8d6e0586b0a20c7.MetadataViews.ExternalURL(url: "https://twitter.com/flow_blockchain")})
 ```
 
 ### 5. Setup the `Domains` NFT smart contract
@@ -250,6 +256,12 @@ flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc ${HOLDER
 
 # => Output:
 Result: [A.ea683bfbae90f2c7.Domains.DomainInfo(id: 0, owner: 0xf4b9a6a4b1a37885, name: "build-squad.fns", nameHash: "c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", expiresAt: 1700837244.00000000, address: 0xf4b9a6a4b1a37885, bio: "We are BuildSquad. #Web3 enthusiasts and builders!", createdAt: 1669301244.00000000)]
+
+# View the MetadataViews.Display for a Domains.NFT resource
+flow scripts execute ./cadence/scripts/domains/getDisplayView.cdc ${HOLDER_ADDRESS} 0
+
+# => Output:
+Result: s.4d9b6abe56ec2ffb162a2a09896c1e1458d5f24732ac4ba63dc536c1bc5082f6.DomainNFT(name: "build-squad", description: "We are BuildSquad. #Web3 enthusiasts and builders!", thumbnail: "https://www.flow-domains.com/c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", owner: 0xf8d6e0586b0a20c7, type: Type<A.f8d6e0586b0a20c7.Domains.NFT>())
 ```
 
 ### 7. Create your first `AssetHandover.LockUp` resource
