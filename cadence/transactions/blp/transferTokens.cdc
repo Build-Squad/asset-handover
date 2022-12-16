@@ -4,7 +4,7 @@ import BlpToken from "../../contracts/tokens/BlpToken.cdc"
 transaction(receiver: Address, amount: UFix64) {
     prepare(account: AuthAccount) {
         let blpVault = account.borrow<&BlpToken.Vault>(
-            from: BlpToken.vaultPath
+            from: BlpToken.storagePath
         ) ?? panic("Could not borrow BlpToken.Vault reference")
 
         let receiverRef = getAccount(receiver)

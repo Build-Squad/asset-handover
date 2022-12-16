@@ -30,7 +30,18 @@
                 "testnet": "0x631e88ae7f1d7c20"
             }
         },
-        "FungibleTokenSwitchboard": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
+        "FungibleTokenSwitchboard": {
+            "source": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
+            "aliases": {
+                "testnet": "0x9a0766d93b6608b7"
+            }
+        },
+        "FungibleTokenMetadataViews": {
+            "source": "./cadence/contracts/utility/FungibleTokenMetadataViews.cdc",
+            "aliases": {
+                "testnet": "0x9a0766d93b6608b7"
+            }
+        },
         "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
         "Domains": "./cadence/contracts/nfts/Domains.cdc",
         "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
@@ -55,7 +66,6 @@
     "deployments": {
         "testnet": {
             "testnet-account": [
-                "FungibleTokenSwitchboard",
                 "BlpToken",
                 "Domains",
                 "AssetHandover"

@@ -153,7 +153,8 @@ pub contract Domains: NonFungibleToken {
 
         pub fun getViews(): [Type] {
             return [
-                Type<MetadataViews.Display>()
+                Type<MetadataViews.Display>(),
+                Type<MetadataViews.NFTCollectionData>()
             ]
         }
 
@@ -167,8 +168,20 @@ pub contract Domains: NonFungibleToken {
                             url: "https://www.flow-domains.com/".concat(self.nameHash)
                         )
                     )
-
+                case Type<MetadataViews.NFTCollectionData>():
+                    return MetadataViews.NFTCollectionData(
+                        storagePath: Domains.DomainsStoragePath,
+                        publicPath: Domains.DomainsPublicPath,
+                        providerPath: Domains.DomainsPrivatePath,
+                        publicCollection: Type<&Domains.Collection{Domains.CollectionPublic}>(),
+                        publicLinkedType: Type<&Domains.Collection{Domains.CollectionPublic, NonFungibleToken.CollectionPublic, NonFungibleToken.Receiver, MetadataViews.ResolverCollection}>(),
+                        providerLinkedType: Type<&Domains.Collection>(),
+                        createEmptyCollectionFunction: (fun (): @NonFungibleToken.Collection {
+                            return <-Domains.createEmptyCollection()
+                        })
+                    )
             }
+
             return nil
         }
 

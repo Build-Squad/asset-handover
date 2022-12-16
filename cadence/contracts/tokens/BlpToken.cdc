@@ -1,13 +1,14 @@
 import FungibleToken from "../interfaces/FungibleToken.cdc"
+import MetadataViews from "../utility/MetadataViews.cdc"
+import FungibleTokenMetadataViews from "../utility/FungibleTokenMetadataViews.cdc"
 
 pub contract BlpToken: FungibleToken {
     pub let adminPath: StoragePath
     pub let minterPath: StoragePath
-    pub let vaultPath: StoragePath
-    pub let balancePath: PublicPath
+    pub let storagePath: StoragePath
+    pub let providerPath: PrivatePath
     pub let receiverPath: PublicPath
-
-    pub let tokenAlias: String
+    pub let metadataPath: PublicPath
 
     pub var totalSupply: UFix64
 
@@ -25,7 +26,7 @@ pub contract BlpToken: FungibleToken {
 
     pub event BurnerCreated()
 
-    pub resource Vault: FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance {
+    pub resource Vault: FungibleToken.Provider, FungibleToken.Receiver, FungibleToken.Balance, MetadataViews.Resolver {
         pub var balance: UFix64
 
         init(balance: UFix64) {
@@ -44,6 +45,57 @@ pub contract BlpToken: FungibleToken {
             emit TokensDeposited(amount: vault.balance, to: self.owner?.address)
             vault.balance = 0.0
             destroy vault
+        }
+
+        pub fun getViews(): [Type] {
+            return [
+                Type<FungibleTokenMetadataViews.FTView>(),
+                Type<FungibleTokenMetadataViews.FTDisplay>(),
+                Type<FungibleTokenMetadataViews.FTVaultData>()
+            ]
+        }
+
+        pub fun resolveView(_ view: Type): AnyStruct? {
+            switch view {
+                case Type<FungibleTokenMetadataViews.FTView>():
+                    return FungibleTokenMetadataViews.FTView(
+                        ftDisplay: self.resolveView(Type<FungibleTokenMetadataViews.FTDisplay>()) as! FungibleTokenMetadataViews.FTDisplay?,
+                        ftVaultData: self.resolveView(Type<FungibleTokenMetadataViews.FTVaultData>()) as! FungibleTokenMetadataViews.FTVaultData?
+                    )
+                case Type<FungibleTokenMetadataViews.FTDisplay>():
+                    let media = MetadataViews.Media(
+                        file: MetadataViews.HTTPFile(
+                            url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"
+                        ),
+                        mediaType: "image/svg+xml"
+                    )
+                    let medias = MetadataViews.Medias([media])
+                    return FungibleTokenMetadataViews.FTDisplay(
+                        name: "Blp Fungible Token",
+                        symbol: "BLP",
+                        description: "This fungible token is used as an example to help you develop your next FT #onFlow.",
+                        externalURL: MetadataViews.ExternalURL("https://blp-ft.onflow.org"),
+                        logos: medias,
+                        socials: {
+                            "twitter": MetadataViews.ExternalURL("https://twitter.com/flow_blockchain")
+                        }
+                    )
+                case Type<FungibleTokenMetadataViews.FTVaultData>():
+                    return FungibleTokenMetadataViews.FTVaultData(
+                        storagePath: BlpToken.storagePath,
+                        receiverPath: BlpToken.receiverPath,
+                        metadataPath: BlpToken.metadataPath,
+                        providerPath: BlpToken.providerPath,
+                        receiverLinkedType: Type<&BlpToken.Vault{FungibleToken.Receiver}>(),
+                        metadataLinkedType: Type<&BlpToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(),
+                        providerLinkedType: Type<&BlpToken.Vault{FungibleToken.Provider}>(),
+                        createEmptyVaultFunction: (fun (): @FungibleToken.Vault {
+                            return <-BlpToken.createEmptyVault()
+                        })
+                    )
+            }
+
+            return nil
         }
 
         destroy() {
@@ -100,23 +152,24 @@ pub contract BlpToken: FungibleToken {
     init() {
         self.adminPath = /storage/blpTokenAdmin
         self.minterPath = /storage/blpTokenMinter
-        self.vaultPath = /storage/blpTokenVault
-        self.balancePath = /public/blpTokenBalance
+        self.storagePath = /storage/blpTokenVault
+        self.providerPath = /private/blpTokenVault
+        self.metadataPath = /public/blpTokenMetadata
         self.receiverPath = /public/blpTokenReceiver
-        self.tokenAlias = "BLP"
+
         self.totalSupply = 0.0
 
         let vault <- create Vault(balance: self.totalSupply)
-        self.account.save(<-vault, to: self.vaultPath)
-
-        self.account.link<&BlpToken.Vault{FungibleToken.Balance}>(
-            self.balancePath,
-            target: self.vaultPath
-        )
+        self.account.save(<-vault, to: self.storagePath)
 
         self.account.link<&BlpToken.Vault{FungibleToken.Receiver}>(
             self.receiverPath,
-            target: self.vaultPath
+            target: self.storagePath
+        )
+
+        self.account.link<&BlpToken.Vault{FungibleToken.Balance, MetadataViews.Resolver}>(
+            self.metadataPath,
+            target: self.storagePath
         )
 
         let admin <- create Administrator()
