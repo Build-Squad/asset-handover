@@ -93,7 +93,7 @@ Note: The above environment variable will be available only on your current term
 We can use the Flow CLI, to view the newly-created account on testnet:
 
 ```bash
-flow accounts get ${TESTNET_ADDRESS} --network=testnet
+flow accounts get $TESTNET_ADDRESS --network=testnet
 ```
 
 or we can use the [flow view source](https://flow-view-source.com/), by entering the address in the `Account` input.
@@ -118,7 +118,7 @@ flow project deploy --network=testnet -f flow.testnet.json
 To view the result of the deployment, run the following:
 
 ```bash
-flow accounts get ${TESTNET_ADDRESS} --network=testnet
+flow accounts get $TESTNET_ADDRESS --network=testnet
 
 # => Output:
 ...
@@ -173,7 +173,7 @@ flow transactions send ./cadence/transactions/blp/createTokenMinter.cdc 20000.0 
 flow transactions send ./cadence/transactions/blp/mintTokens.cdc 15000.0 --network=testnet --signer=testnet-account -f flow.testnet.json
 
 # View BLP balance of admin account.
-flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc ${TESTNET_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc $TESTNET_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: 15000.00000000
@@ -213,16 +213,16 @@ With our 2nd account ready, we can make our first transfer of BLP tokens.
 flow transactions send ./cadence/transactions/blp/createTokenVault.cdc --network=testnet --signer=holder -f flow.testnet.json
 
 # Transfer BLP tokens from admin account to holder.
-flow transactions send ./cadence/transactions/blp/transferTokens.cdc ${HOLDER_ADDRESS} 3000.0 --network=testnet --signer=testnet-account -f flow.testnet.json
+flow transactions send ./cadence/transactions/blp/transferTokens.cdc $HOLDER_ADDRESS 3000.0 --network=testnet --signer=testnet-account -f flow.testnet.json
 
 # View BLP balance of holder account.
-flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: 3000.00000000
 
 # View the FungibleTokenMetadataViews.FTDisplay for a BlpToken.Vault resource
-flow scripts execute ./cadence/scripts/blp/getDisplayView.cdc ${HOLDER_ADDRESS}
+flow scripts execute ./cadence/scripts/blp/getDisplayView.cdc $HOLDER_ADDRESS
 
 # => Output:
 Result: A.f8d6e0586b0a20c7.FungibleTokenMetadataViews.FTDisplay(name: "Blp Fungible Token", symbol: "BLP", description: "This fungible token is used as an example to help you develop your next FT #onFlow.", externalURL: A.f8d6e0586b0a20c7.MetadataViews.ExternalURL(url: "https://blp-ft.onflow.org"), logos: A.f8d6e0586b0a20c7.MetadataViews.Medias(items: [A.f8d6e0586b0a20c7.MetadataViews.Media(file: A.f8d6e0586b0a20c7.MetadataViews.HTTPFile(url: "https://assets.website-files.com/5f6294c0c7a8cdd643b1c820/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.svg"), mediaType: "image/svg+xml")]), socials: {"twitter": A.f8d6e0586b0a20c7.MetadataViews.ExternalURL(url: "https://twitter.com/flow_blockchain")})
@@ -249,16 +249,16 @@ flow transactions send ./cadence/transactions/domains/createAccountCollection.cd
 flow transactions send ./cadence/transactions/domains/registerDomain.cdc build-squad 31536000.0 --network=testnet --signer=holder -f flow.testnet.json
 
 # The holder can now make changes to this Domains.NFT resource.
-flow transactions send ./cadence/transactions/domains/setDomainBioAndAddress.cdc ${HOLDER_ADDRESS} 'We are BuildSquad. #Web3 enthusiasts and builders!' 0 --network=testnet --signer=holder -f flow.testnet.json
+flow transactions send ./cadence/transactions/domains/setDomainBioAndAddress.cdc $HOLDER_ADDRESS 'We are BuildSquad. #Web3 enthusiasts and builders!' 0 --network=testnet --signer=holder -f flow.testnet.json
 
 # View the Domains.Collection of the holder.
-flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: [A.ea683bfbae90f2c7.Domains.DomainInfo(id: 0, owner: 0xf4b9a6a4b1a37885, name: "build-squad.fns", nameHash: "c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", expiresAt: 1700837244.00000000, address: 0xf4b9a6a4b1a37885, bio: "We are BuildSquad. #Web3 enthusiasts and builders!", createdAt: 1669301244.00000000)]
 
 # View the MetadataViews.Display for a Domains.NFT resource
-flow scripts execute ./cadence/scripts/domains/getDisplayView.cdc ${HOLDER_ADDRESS} 0
+flow scripts execute ./cadence/scripts/domains/getDisplayView.cdc $HOLDER_ADDRESS 0
 
 # => Output:
 Result: s.4d9b6abe56ec2ffb162a2a09896c1e1458d5f24732ac4ba63dc536c1bc5082f6.DomainNFT(name: "build-squad", description: "We are BuildSquad. #Web3 enthusiasts and builders!", thumbnail: "https://www.flow-domains.com/c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", owner: 0xf8d6e0586b0a20c7, type: Type<A.f8d6e0586b0a20c7.Domains.NFT>())
@@ -294,10 +294,10 @@ Let's proceed with the `AssetHandover.LockUp` resource creation:
 
 ```bash
 # Create a AssetHandover.LockUp resource for the holder account.
-flow transactions send ./cadence/transactions/lockUps/createLockUp.cdc 1700034523.0 ${RECIPIENT_ADDRESS} --network=testnet --signer=holder -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/createLockUp.cdc 1700034523.0 $RECIPIENT_ADDRESS --network=testnet --signer=holder -f flow.testnet.json
 
 # View the public info of the holder's AssetHandover.LockUp resource.
-flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [], nonFungibleTokens: [])
@@ -309,16 +309,16 @@ The `AssetHandover.LockUp` resource that was just created by the `holder` accoun
 
 ```bash
 # With this transaction, we specify the tokens from which fungible token smart contract we want to handover.
-flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc ${FLOW_TOKEN_IDENTIFIER} --network=testnet --signer=holder -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc $FLOW_TOKEN_IDENTIFIER --network=testnet --signer=holder -f flow.testnet.json
 
 # For fungible tokens, we can optionally specify a maximum withdrawal amount, here being 450.0 FLOW tokens.
-flow transactions send ./cadence/transactions/lockUps/setLockUpBalance.cdc ${FLOW_TOKEN_IDENTIFIER} 450.0 --network=testnet --signer=holder -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/setLockUpBalance.cdc $FLOW_TOKEN_IDENTIFIER 450.0 --network=testnet --signer=holder -f flow.testnet.json
 
 # Likewise, we specify that we want to handover our BLP tokens, without any withdrawl restriction.
-flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc ${BLP_TOKEN_IDENTIFIER} --network=testnet --signer=holder -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc $BLP_TOKEN_IDENTIFIER --network=testnet --signer=holder -f flow.testnet.json
 
 # With this script, we can view the updated public info of the AssetHandover.LockUp resource.
-flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 450.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil)], nonFungibleTokens: [])
@@ -330,10 +330,10 @@ Likewise, the `holder` account can specify which NFTs will be put for handover.
 
 ```bash
 # With this transaction, we specify the tokens from which NFT smart contract we want to handover.
-flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc ${DOMAINS_IDENTIFIER} --network=testnet --signer=holder -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $DOMAINS_IDENTIFIER --network=testnet --signer=holder -f flow.testnet.json
 
 # Let's view the updated public info of the AssetHandover.LockUp resource.
-flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 450.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil)], nonFungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.ea683bfbae90f2c7.Domains", nftIDs: [])])
@@ -345,16 +345,16 @@ With the `AssetHandover.LockUp` resource in place, let's see how the `recipient`
 
 ```bash
 # Viewing the AssetHandover.LockUp public info, the recipient can specify which NFTs to withdraw.
-flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc ${DOMAINS_IDENTIFIER} ${HOLDER_ADDRESS} --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS --network=testnet --signer=recipient -f flow.testnet.json
 
 # => Output: It turns out that the recipient account cannot hold NFTs from the Domains smart contract, without a Domains.Collection resource in the account storage.
 error: panic("You do not own such an NFT Collection.")
 
 # With this NodeJS script, we properly setup the recipient account.
-node cadence/transactions/lockUps/initCollection.js ${DOMAINS_IDENTIFIER} recipient
+node cadence/transactions/lockUps/initCollection.js $DOMAINS_IDENTIFIER recipient
 
 # Second attempt at withdrawing the Domains NFTs
-flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc ${DOMAINS_IDENTIFIER} ${HOLDER_ADDRESS} --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS --network=testnet --signer=recipient -f flow.testnet.json
 
 # => Output: The value of  the `releasedAt` field is a Unix timestamp which points to a future date, hence we cannot withdraw yet.
 error: panic: The assets are still in lock-up period!
@@ -363,10 +363,10 @@ error: panic: The assets are still in lock-up period!
 flow transactions send ./cadence/transactions/lockUps/setLockUpReleasedAt.cdc 1663224523.0 --network=testnet --signer=holder -f flow.testnet.json
 
 # Recipient attempts to withdraw the NFTs again.
-flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc ${DOMAINS_IDENTIFIER} ${HOLDER_ADDRESS} --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS --network=testnet --signer=recipient -f flow.testnet.json
 
 # We check the Domains.Collection of the recipient, and we see the only NFT that was previously owned by the holder.
-flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc ${RECIPIENT_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc $RECIPIENT_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: [A.ea683bfbae90f2c7.Domains.DomainInfo(id: 0, owner: 0x68fbe6c913d0479d, name: "build-squad.fns", nameHash: "c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", expiresAt: 1700837244.00000000, address: 0xf4b9a6a4b1a37885, bio: "We are BuildSquad. #Web3 enthusiasts and builders!", createdAt: 1669301244.00000000)]
@@ -378,7 +378,7 @@ This implies that the `Domains.Collection` resource of the `holder` should now b
 
 ```bash
 # Viewing the holder's Domains.Collection
-flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: []
@@ -392,7 +392,7 @@ Let's begin with the `FlowToken`.
 
 ```bash
 # The recipient attempts to withdraw the FLOW tokens.
-flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc ${FLOW_TOKEN_IDENTIFIER} ${HOLDER_ADDRESS} 550.0 --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc $FLOW_TOKEN_IDENTIFIER $HOLDER_ADDRESS 550.0 --network=testnet --signer=recipient -f flow.testnet.json
 
 # => Output:
 error:panic("Could not borrow FungibleTokenSwitchboard.Switchboard reference.")
@@ -405,31 +405,31 @@ Because we want to achieve interoperability between implementations of the `Fung
 flow transactions send ./cadence/transactions/fungibleTokenSwitchboard/setupAccount.cdc --network=testnet --signer=recipient -f flow.testnet.json
 
 # The recipient makes an attempt to withdraw some amount of FLOW tokens.
-flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc ${FLOW_TOKEN_IDENTIFIER} ${HOLDER_ADDRESS} 550.0 --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc $FLOW_TOKEN_IDENTIFIER $HOLDER_ADDRESS 550.0 --network=testnet --signer=recipient -f flow.testnet.json
 
 # => Output: Remember that we specified a maximum withdrawal amount of 450 FLOW tokens, so this naturally fails.
 error: panic: You cannot withdraw more than the remaining balance of: 450.00000000
 
 # The recipient attempts to withdraw a smaller amount.
-flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc ${FLOW_TOKEN_IDENTIFIER} ${HOLDER_ADDRESS} 250.0 --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc $FLOW_TOKEN_IDENTIFIER $HOLDER_ADDRESS 250.0 --network=testnet --signer=recipient -f flow.testnet.json
 
 # => Output: This also fails, because the recipient has not yet made the FlowToken.Vault available on the Switchboard.
 error: panic: The deposited vault is not available on this switchboard
 
 # This NodeJS script will properly setup the switchboard for the FlowToken.Vault resource.
-node cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.js ${FLOW_TOKEN_IDENTIFIER} recipient
+node cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.js $FLOW_TOKEN_IDENTIFIER recipient
 
 # Yet another attempt to withdraw 250 FLOW tokens.
-flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc ${FLOW_TOKEN_IDENTIFIER} ${HOLDER_ADDRESS} 250.0 --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc $FLOW_TOKEN_IDENTIFIER $HOLDER_ADDRESS 250.0 --network=testnet --signer=recipient -f flow.testnet.json
 
 # We check to see the recipient's FLOW balance.
-flow scripts execute ./cadence/scripts/flow/getAccountBalance.cdc ${RECIPIENT_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/flow/getAccountBalance.cdc $RECIPIENT_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output: The withdrawal has been successfull. However, we charge 5 FLOW tokens for the AssetHandover.LockUp resource creation (the holder), and we also chanrge the recipient 2 FLOW tokens for each withdrawal. 4 FLOW tokens were charged for withdrawing the Domains NFTs and the FlowToken. (Each testnet account has an initial balance of 1000 FLOW tokens). That is the reason we get 1246.0, instead of 1250.0 .
 Result: 1246.00095786
 
 # Recipient attempts to withdraw another 250 FLOW tokens.
-flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc ${FLOW_TOKEN_IDENTIFIER} ${HOLDER_ADDRESS} 250.0 --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc $FLOW_TOKEN_IDENTIFIER $HOLDER_ADDRESS 250.0 --network=testnet --signer=recipient -f flow.testnet.json
 
 # => Output: A friendly error message showing that from the initial maximum withdrawl amount of 450 FLOW tokens, only 200 are left.
 error: panic: You cannot withdraw more than the remaining balance of: 200.00000000
@@ -439,28 +439,28 @@ Moving on, let's withdraw the `BlpToken`.
 
 ```bash
 # Recipient attempts to withdraw 500 BLP tokens.
-flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc ${BLP_TOKEN_IDENTIFIER} ${HOLDER_ADDRESS} 500.0 --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc $BLP_TOKEN_IDENTIFIER $HOLDER_ADDRESS 500.0 --network=testnet --signer=recipient -f flow.testnet.json
 
 # => Output: The recipient's FungibleTokenSwitchboard does not yet handle deposits of the BLP FungibleToken. It is up to the recipient to decide whether to enable such deposits or not.
 error: panic: The deposited vault is not available on this switchboard
 
 # Assuming the recipient's consent, this NodeJS script will properly setup the switchboard for the BlpToken.Vault resource.
-node cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.js ${BLP_TOKEN_IDENTIFIER} recipient
+node cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.js $BLP_TOKEN_IDENTIFIER recipient
 
 # The recipient attempts again to withdraw 500 BLP tokens.
-flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc ${BLP_TOKEN_IDENTIFIER} ${HOLDER_ADDRESS} 500.0 --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc $BLP_TOKEN_IDENTIFIER $HOLDER_ADDRESS 500.0 --network=testnet --signer=recipient -f flow.testnet.json
 
 # We view the recipient's BLP balance.
-flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc ${RECIPIENT_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc $RECIPIENT_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: 500.00000000
 
 # Since for this BlpToken there is no maximum withdrawal amount, the recipient can withdraw again, until the holder's balance runs out. For each withdraw, the recipient will be charged 2 FLOW tokens.
-flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc ${BLP_TOKEN_IDENTIFIER} ${HOLDER_ADDRESS} 300.0 --network=testnet --signer=recipient -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/withdrawFungibleToken.cdc $BLP_TOKEN_IDENTIFIER $HOLDER_ADDRESS 300.0 --network=testnet --signer=recipient -f flow.testnet.json
 
 # We view again the recipients BLP balance.
-flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc ${RECIPIENT_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/blp/getAccountBalance.cdc $RECIPIENT_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: 800.00000000
@@ -483,7 +483,7 @@ Result: {0x68fbe6c913d0479d: [0xf4b9a6a4b1a37885]}
 Using the address contained in the key of the dictionary above, we can view the public `AssetHandover.LockUpInfo` of the resource.
 
 ```bash
-flow scripts execute ./cadence/scripts/lockUps/getLockUpsByRecipient.cdc ${RECIPIENT_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/lockUps/getLockUpsByRecipient.cdc $RECIPIENT_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: [A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil)], nonFungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.ea683bfbae90f2c7.Domains", nftIDs: [])])]
@@ -550,7 +550,7 @@ Users of our dapp, would now be able to also handover `FUSD` tokens. Let's see h
 
 ```bash
 # Let's see the FUSD balance of the holder account.
-flow scripts execute ./cadence/scripts/fusd/getAccountBalance.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/fusd/getAccountBalance.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output: The testnet account does not have such a vault.
 panic("Could not borrow Balance reference to the Vault")
@@ -573,10 +573,10 @@ var fungibleTokenInfo = AssetHandover.FungibleTokenInfo(
 flow transactions send ./cadence/transactions/fungibleTokenSwitchboard/setupAccount.cdc --network=testnet --signer=holder -f flow.testnet.json
 
 # This NodeJS script will generate a transaction for setting up the FUSD.Vault for the holder.
-node cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.js ${FUSD_TOKEN_IDENTIFIER} holder
+node cadence/transactions/fungibleTokenSwitchboard/addVaultCapability.js $FUSD_TOKEN_IDENTIFIER holder
 
 # We can now view the balance of the newly-created FUSD.Vault.
-flow scripts execute ./cadence/scripts/fusd/getAccountBalance.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/fusd/getAccountBalance.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output: The FUSD.Vault was properly created, with the necessary public capabilities.
 Result: 0.00000000
@@ -584,10 +584,10 @@ Result: 0.00000000
 
 ```bash
 # The holder specifies that FUSD tokens should be included in the handover.
-flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc ${FUSD_TOKEN_IDENTIFIER} --network=testnet --signer=holder -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc $FUSD_TOKEN_IDENTIFIER --network=testnet --signer=holder -f flow.testnet.json
 
 # Let's view the updated public info of the AssetHandover.LockUp resource
-flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output: The Array of fungibleTokens, now contains FUSD also, however the account does not own any such tokes at the moment. In the future, this could change, and the authorized recipient could withdraw them.
 Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.e223d8a629e49c68.FUSD", balance: nil)], nonFungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.ea683bfbae90f2c7.Domains", nftIDs: [])])
@@ -601,7 +601,7 @@ Let's see how can we do that for the [TopShop](https://github.com/dapperlabs/nba
 
 ```bash
 # Let's see the TopShot Collection of the holder account.
-flow scripts execute ./cadence/scripts/nbaTopShot/getAccountCollection.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/nbaTopShot/getAccountCollection.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output: The holder account does not have such a collection.
 error: panic: Could not borrow a reference to the stored Moment collection
@@ -624,19 +624,19 @@ We proceed by setting up the `holder` account with a `TopShot` collection.
 
 ```bash
 # With this NodeJS script, we properly setup the holder account.
-node cadence/transactions/lockUps/initCollection.js ${TOPSHOT_IDENTIFIER} holder
+node cadence/transactions/lockUps/initCollection.js $TOPSHOT_IDENTIFIER holder
 
 # We specify that tokens of the TopShot Collection, will also be handed over.
-flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc ${TOPSHOT_IDENTIFIER} --network=testnet --signer=holder -f flow.testnet.json
+flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $TOPSHOT_IDENTIFIER --network=testnet --signer=holder -f flow.testnet.json
 
 # Let's view the updated public info of the AssetHandover.LockUp resource
-flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output: The Array of nonFungibleTokens, now also contains "A.877931736ee77cff.TopShot".
 Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.e223d8a629e49c68.FUSD", balance: nil)], nonFungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.ea683bfbae90f2c7.Domains", nftIDs: []), A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.877931736ee77cff.TopShot", nftIDs: [])])
 
 # Verify the collection's setup.
-flow scripts execute ./cadence/scripts/nbaTopShot/getAccountCollection.cdc ${HOLDER_ADDRESS} --network=testnet -f flow.testnet.json
+flow scripts execute ./cadence/scripts/nbaTopShot/getAccountCollection.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
 Result: []
