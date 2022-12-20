@@ -51,16 +51,8 @@
     },
     "accounts": {
         "testnet-account": {
-            "address": "0xea683bfbae90f2c7",
-            "key": "2951d7e987c81f8f58536aca42854aa081c67be3f3f8f2522c52e8d679192e30"
-        },
-        "holder": {
-            "address": "0xf4b9a6a4b1a37885",
-            "key": "87d766cca402b1ac59e600caab141cabf824812586a6f90186526a4a30b8afff"
-        },
-        "recipient": {
-            "address": "0x68fbe6c913d0479d",
-            "key": "e46349fe76e39cbe28ddf1a1b02211449f8fe52a78ceedf1829b17a1b0662cbf"
+            "address": "${address}",
+            "key": "${privateKey}"
         }
     },
     "deployments": {

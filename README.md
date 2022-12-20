@@ -43,11 +43,21 @@ cd asset-handover
 npm install
 ```
 
+## Contract Addresses
+
+The 3 main contracts are deployed on testnet in the following addresses. They are already pre-configured. However, you can follow the instructions and deploy them on your own testnet account, to go through the whole process of deployment & setup.
+
+|Name|Testnet|
+|----|-------|
+|[BlpToken](./cadence/contracts/tokens/BlpToken.cdc)|[0xff4cc652369f3857](https://flow-view-source.com/testnet/account/0xff4cc652369f3857/contract/BlpToken)|
+|[Domains](./cadence/contracts/nfts/Domains.cdc)|[0xff4cc652369f3857](https://flow-view-source.com/testnet/account/0xff4cc652369f3857/contract/Domains)|
+|[AssetHandover](./cadence/contracts/AssetHandover.cdc)|[0xff4cc652369f3857](https://flow-view-source.com/testnet/account/0xff4cc652369f3857/contract/AssetHandover)
+
 ## Testnet development
 
 ### 1. Deploy the smart contracts
 
-First, we need to generate a key-pair and use it to create a new testnet account. In this account we will deploy our 4 smart contracts, which implies that this account is also the admin account.
+First, we need to generate a key-pair and use it to create a new testnet account. In this account we will deploy our 3 smart contracts, which implies that this account is also the admin account.
 
 ```bash
 flow keys generate --output=json >> testnet-account.json
@@ -85,7 +95,7 @@ With the key-pair generated, head over to [Flow Faucet](https://testnet-faucet.o
 
 ```bash
 # Substitute with the resulting account address from the flow faucet.
-export TESTNET_ADDRESS=0xea683bfbae90f2c7
+export TESTNET_ADDRESS=0xff4cc652369f3857
 ```
 
 Note: The above environment variable will be available only on your current terminal session.
@@ -122,14 +132,13 @@ flow accounts get $TESTNET_ADDRESS --network=testnet
 
 # => Output:
 ...
-Contracts Deployed: 4
+Contracts Deployed: 3
 Contract: 'AssetHandover'
 Contract: 'BlpToken'
 Contract: 'Domains'
-Contract: 'FungibleTokenSwitchboard'
 ```
 
-The above 4 smart contracts, have been succesfully deployed.
+The above 3 smart contracts, have been succesfully deployed.
 
 ### 2. Setup supported tokens
 
@@ -143,20 +152,20 @@ flow transactions send ./cadence/transactions/lockUps/addTokenInfo.cdc --network
 flow scripts execute ./cadence/scripts/lockUps/getFungibleTokenInfoMapping.cdc --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: {"A.7e60df042a9c0868.FlowToken": A.ea683bfbae90f2c7.AssetHandover.FungibleTokenInfo(name: "FLOW", receiverPath: /public/flowTokenReceiver, balancePath: /public/flowTokenBalance, privatePath: /private/flowTokenVault, storagePath: /storage/flowTokenVault), "A.ea683bfbae90f2c7.BlpToken": A.ea683bfbae90f2c7.AssetHandover.FungibleTokenInfo(name: "BLP", receiverPath: /public/blpTokenReceiver, balancePath: /public/blpTokenBalance, privatePath: /private/blpTokenVault, storagePath: /storage/blpTokenVault)}
+Result: {"A.7e60df042a9c0868.FlowToken": A.ff4cc652369f3857.AssetHandover.FungibleTokenInfo(name: "FLOW", receiverPath: /public/flowTokenReceiver, balancePath: /public/flowTokenBalance, privatePath: /private/flowTokenVault, storagePath: /storage/flowTokenVault), "A.ff4cc652369f3857.BlpToken": A.ff4cc652369f3857.AssetHandover.FungibleTokenInfo(name: "BLP", receiverPath: /public/blpTokenReceiver, balancePath: /public/blpTokenBalance, privatePath: /private/blpTokenVault, storagePath: /storage/blpTokenVault)}
 
 # Substitute the value according to your resulting values from above. Note that the address part will be different.
 export FLOW_TOKEN_IDENTIFIER=A.7e60df042a9c0868.FlowToken
-export BLP_TOKEN_IDENTIFIER=A.ea683bfbae90f2c7.BlpToken
+export BLP_TOKEN_IDENTIFIER=A.ff4cc652369f3857.BlpToken
 
 # View the available non-fungible tokens.
 flow scripts execute ./cadence/scripts/lockUps/getNonFungibleTokenInfoMapping.cdc --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: {"A.ea683bfbae90f2c7.Domains": A.ea683bfbae90f2c7.AssetHandover.NonFungibleTokenInfo(name: "Domains", publicPath: /public/flowNameServiceDomains, privatePath: /private/flowNameServiceDomains, storagePath: /storage/flowNameServiceDomains, publicType: Type<&A.ea683bfbae90f2c7.Domains.Collection{A.631e88ae7f1d7c20.NonFungibleToken.CollectionPublic,A.631e88ae7f1d7c20.NonFungibleToken.Receiver,A.ea683bfbae90f2c7.Domains.CollectionPublic}>(), privateType: Type<&A.ea683bfbae90f2c7.Domains.Collection>())}
+Result: {"A.ff4cc652369f3857.Domains": A.ff4cc652369f3857.AssetHandover.NonFungibleTokenInfo(name: "Domains", publicPath: /public/flowNameServiceDomains, privatePath: /private/flowNameServiceDomains, storagePath: /storage/flowNameServiceDomains, publicType: Type<&A.ff4cc652369f3857.Domains.Collection{A.631e88ae7f1d7c20.NonFungibleToken.CollectionPublic,A.631e88ae7f1d7c20.NonFungibleToken.Receiver,A.ff4cc652369f3857.Domains.CollectionPublic}>(), privateType: Type<&A.ff4cc652369f3857.Domains.Collection>())}
 
 # Substitute the value according to your resulting values from above. Note that the address part will be different.
-export DOMAINS_IDENTIFIER=A.ea683bfbae90f2c7.Domains
+export DOMAINS_IDENTIFIER=A.ff4cc652369f3857.Domains
 ```
 
 After this setup, the `AssetHandover` smart contract is able to handle two fungible tokens, `FlowToken` & `BlpToken` and one non-fungible token, `Domains`.
@@ -255,7 +264,7 @@ flow transactions send ./cadence/transactions/domains/setDomainBioAndAddress.cdc
 flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: [A.ea683bfbae90f2c7.Domains.DomainInfo(id: 0, owner: 0xf4b9a6a4b1a37885, name: "build-squad.fns", nameHash: "c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", expiresAt: 1700837244.00000000, address: 0xf4b9a6a4b1a37885, bio: "We are BuildSquad. #Web3 enthusiasts and builders!", createdAt: 1669301244.00000000)]
+Result: [A.ff4cc652369f3857.Domains.DomainInfo(id: 0, owner: 0xf4b9a6a4b1a37885, name: "build-squad.fns", nameHash: "c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", expiresAt: 1700837244.00000000, address: 0xf4b9a6a4b1a37885, bio: "We are BuildSquad. #Web3 enthusiasts and builders!", createdAt: 1669301244.00000000)]
 
 # View the MetadataViews.Display for a Domains.NFT resource
 flow scripts execute ./cadence/scripts/domains/getDisplayView.cdc $HOLDER_ADDRESS 0
@@ -300,7 +309,7 @@ flow transactions send ./cadence/transactions/lockUps/createLockUp.cdc 170003452
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [], nonFungibleTokens: [])
+Result: A.ff4cc652369f3857.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [], nonFungibleTokens: [])
 ```
 
 ### 8. Lock your fungible tokens
@@ -321,7 +330,7 @@ flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc $BLP
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 450.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil)], nonFungibleTokens: [])
+Result: A.ff4cc652369f3857.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 450.00000000), A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.ff4cc652369f3857.BlpToken", balance: nil)], nonFungibleTokens: [])
 ```
 
 ### 8. Lock your NFTs
@@ -336,7 +345,7 @@ flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 450.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil)], nonFungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.ea683bfbae90f2c7.Domains", nftIDs: [])])
+Result: A.ff4cc652369f3857.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1700034523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 450.00000000), A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.ff4cc652369f3857.BlpToken", balance: nil)], nonFungibleTokens: [A.ff4cc652369f3857.AssetHandover.NFTLockUpInfo(identifier: "A.ff4cc652369f3857.Domains", nftIDs: [])])
 ```
 
 ### 9. Recipient account withdraws the NFTs from the LockUp
@@ -369,7 +378,7 @@ flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.c
 flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc $RECIPIENT_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: [A.ea683bfbae90f2c7.Domains.DomainInfo(id: 0, owner: 0x68fbe6c913d0479d, name: "build-squad.fns", nameHash: "c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", expiresAt: 1700837244.00000000, address: 0xf4b9a6a4b1a37885, bio: "We are BuildSquad. #Web3 enthusiasts and builders!", createdAt: 1669301244.00000000)]
+Result: [A.ff4cc652369f3857.Domains.DomainInfo(id: 0, owner: 0x68fbe6c913d0479d, name: "build-squad.fns", nameHash: "c9174dddcaf26c643d6a8b4e061cb7b4f30de8034da787d2fb1b29b89f48262e", expiresAt: 1700837244.00000000, address: 0xf4b9a6a4b1a37885, bio: "We are BuildSquad. #Web3 enthusiasts and builders!", createdAt: 1669301244.00000000)]
 ```
 
 We managed to successfully create a `Domains.Collection` resource for the `recipient`, and to withdraw an `NFT` from the `holder`.
@@ -486,7 +495,7 @@ Using the address contained in the key of the dictionary above, we can view the 
 flow scripts execute ./cadence/scripts/lockUps/getLockUpsByRecipient.cdc $RECIPIENT_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: [A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil)], nonFungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.ea683bfbae90f2c7.Domains", nftIDs: [])])]
+Result: [A.ff4cc652369f3857.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.ff4cc652369f3857.BlpToken", balance: nil)], nonFungibleTokens: [A.ff4cc652369f3857.AssetHandover.NFTLockUpInfo(identifier: "A.ff4cc652369f3857.Domains", nftIDs: [])])]
 ```
 
 ### 12. View and update creation/withdraw fees
@@ -541,7 +550,7 @@ flow transactions send ./cadence/transactions/lockUps/addFUSDTokenInfo.cdc --net
 flow scripts execute ./cadence/scripts/lockUps/getFungibleTokenInfoMapping.cdc --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: {... "A.e223d8a629e49c68.FUSD": A.ea683bfbae90f2c7.AssetHandover.FungibleTokenInfo(name: "FUSD", receiverPath: /public/fusdReceiver, balancePath: /public/fusdBalance, privatePath: /private/fusdVault, storagePath: /storage/fusdVault)}
+Result: {... "A.e223d8a629e49c68.FUSD": A.ff4cc652369f3857.AssetHandover.FungibleTokenInfo(name: "FUSD", receiverPath: /public/fusdReceiver, balancePath: /public/fusdBalance, privatePath: /private/fusdVault, storagePath: /storage/fusdVault)}
 
 export FUSD_TOKEN_IDENTIFIER=A.e223d8a629e49c68.FUSD
 ```
@@ -590,7 +599,7 @@ flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc $FUS
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output: The Array of fungibleTokens, now contains FUSD also, however the account does not own any such tokes at the moment. In the future, this could change, and the authorized recipient could withdraw them.
-Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.e223d8a629e49c68.FUSD", balance: nil)], nonFungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.ea683bfbae90f2c7.Domains", nftIDs: [])])
+Result: A.ff4cc652369f3857.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.ff4cc652369f3857.BlpToken", balance: nil), A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.e223d8a629e49c68.FUSD", balance: nil)], nonFungibleTokens: [A.ff4cc652369f3857.AssetHandover.NFTLockUpInfo(identifier: "A.ff4cc652369f3857.Domains", nftIDs: [])])
 ```
 
 Without having to make changes to the `AssetHandover` smart contract and re-deploy, we were able to support a new `FungibleToken` and properly initialize a `FUSD.Vault` for the `holder` account. We can achieve the same functionality with smart contracts implementing the `NonFungibleToken` smart contract interface.
@@ -615,7 +624,7 @@ flow transactions send ./cadence/transactions/lockUps/addTopShotTokenInfo.cdc --
 flow scripts execute ./cadence/scripts/lockUps/getNonFungibleTokenInfoMapping.cdc --network=testnet -f flow.testnet.json
 
 # => Output:
-Result: {"A.877931736ee77cff.TopShot": A.ea683bfbae90f2c7.AssetHandover.NonFungibleTokenInfo(name: "NBATopShot", publicPath: /public/MomentCollection, privatePath: /private/MomentCollection, storagePath: /storage/MomentCollection, publicType: Type<&AnyResource{A.631e88ae7f1d7c20.NonFungibleToken.CollectionPublic,A.877931736ee77cff.TopShot.MomentCollectionPublic,A.631e88ae7f1d7c20.MetadataViews.ResolverCollection}>(), privateType: Type<&A.877931736ee77cff.TopShot.Collection>()), "A.ea683bfbae90f2c7.Domains": A.ea683bfbae90f2c7.AssetHandover.NonFungibleTokenInfo(name: "Domains", publicPath: /public/flowNameServiceDomains, privatePath: /private/flowNameServiceDomains, storagePath: /storage/flowNameServiceDomains, publicType: Type<&A.ea683bfbae90f2c7.Domains.Collection{A.631e88ae7f1d7c20.NonFungibleToken.CollectionPublic,A.631e88ae7f1d7c20.NonFungibleToken.Receiver,A.ea683bfbae90f2c7.Domains.CollectionPublic}>(), privateType: Type<&A.ea683bfbae90f2c7.Domains.Collection>())}
+Result: {"A.877931736ee77cff.TopShot": A.ff4cc652369f3857.AssetHandover.NonFungibleTokenInfo(name: "NBATopShot", publicPath: /public/MomentCollection, privatePath: /private/MomentCollection, storagePath: /storage/MomentCollection, publicType: Type<&AnyResource{A.631e88ae7f1d7c20.NonFungibleToken.CollectionPublic,A.877931736ee77cff.TopShot.MomentCollectionPublic,A.631e88ae7f1d7c20.MetadataViews.ResolverCollection}>(), privateType: Type<&A.877931736ee77cff.TopShot.Collection>()), "A.ff4cc652369f3857.Domains": A.ff4cc652369f3857.AssetHandover.NonFungibleTokenInfo(name: "Domains", publicPath: /public/flowNameServiceDomains, privatePath: /private/flowNameServiceDomains, storagePath: /storage/flowNameServiceDomains, publicType: Type<&A.ff4cc652369f3857.Domains.Collection{A.631e88ae7f1d7c20.NonFungibleToken.CollectionPublic,A.631e88ae7f1d7c20.NonFungibleToken.Receiver,A.ff4cc652369f3857.Domains.CollectionPublic}>(), privateType: Type<&A.ff4cc652369f3857.Domains.Collection>())}
 
 export TOPSHOT_IDENTIFIER=A.877931736ee77cff.TopShot
 ```
@@ -633,7 +642,7 @@ flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
 
 # => Output: The Array of nonFungibleTokens, now also contains "A.877931736ee77cff.TopShot".
-Result: A.ea683bfbae90f2c7.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.ea683bfbae90f2c7.BlpToken", balance: nil), A.ea683bfbae90f2c7.AssetHandover.FTLockUpInfo(identifier: "A.e223d8a629e49c68.FUSD", balance: nil)], nonFungibleTokens: [A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.ea683bfbae90f2c7.Domains", nftIDs: []), A.ea683bfbae90f2c7.AssetHandover.NFTLockUpInfo(identifier: "A.877931736ee77cff.TopShot", nftIDs: [])])
+Result: A.ff4cc652369f3857.AssetHandover.LockUpInfo(holder: 0xf4b9a6a4b1a37885, releasedAt: 1663224523.00000000, recipient: 0x68fbe6c913d0479d, fungibleTokens: [A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.7e60df042a9c0868.FlowToken", balance: 200.00000000), A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.ff4cc652369f3857.BlpToken", balance: nil), A.ff4cc652369f3857.AssetHandover.FTLockUpInfo(identifier: "A.e223d8a629e49c68.FUSD", balance: nil)], nonFungibleTokens: [A.ff4cc652369f3857.AssetHandover.NFTLockUpInfo(identifier: "A.ff4cc652369f3857.Domains", nftIDs: []), A.ff4cc652369f3857.AssetHandover.NFTLockUpInfo(identifier: "A.877931736ee77cff.TopShot", nftIDs: [])])
 
 # Verify the collection's setup.
 flow scripts execute ./cadence/scripts/nbaTopShot/getAccountCollection.cdc $HOLDER_ADDRESS --network=testnet -f flow.testnet.json
