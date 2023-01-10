@@ -1,7 +1,7 @@
 import AssetHandover from "../../contracts/AssetHandover.cdc"
 import FungibleToken from "../../contracts/interfaces/FungibleToken.cdc"
 import FungibleTokenSwitchboard from "../../contracts/utility/FungibleTokenSwitchboard.cdc"
-import BlpToken from 0x4d452103055f8f21
+import FUSD from 0xf8d6e0586b0a20c7
 
 transaction(identifier: String) {
     let vaultCapabilty: Capability<&{FungibleToken.Receiver}>
@@ -16,13 +16,13 @@ transaction(identifier: String) {
         )
 
         if !self.vaultCapabilty.check() {
-            let vault <- BlpToken.createEmptyVault()
+            let vault <- FUSD.createEmptyVault() as! @FungibleToken.Vault
             account.save<@FungibleToken.Vault>(<- vault, to: info.storagePath)
-            account.link<&BlpToken.Vault{FungibleToken.Receiver}>(
+            account.link<&FUSD.Vault{FungibleToken.Receiver}>(
                 info.receiverPath,
                 target: info.storagePath
             )
-            account.link<&BlpToken.Vault{FungibleToken.Balance}>(
+            account.link<&FUSD.Vault{FungibleToken.Balance}>(
                 info.balancePath,
                 target: info.storagePath
             )

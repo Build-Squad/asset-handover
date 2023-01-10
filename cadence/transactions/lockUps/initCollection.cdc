@@ -1,6 +1,7 @@
 import AssetHandover from "../../contracts/AssetHandover.cdc"
 import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
-import Domains from 0x4d452103055f8f21
+import MetadataViews from "../../contracts/utility/MetadataViews.cdc"
+import ExampleNFT from 0xf8d6e0586b0a20c7
 
 transaction(identifier: String) {
     prepare(account: AuthAccount) {
@@ -12,13 +13,13 @@ transaction(identifier: String) {
         )
 
         if !receiverRef.check() {
-            let collection <- Domains.createEmptyCollection()
+            let collection <- ExampleNFT.createEmptyCollection()
             account.save<@NonFungibleToken.Collection>(<- collection, to: info.storagePath)
-            account.link<&Domains.Collection{NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,Domains.CollectionPublic}>(
+            account.link<&ExampleNFT.Collection{ExampleNFT.ExampleNFTCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}>(
                 info.publicPath,
                 target: info.storagePath
             )
-            account.link<&Domains.Collection>(
+            account.link<&ExampleNFT.Collection{ExampleNFT.ExampleNFTCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Provider,MetadataViews.ResolverCollection}>(
                 info.privatePath,
                 target: info.storagePath
             )

@@ -1,67 +1,67 @@
 {
-    "contracts": {
-        "NonFungibleToken": {
-            "source": "./cadence/contracts/interfaces/NonFungibleToken.cdc",
-            "aliases": {
-                "testnet": "0x631e88ae7f1d7c20"
-            }
-        },
-        "FungibleToken": {
-            "source": "./cadence/contracts/interfaces/FungibleToken.cdc",
-            "aliases": {
-                "testnet": "0x9a0766d93b6608b7"
-            }
-        },
-        "FlowToken": {
-            "source": "./cadence/contracts/tokens/FlowToken.cdc",
-            "aliases": {
-                "testnet": "0x7e60df042a9c0868"
-            }
-        },
-        "FUSD": {
-            "source": "./cadence/contracts/tokens/FUSD.cdc",
-            "aliases": {
-                "testnet": "0xe223d8a629e49c68"
-            }
-        },
-        "MetadataViews": {
-            "source": "./cadence/contracts/utility/MetadataViews.cdc",
-            "aliases": {
-                "testnet": "0x631e88ae7f1d7c20"
-            }
-        },
-        "FungibleTokenSwitchboard": {
-            "source": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
-            "aliases": {
-                "testnet": "0x9a0766d93b6608b7"
-            }
-        },
-        "FungibleTokenMetadataViews": {
-            "source": "./cadence/contracts/utility/FungibleTokenMetadataViews.cdc",
-            "aliases": {
-                "testnet": "0x9a0766d93b6608b7"
-            }
-        },
-        "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
-        "Domains": "./cadence/contracts/nfts/Domains.cdc",
-        "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
+  "contracts": {
+    "NonFungibleToken": {
+      "source": "./cadence/contracts/interfaces/NonFungibleToken.cdc",
+      "aliases": {
+        "testnet": "0x631e88ae7f1d7c20"
+      }
     },
-    "networks": {
-        "testnet": "access.devnet.nodes.onflow.org:9000"
+    "FungibleToken": {
+      "source": "./cadence/contracts/interfaces/FungibleToken.cdc",
+      "aliases": {
+        "testnet": "0x9a0766d93b6608b7"
+      }
     },
-    "accounts": {
-        "testnet-account": {
-            "address": "${address}",
-            "key": "${privateKey}"
-        }
+    "FlowToken": {
+      "source": "./cadence/contracts/tokens/FlowToken.cdc",
+      "aliases": {
+        "testnet": "0x7e60df042a9c0868"
+      }
     },
-    "deployments": {
-        "testnet": {
-            "testnet-account": [
-                "BlpToken",
-                "Domains",
-                "AssetHandover"
-            ]
-        }
+    "FUSD": {
+      "source": "./cadence/contracts/tokens/FUSD.cdc",
+      "aliases": {
+        "testnet": "0xe223d8a629e49c68"
+      }
+    },
+    "MetadataViews": {
+      "source": "./cadence/contracts/utility/MetadataViews.cdc",
+      "aliases": {
+        "testnet": "0x631e88ae7f1d7c20"
+      }
+    },
+    "FungibleTokenSwitchboard": {
+      "source": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
+      "aliases": {
+        "testnet": "0x9a0766d93b6608b7"
+      }
+    },
+    "FungibleTokenMetadataViews": {
+      "source": "./cadence/contracts/utility/FungibleTokenMetadataViews.cdc",
+      "aliases": {
+        "testnet": "0x9a0766d93b6608b7"
+      }
+    },
+    "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
+    "Domains": "./cadence/contracts/nfts/Domains.cdc",
+    "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
+  },
+  "networks": {
+    "testnet": "access.devnet.nodes.onflow.org:9000"
+  },
+  "accounts": {
+    "testnet-account": {
+      "address": "${address}",
+      "key": "${privateKey}"
     }
+  },
+  "deployments": {
+    "testnet": {
+      "testnet-account": [
+        "BlpToken",
+        "Domains",
+        "AssetHandover"
+      ]
+    }
+  }
 }

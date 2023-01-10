@@ -20,7 +20,7 @@ const [_, contractAddress, contractName] = contractIdentifier.split('.');
 try {
   const scriptPath = './cadence/scripts/lockUps/getNFTLinkedTypes.cdc';
   const scriptCommand = `
-    flow scripts execute ${scriptPath}  ${contractIdentifier} --network=testnet --output=json -f flow.testnet.json
+    flow scripts execute ${scriptPath}  ${contractIdentifier} --network=emulator --output=json
   `;
   console.log(scriptCommand);
 
@@ -66,7 +66,7 @@ try {
   );
 
   const transactionCommand = `
-    flow transactions send ${transactionPath} ${contractIdentifier} --network=testnet --signer=${signer} -f flow.testnet.json
+    flow transactions send ${transactionPath} ${contractIdentifier} --network=emulator --signer=${signer}
   `;
   console.log(transactionCommand);
 
