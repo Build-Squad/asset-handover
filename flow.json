@@ -1,67 +1,85 @@
 {
-    "emulators": {
-        "default": {
-            "port": 3569,
-            "serviceAccount": "emulator-account"
-        }
-    },
-    "contracts": {
-        "NonFungibleToken": {
-            "source": "./cadence/contracts/interfaces/NonFungibleToken.cdc",
-            "aliases": {
-                "emulator": "0xf8d6e0586b0a20c7"
-            }
-        },
-        "FungibleToken": {
-            "source": "./cadence/contracts/interfaces/FungibleToken.cdc",
-            "aliases": {
-                "emulator": "0xee82856bf20e2aa6"
-            }
-        },
-        "FlowToken": {
-            "source": "./cadence/contracts/tokens/FlowToken.cdc",
-            "aliases": {
-                "emulator": "0x0ae53cb6e3f42a79"
-            }
-        },
-        "FUSD": {
-            "source": "./cadence/contracts/tokens/FUSD.cdc",
-            "aliases": {
-                "emulator": "0xf8d6e0586b0a20c7"
-            }
-        },
-        "MetadataViews": {
-            "source": "./cadence/contracts/utility/MetadataViews.cdc",
-            "aliases": {
-                "emulator": "0xf8d6e0586b0a20c7"
-            }
-        },
-        "FungibleTokenSwitchboard": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
-        "FungibleTokenMetadataViews": "./cadence/contracts/utility/FungibleTokenMetadataViews.cdc",
-        "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
-        "Domains": "./cadence/contracts/nfts/Domains.cdc",
-        "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
-    },
-    "networks": {
-        "emulator": "127.0.0.1:3569",
-        "testnet": "access.devnet.nodes.onflow.org:9000",
-        "mainnet": "access.mainnet.nodes.onflow.org:9000"
-    },
-    "accounts": {
-        "emulator-account": {
-            "address": "0xf8d6e0586b0a20c7",
-            "key": "2619878f0e2ff438d17835c2a4561cb87b4d24d72d12ec34569acd0dd4af7c21"
-        }
-    },
-    "deployments": {
-        "emulator": {
-            "emulator-account": [
-                "FungibleTokenMetadataViews",
-                "FungibleTokenSwitchboard",
-                "BlpToken",
-                "Domains",
-                "AssetHandover"
-            ]
-        }
+  "emulators": {
+    "default": {
+      "port": 3569,
+      "serviceAccount": "emulator-account"
     }
+  },
+  "contracts": {
+    "NonFungibleToken": {
+      "source": "./cadence/contracts/interfaces/NonFungibleToken.cdc",
+      "aliases": {
+        "emulator": "0xf8d6e0586b0a20c7"
+      }
+    },
+    "FungibleToken": {
+      "source": "./cadence/contracts/interfaces/FungibleToken.cdc",
+      "aliases": {
+        "emulator": "0xee82856bf20e2aa6"
+      }
+    },
+    "FlowToken": {
+      "source": "./cadence/contracts/tokens/FlowToken.cdc",
+      "aliases": {
+        "emulator": "0x0ae53cb6e3f42a79"
+      }
+    },
+    "FUSD": {
+      "source": "./cadence/contracts/tokens/FUSD.cdc",
+      "aliases": {
+        "emulator": "0xf8d6e0586b0a20c7"
+      }
+    },
+    "MetadataViews": {
+      "source": "./cadence/contracts/utility/MetadataViews.cdc",
+      "aliases": {
+        "emulator": "0xf8d6e0586b0a20c7"
+      }
+    },
+    "ExampleNFT": {
+      "source": "./cadence/contracts/nfts/ExampleNFT.cdc",
+      "aliases": {
+        "emulator": "0xf8d6e0586b0a20c7"
+      }
+    },
+    "FungibleTokenSwitchboard": "./cadence/contracts/utility/FungibleTokenSwitchboard.cdc",
+    "FungibleTokenMetadataViews": "./cadence/contracts/utility/FungibleTokenMetadataViews.cdc",
+    "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
+    "Domains": "./cadence/contracts/nfts/Domains.cdc",
+    "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
+  },
+  "networks": {
+    "emulator": "127.0.0.1:3569",
+    "testnet": "access.devnet.nodes.onflow.org:9000",
+    "mainnet": "access.mainnet.nodes.onflow.org:9000"
+  },
+  "accounts": {
+    "emulator-account": {
+      "address": "0xf8d6e0586b0a20c7",
+      "key": "2619878f0e2ff438d17835c2a4561cb87b4d24d72d12ec34569acd0dd4af7c21"
+    },
+    "handover-admin": {
+      "address": "0x01cf0e2f2f715450",
+      "key": "b6459918737c6edbfc5994b7a8aab2c87f9868bc2b59e1bc4374c127d779fe9c"
+    },
+    "holder": {
+      "address": "0x179b6b1cb6755e31",
+      "key": "78e05f5bf8653f47bb03568308ed3f90b80d3b327e8e7bb2ef5aad8492b1334c"
+    },
+    "recipient": {
+      "address": "0xf3fcd2c1a78f5eee",
+      "key": "ca421ea48895d8f79afb065c8c0e2fbef7e59f13299b5377b24e566827c2c144"
+    }
+  },
+  "deployments": {
+    "emulator": {
+      "handover-admin": [
+        "FungibleTokenMetadataViews",
+        "FungibleTokenSwitchboard",
+        "BlpToken",
+        "Domains",
+        "AssetHandover"
+      ]
+    }
+  }
 }

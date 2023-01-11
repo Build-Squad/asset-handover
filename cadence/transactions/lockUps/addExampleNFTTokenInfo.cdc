@@ -1,7 +1,7 @@
 import AssetHandover from "../../contracts/AssetHandover.cdc"
 import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
 import MetadataViews from "../../contracts/utility/MetadataViews.cdc"
-import TopShot from 0x877931736ee77cff
+import ExampleNFT from "../../contracts/nfts/ExampleNFT.cdc"
 
 transaction {
     let admin: &AssetHandover.Admin
@@ -14,14 +14,14 @@ transaction {
     }
 
     execute {
-        var identifier = Type<TopShot>().identifier
+        var identifier = Type<ExampleNFT>().identifier
         var nonFungibleTokenInfo = AssetHandover.NonFungibleTokenInfo(
-            name: "NBATopShot",
-            publicPath: /public/MomentCollection,
-            privatePath: /private/MomentCollection,
-            storagePath: /storage/MomentCollection,
-            publicType: Type<&{NonFungibleToken.CollectionPublic, TopShot.MomentCollectionPublic, MetadataViews.ResolverCollection}>(),
-            privateType: Type<&TopShot.Collection>()
+            name: "ExampleNFT",
+            publicPath: ExampleNFT.CollectionPublicPath,
+            privatePath: /private/exampleNFTCollection,
+            storagePath: ExampleNFT.CollectionStoragePath,
+            publicType: Type<&ExampleNFT.Collection{ExampleNFT.ExampleNFTCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}>(),
+            privateType: Type<&ExampleNFT.Collection>()
         )
         self.admin.addNonFungibleTokenInfo(identifier: identifier, tokenInfo: nonFungibleTokenInfo)
     }
