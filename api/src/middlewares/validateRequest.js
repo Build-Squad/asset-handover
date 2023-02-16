@@ -4,15 +4,15 @@ import { validationResult } from 'express-validator';
 // 'express-validator', this middleware will check if any errors were thrown within the route and then
 // return an appropriate error message to the API user.
 const validateRequest = (req, res, next) => {
-    const errors = validationResult(req);
+  const errors = validationResult(req);
 
-    if (!errors.isEmpty()) {
-        return res.status(400).send({
-            errors: errors.array(),
-        });
-    }
+  if (!errors.isEmpty()) {
+    return res.status(400).send({
+      errors: errors.array(),
+    });
+  }
 
-    next();
+  next();
 };
 
 export { validateRequest };

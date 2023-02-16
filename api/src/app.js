@@ -12,24 +12,24 @@ const V1 = '/v1/';
 
 // Init all
 const initApp = (
-    AssetHandoverService,
-    BlpTokenService,
-    DomainsTokenService
+  AssetHandoverService,
+  BlpTokenService,
+  DomainsTokenService
 ) => {
-    const app = express();
+  const app = express();
 
-    app.use(cors());
-    app.use(json());
-    app.use(urlencoded({ extended: false }));
-    app.use(V1, initAssetHandoverRouter(AssetHandoverService));
-    app.use(V1, initBlpTokenRouter(BlpTokenService));
-    app.use(V1, initDomainsTokenRouter(DomainsTokenService));
+  app.use(cors());
+  app.use(json());
+  app.use(urlencoded({ extended: false }));
+  app.use(V1, initAssetHandoverRouter(AssetHandoverService));
+  app.use(V1, initBlpTokenRouter(BlpTokenService));
+  app.use(V1, initDomainsTokenRouter(DomainsTokenService));
 
-    app.all('*', async (req, res) => {
-        return res.sendStatus(404);
-    });
+  app.all('*', async (req, res) => {
+    return res.sendStatus(404);
+  });
 
-    return app;
+  return app;
 };
 
 export default initApp;
