@@ -1,10 +1,10 @@
 # Asset-handover API
-The Asset-handover API is a RESTful API built with [express](https://expressjs.com/) that sends transactions to Flow using the [Flow JS SDK](https://github.com/onflow/fcl-js/tree/master/packages/sdk). It contains endpoints for the [Asset-handover](src/services/assetHandover.js), the [BLP token](src/services/blpToken.ts) and [Domains token](src/services/domainsToken.ts) services to read & write data to the Flow blockchain.
+The Asset-handover API is a RESTful API built with [express](https://expressjs.com/) that sends transactions to Flow using the [Flow JS SDK](https://github.com/onflow/fcl-js/tree/master/packages/sdk). It contains endpoints for the [Asset-handover](src/services/assetHandover.js), the [BLP token](src/services/blpToken.js) and [Domains token](src/services/domainsToken.js) services to read & write data to the Flow blockchain.
 
 ## Services
 The Asset-handover API contains four main services. These services synchronize data between the blockchain, and also provide API endpoints that could be consumed by the asset-handover client-side application.
 
-### [Asset-Handover Service](src/services/block-cursor.ts)
+### [Asset-Handover Service](src/services/assetHandover.js)
 This service contains functions that utilize the Flow Service to send Cadence transactions and scripts that fetch and update Asset-handover data.
 
 You can also run the [transactions and scripts](../cadence) manually using the [Flow CLI](https://docs.onflow.org/flow-cli/).
@@ -14,15 +14,15 @@ You can also run the [transactions and scripts](../cadence) manually using the [
 
 - **POST `/v1/asset-handover/lockUp/updateWithdrawFees`**: Allows the admin (deployer) of the Asset-Handover smart contract to update the fees charged for withdrawing from a lock-up. Uses [updateWithdrawFees.cdc](/cadence/transactions/lockUps/updateWithdrawFees.cdc)
 
-- **GET `/v1/asset-handover/accountLockUp/:address`**: Fetches the lock-up by holder account. Calls [getAccountLockUp.cdc](/cadence/scripts/lockups/getAccountLockUp.cdc)
+- **GET `/v1/asset-handover/accountLockUp/:address`**: Fetches the lock-up by holder account. Calls [getAccountLockUp.cdc](/cadence/scripts/lockUps/getAccountLockUp.cdc)
 
-- **GET `/v1/asset-handover/LockUpsByRecipient/:address`**: Fetches the lock-up by recipient account. Calls [getLockUpsByRecipient.cdc](/cadence/scripts/lockups/getLockUpsByRecipient.cdc)
+- **GET `/v1/asset-handover/LockUpsByRecipient/:address`**: Fetches the lock-up by recipient account. Calls [getLockUpsByRecipient.cdc](/cadence/scripts/lockUps/getLockUpsByRecipient.cdc)
 
-- **GET `/v1/asset-handover/fungibleTokenInfoMapping`**: Fetches the fungible tokens of the Asset-handover registry. Calls [getFungibleTokenInfoMapping.cdc](/cadence/scripts/lockups/getFungibleTokenInfoMapping.cdc)
+- **GET `/v1/asset-handover/fungibleTokenInfoMapping`**: Fetches the fungible tokens of the Asset-handover registry. Calls [getFungibleTokenInfoMapping.cdc](/cadence/scripts/lockUps/getFungibleTokenInfoMapping.cdc)
 
-- **GET `/v1/asset-handover/nonFungibleTokenInfoMapping`**: Fetches the non fungible tokens of the Asset-handover registry. Calls [getNonFungibleTokenInfoMapping.cdc](/cadence/scripts/lockups/getNonFungibleTokenInfoMapping.cdc)
+- **GET `/v1/asset-handover/nonFungibleTokenInfoMapping`**: Fetches the non fungible tokens of the Asset-handover registry. Calls [getNonFungibleTokenInfoMapping.cdc](/cadence/scripts/lockUps/getNonFungibleTokenInfoMapping.cdc)
 
-### [BLP Token Service](src/services/kitty-items.ts)
+### [BLP Token Service](src/services/blpToken.js)
 This service contains functions that utilize the Flow Service to send Cadence transactions and scripts that fetch and update BLP token data.
 
 You can also run the [transactions and scripts](../cadence) manually using the [Flow CLI](https://docs.onflow.org/flow-cli/).
@@ -42,7 +42,7 @@ You can also run the [transactions and scripts](../cadence) manually using the [
 
 - **POST `/v1/asset-handover/domains/mint`**: Mint Domains token for an account. Calls [registerDomain.cdc](/cadence/transactions/domains/registerDomain.cdc)
 
-### [Flow Service](src/services/flow.ts)
+### [Flow Service](src/services/flow.js)
 This service contains functions that interact with the Flow blockchain using the [FCL JS](https://docs.onflow.org/fcl/) library. While it has no exposed endpoints, its methods used to read, write and authorize data on the chain are used extensively by its sister services.
 
 Notable functions:
