@@ -1,10 +1,13 @@
 import { Nav, Navbar, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   return(
     <Navbar expand="lg">
-      <Navbar.Brand href="#home">
-        <h2 className="text-white">AssetHandover</h2>
+      <Navbar.Brand>
+        <Link to="/" className="text-decoration-none">
+          <h2 className="text-white">AssetHandover</h2>
+        </Link>
       </Navbar.Brand>
 
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
