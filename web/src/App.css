@@ -2,6 +2,10 @@ body {
   background: linear-gradient(to bottom, #0d0d2b, #18184d);
 }
 
+.coming-pad{
+  padding-top: 810px;
+}
+
 #basic-navbar-nav{
   flex-direction: row-reverse;
 }
