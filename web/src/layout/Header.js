@@ -12,7 +12,7 @@ export default function Header() {
 
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       
-      <Navbar.Collapse id="basic-navbar-nav">
+      <Navbar.Collapse id="basic-navbar-nav" className="flex-reverse">
         <Nav >
         <Button variant="light" className="connect-wallet">
           CONNECT WALLET

@@ -6,7 +6,7 @@ body {
   padding-top: 810px;
 }
 
-#basic-navbar-nav{
+.flex-reverse{
   flex-direction: row-reverse;
 }
 
@@ -19,4 +19,32 @@ body {
 
 .font-bold{
   font-weight: bold;
+}
+
+.font-80{
+  font-size: 80px;
+}
+.font-50{
+  font-size: 50px;
+}
+
+.search-input{
+  border-radius: 20px!important;
+  width: 60%!important;
+}
+
+.accordion-button{
+  border-radius: 20px!important;
+  padding-top: 8px!important;
+  padding-bottom: 8px!important;
+  font-weight: bold!important;
+}
+.accordion-item{
+  margin-top: 15px;
+  background-color: transparent!important;
+  border: 0px solid white!important;
+}
+.accordion-body{
+  background-color: transparent!important;
+  color: white;
 }
