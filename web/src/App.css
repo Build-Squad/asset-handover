@@ -1,3 +1,18 @@
 body {
   background: linear-gradient(to bottom, #0d0d2b, #18184d);
 }
+
+#basic-navbar-nav{
+  flex-direction: row-reverse;
+}
+
+.connect-wallet{
+  background-color: white!important;
+  color: red!important;
+  font-weight: bold!important;
+  border-radius: 20px!important;
+}
+
+.font-bold{
+  font-weight: bold;
+}
