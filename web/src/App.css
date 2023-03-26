@@ -30,7 +30,6 @@ body {
 
 .search-input{
   border-radius: 20px!important;
-  width: 60%!important;
 }
 
 .accordion-button{
@@ -47,4 +46,17 @@ body {
 .accordion-body{
   background-color: transparent!important;
   color: white;
+}
+
+.w-content{
+  width: fit-content;
+}
+
+.search-pad{
+  justify-content: end;
+}
+@media screen and (max-width: 768px) {  
+  .search-pad{
+    justify-content: center;
+  }
 }
