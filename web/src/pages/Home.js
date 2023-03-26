@@ -19,12 +19,14 @@ export default function Home(){
         </h1>
       </div>
 
-      <div className="col-md-4 mt-5 text-center">
-        <h5 className="text-white">
-          Search for BACKUP WALLET
-        </h5>
-        <div className="d-flex justify-content-center">
-          <Form.Control type="text" className="mt-2 search-input" />
+      <div className="col-md-4 mt-5 text-center d-flex search-pad">
+        <div className="w-content">
+          <h5 className="text-white">
+            Search for BACKUP WALLET
+          </h5>
+          <div className="d-flex justify-content-center">
+            <Form.Control type="text" className="mt-2 search-input" />
+          </div>
         </div>        
       </div>
 
