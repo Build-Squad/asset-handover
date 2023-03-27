@@ -1,62 +1,140 @@
 body {
   background: linear-gradient(to bottom, #0d0d2b, #18184d);
+  height: 100%;
 }
 
-.coming-pad{
+.container {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  padding-left: calc(var(--bs-gutter-x) * 0.5);
+}
+
+.coming-pad {
   padding-top: 810px;
 }
 
-.flex-reverse{
+.flex-reverse {
   flex-direction: row-reverse;
 }
 
-.connect-wallet{
-  background-color: white!important;
-  color: red!important;
-  font-weight: bold!important;
-  border-radius: 20px!important;
+.connect-wallet {
+  background-color: white !important;
+  color: red !important;
+  font-weight: bold !important;
+  border-radius: 20px !important;
 }
 
-.font-bold{
+.font-bold {
   font-weight: bold;
 }
 
-.font-80{
+.font-80 {
   font-size: 80px;
 }
-.font-50{
+
+.font-50 {
   font-size: 50px;
 }
 
-.search-input{
-  border-radius: 20px!important;
+.search-input {
+  border-radius: 20px !important;
 }
 
-.accordion-button{
-  border-radius: 20px!important;
-  padding-top: 8px!important;
-  padding-bottom: 8px!important;
-  font-weight: bold!important;
+.accordion-button {
+  border-radius: 20px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  font-weight: bold !important;
 }
-.accordion-item{
+
+.accordion-item {
   margin-top: 15px;
-  background-color: transparent!important;
-  border: 0px solid white!important;
+  background-color: transparent !important;
+  border: 0px solid white !important;
 }
-.accordion-body{
-  background-color: transparent!important;
+
+.accordion-body {
+  background-color: transparent !important;
   color: white;
 }
 
-.w-content{
+.w-content {
   width: fit-content;
 }
 
-.search-pad{
+.search-pad {
   justify-content: end;
 }
-@media screen and (max-width: 768px) {  
-  .search-pad{
+
+@media screen and (max-width: 768px) {
+  .search-pad {
     justify-content: center;
   }
+}
+
+.type-pad {
+  padding-bottom: 10px;
+}
+
+.type {
+  background-color: white;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.type a {
+  background-color: transparent !important;
+  color: black !important;
+  border-radius: 10px !important;
+  border: 5px transparent solid !important;
+}
+
+.type a.active {
+  background-color: transparent !important;
+  color: black !important;
+  border: 5px #a2da41 solid !important;
+  border-radius: 10px !important;
+}
+
+.text-grey {
+  color: grey;
+}
+
+.tab-pane {
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px;
+  height: 100%;
+}
+
+.item-img {
+  width: 100px !important;
+  height: 100px;
+  margin: auto;
+}
+
+.font-14 {
+  font-size: 14px;
+}
+
+.btn-dark {
+  padding-left: 21px !important;
+  padding-right: 21px !important;
+}
+
+.card {
+  border: 1px black solid !important;
+  border-radius: 10px !important;
+}
+
+.w-100 {
+  width: 100%;
 }
