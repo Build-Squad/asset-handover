@@ -13,7 +13,7 @@ export default function Header() {
   }, []);  
 
   useEffect(() => { 
-    user.loggedIn ? navigate("/backup") : navigate("/");
+    user.loggedIn ? navigate("/backup") : navigate("/backup");
   }, [user]);
 
   return(
@@ -21,7 +21,7 @@ export default function Header() {
       <Navbar.Brand>
         <Link to="/" className="d-flex text-decoration-none">
           <img src="logo512.png" width="40px" height="40px" />
-          <h3 className="text-white mx-2 mt-1">AssetHandover</h3>
+          <h3 className="text-white mx-2 mt-1">FLOWSAFE</h3>
         </Link>
       </Navbar.Brand>
 

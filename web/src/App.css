@@ -138,3 +138,20 @@ body {
 .w-100 {
   width: 100%;
 }
+
+.cursor-pointer{
+  cursor: pointer;
+}
+
+.form-control{
+  background-color: #ececec!important;
+  border: none!important;
+  border-radius: 20px!important;
+}
+
+.border-radius-none{
+  border-radius: 0px!important;
+  padding-left: 15px!important;
+  padding-right: 15px!important;
+  float: right;
+}
