@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import * as fcl from "@onflow/fcl";
-import { Tab, Nav, Card, Button } from "react-bootstrap";
+import { Tab, Nav, Card, Button, Form, } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from 'react-icons/fa';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
+  const [isCreate, setIsCreate] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => { 
@@ -50,6 +51,7 @@ export default function Backup() {
 
         <div className='col-xl-10 col-lg-9 d-flex pb-2'>
           <Tab.Content className='w-100'>
+            {!isCreate ?
             <Tab.Pane eventKey="first">
               <div className='row'>
                 <div className='col-xl-3 col-lg-5'>
@@ -74,19 +76,83 @@ export default function Backup() {
               </div> 
 
               <div className='row justify-content-end mt-5'>
-                <div className='col-xl-3 col-lg-5 text-center'>
+                <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={setIsCreate(true)}>
                   <FaPlus className='mt-5 me-2' size={60} />
                   <h5 className='mt-3 text-danger'>CREATE NEW BACKUP</h5>
                 </div>
               </div>             
             </Tab.Pane>
+            :
+            <Tab.Pane eventKey="first">
+              <div className='row p-3'>
+                <div className='col-md-6'>
+                  <h4 className='text-danger mb-4'>
+                    CREATE NEW BACKUP
+                  </h4>
+                  <h5 className='mb-5'>
+                    Lorem ipsum dolor sit amet, consectetur
+                    adipiscing elit. Proin luctus ut enim a aliquam. Ut
+                    vel ante non nibh lacinia hendrerit a sed risus.
+                    Sed elit diam, mattis quis porta in, dignissim quis
+                    ex. Morbi ut nulla a nisl sagittis luctus id sed erat.
+                    Class aptent taciti sociosqu ad litora torquent per
+                    conubia nostra, per inceptos himenaeos. Sed
+                    efficitur pulvinar sapien.
+                  </h5>
+                  <img className='m-auto' src="logo512.png" width="50%" height="auto" />
+                </div>
+
+                <div className='col-md-6'>
+                  <Form>
+                    <Form.Group className="mb-3">
+                      <Form.Label>
+                        Backup Name <span className='text-danger'>*</span>
+                      </Form.Label>
+                      <Form.Control type="text" />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>
+                        Recipient's Wallet ID <span className='text-danger'>*</span>
+                      </Form.Label>
+                      <Form.Control type="text" />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>
+                        Backup Date 
+                      </Form.Label>
+                      <Form.Control type="text" placeholder="Today's Date" />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>
+                        Maturity Date <span className='text-danger'>*</span>
+                      </Form.Label>
+                      <Form.Control type="text" />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>Description</Form.Label>
+                      <Form.Control as="textarea" rows={3} />
+                    </Form.Group>
+
+                    <Button className='border-radius-none mt-3' variant="danger" type="submit">
+                      CREATE BACKUP
+                    </Button>
+                  </Form>
+                </div>
+              </div>
+            </Tab.Pane>
+            }
+            
             <Tab.Pane eventKey="second">
               <h1 className="text-white">
                 Pledges Content
               </h1>
             </Tab.Pane>
           </Tab.Content>
-        </div>
+        </div>        
       </div>
     </Tab.Container>
   )
