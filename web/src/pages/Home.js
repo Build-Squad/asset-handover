@@ -4,14 +4,14 @@ export default function Home(){
   return(
     <div className="row mt-5">
       <div className="col-md-4">
-        <img src="logo512.png" width="100%" height="auto" /> 
+        <img src="Banner-Image.png" width="100%" height="auto" /> 
       </div>
 
       <div className="col-md-4 text-center m-auto mt-5">
         <h1 className="text-white mb-0">
           Protect Your
         </h1>
-        <h1 className="text-white font-80 mb-0">
+        <h1 className="header-font text-white font-80 mb-0">
           WEB3
         </h1>
         <h1 className="text-white font-50 mb-0">

@@ -3,6 +3,32 @@ body {
   height: 100%;
 }
 
+@font-face {
+  font-family: 'bahnschrift';
+  src: url('../public/Fonts/Headings/bahnschrift.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'calibri';
+  src: url('../public/Fonts/calibri.ttf') format('truetype');
+}
+
+.header-font{
+  font-family: 'bahnschrift', sans-serif;
+}
+.blue-font{
+  color: #18184D !important;
+}
+.red-font{
+  color: #E31E24!important;
+}
+.blue-bg{
+  background-color: #18184D !important;
+}
+.red-bg{
+  background-color: #E31E24!important;
+}
+
 .container {
   position: relative;
   min-height: 100vh;
@@ -17,17 +43,13 @@ body {
   padding-left: calc(var(--bs-gutter-x) * 0.5);
 }
 
-.coming-pad {
-  padding-top: 810px;
-}
-
 .flex-reverse {
   flex-direction: row-reverse;
 }
 
 .connect-wallet {
   background-color: white !important;
-  color: red !important;
+  color: #18184D !important;
   font-weight: bold !important;
   border-radius: 20px !important;
 }
@@ -53,6 +75,7 @@ body {
   padding-top: 8px !important;
   padding-bottom: 8px !important;
   font-weight: bold !important;
+  color: #18184D !important;
 }
 
 .accordion-item {
@@ -154,4 +177,42 @@ body {
   padding-left: 15px!important;
   padding-right: 15px!important;
   float: right;
+}
+
+.green-border{
+  border: 1px solid #a2da41;
+  border-radius: 10px;
+}
+
+.backup-date{
+  padding: 10px 15px 10px 15px;
+  width: fit-content;
+  border: 1px solid #a2da41;
+  background-color: #ececec;
+  border-radius: 5px;
+}
+.maturity-date{
+  padding: 10px 10px 10px 10px;
+  width: fit-content;
+  border: 1px solid red;
+  background-color: red;
+  color: white;
+  border-radius: 5px;
+}
+
+.text-webkit-right{
+  text-align: -webkit-right;
+}
+
+.border-bottom-green{
+  border-bottom: 1px solid #a2da41;
+}
+
+.grey-border{
+  border: 1px solid #c5c1c1;
+  border-radius: 10px;
+}
+
+.btn{
+  font-weight: bold!important;
 }
