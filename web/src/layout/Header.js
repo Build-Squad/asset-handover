@@ -20,8 +20,8 @@ export default function Header() {
     <Navbar expand="lg">
       <Navbar.Brand>
         <Link to="/" className="d-flex text-decoration-none">
-          <img src="logo512.png" width="40px" height="40px" />
-          <h3 className="text-white mx-2 mt-1">FLOWSAFE</h3>
+          <img src="Logo.png" width="40px" height="52px" />
+          <h1 className="header-font text-white mx-2 mt-1">FLOWSAFE</h1>
         </Link>
       </Navbar.Brand>
 
