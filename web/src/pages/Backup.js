@@ -11,7 +11,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("default");
+    setStep("edit");
   }, []);  
 
   const logout = () => {
@@ -93,7 +93,7 @@ export default function Backup() {
             <Tab.Pane eventKey="first">
               <div className='row p-3'>
                 <div className='col-md-6'>
-                  <h4 className='text-danger mb-4'>
+                  <h4 className='blue-font mb-4'>
                     CREATE NEW BACKUP
                   </h4>
                   <h5 className='mb-5'>
@@ -106,7 +106,9 @@ export default function Backup() {
                     conubia nostra, per inceptos himenaeos. Sed
                     efficitur pulvinar sapien.
                   </h5>
-                  <img className='m-auto' src="logo512.png" width="50%" height="auto" />
+                  <div className='d-flex justify-content-center'>
+                    <img src="page-3-banner.png" width="80%" height="auto" />
+                  </div>                  
                 </div>
 
                 <div className='col-md-6'>
@@ -144,7 +146,7 @@ export default function Backup() {
                       <Form.Control as="textarea" rows={3} />
                     </Form.Group>
 
-                    <Button className='border-radius-none mt-3' variant="danger" onClick={() => setStep("edit")}>
+                    <Button className='blue-bg border-radius-none mt-4' onClick={() => setStep("edit")}>
                       CREATE BACKUP
                     </Button>
                   </Form>
@@ -159,45 +161,45 @@ export default function Backup() {
                 <div className='col-md-6'>
                   <div className='row'>
                     <div className='col-md-3 d-flex green-border'>
-                      <img src="logo512.png" width="100%" height="auto" />
+                      <img src="safe.png" width="100%" height="auto" />
                     </div>
 
                     <div className='col-md-9'>
-                      <h5>Lorem ipsum dolor</h5>
-                      <p className='mb-0'>Lorem ipsum dolor Lorem ipsum dolor</p>
-                      <p className='mb-1'>Lorem ipsum dolor Lorem ipsum dolor</p>
+                      <h5 className='blue-font'>Lorem ipsum dolor</h5>
+                      <p className='blue-font mb-0'>Lorem ipsum dolor Lorem ipsum dolor</p>
+                      <p className='blue-font mb-1'>Lorem ipsum dolor Lorem ipsum dolor</p>
                       <p className='text-grey'>{user.addr}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className='col-md-6 text-webkit-right'>
-                  <p className='font-bold backup-date'>
+                  <p className='font-bold backup-date blue-font'>
                     BACKUP DATE: 12-08-2024
                   </p>
 
-                  <p className='font-bold maturity-date'>
+                  <p className='font-bold maturity-date blue-bg border-none'>
                     MATURITY DATE: 1-08-2028
                   </p>                  
                 </div>
               </div>
 
-              <h4 className='p-2 border-bottom-green mt-5'>COIN(S)</h4>
+              <h4 className='p-2 border-bottom-green blue-font mt-5'>COIN(S)</h4>
               <div className='d-flex mt-4'>
                 <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
-                  <FaPlus size={40} />
+                  <FaPlus className='blue-font' size={40} />
                 </div>
-                <h5 className='text-danger mx-3 align-self-center'>
+                <h5 className='blue-font mx-3 align-self-center'>
                   ADD COIN(S) TO BACKUP
                 </h5>
               </div> 
 
-              <h4 className='p-2 border-bottom-green mt-5'>NFT COLLECTION(S)</h4>
+              <h4 className='p-2 border-bottom-green blue-font mt-5'>NFT COLLECTION(S)</h4>
               <div className='d-flex mt-4'>
-                <div className='backup-date p-3 cursor-pointer'>
-                  <FaPlus size={40} />
+                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nfts")}>
+                  <FaPlus className='blue-font' size={40} />
                 </div>
-                <h5 className='text-danger mx-3 align-self-center'>
+                <h5 className='blue-font mx-3 align-self-center'>
                   ADD NFT(S) TO BACKUP
                 </h5>
               </div>             
@@ -206,18 +208,18 @@ export default function Backup() {
 
             {step === "coins" &&
             <Tab.Pane eventKey="first">
-              <h4 className='p-2 border-bottom-green'>COIN(S)</h4>
+              <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
               <div className='row p-3'>                
                 <div className='col-md-4'>
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="flowcoin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(250)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -229,12 +231,12 @@ export default function Backup() {
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="coin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(150)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -246,12 +248,12 @@ export default function Backup() {
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="flowcoin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(150)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -265,12 +267,12 @@ export default function Backup() {
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="coin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(250)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -282,12 +284,12 @@ export default function Backup() {
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="flowcoin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(150)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -299,12 +301,12 @@ export default function Backup() {
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="coin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(150)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -318,12 +320,12 @@ export default function Backup() {
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="coin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(250)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -335,12 +337,12 @@ export default function Backup() {
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="flowcoin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(150)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -352,12 +354,12 @@ export default function Backup() {
                   <div className='grey-border p-2'>
                     <div className='row'>
                       <div className='col-md-3'>
-                        <img src="logo512.png" width="100%" height="auto" />
+                        <img src="coin.png" width="100%" height="auto" />
                         <h5 className='text-center'>(150)</h5>
                       </div>
 
                       <div className='col-md-9'>
-                        <h5 className='mb-0'>Lorem ipsum dolor</h5>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
                         <p className='text-grey mb-1'>{user.addr}</p>
                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
                       </div>
@@ -375,11 +377,17 @@ export default function Backup() {
                 </div>
 
                 <div className='col-md-4'>
-                  <Button className='border-radius-none mt-3' variant="danger" onClick={() => setStep("edit")}>
+                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => setStep("edit")}>
                     ADD COINS TO BACKUP
                   </Button>
                 </div>
               </div>
+            </Tab.Pane>
+            }
+
+            {step === "nfts" &&
+            <Tab.Pane eventKey="first">
+              <h4 className='blue-font p-2 border-bottom-green'>SELECT NFT COLLECTION(S)</h4>
             </Tab.Pane>
             }
             

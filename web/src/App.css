@@ -28,6 +28,9 @@ body {
 .red-bg{
   background-color: #E31E24!important;
 }
+.border-none{
+  border: 0px solid black!important;
+}
 
 .container {
   position: relative;
