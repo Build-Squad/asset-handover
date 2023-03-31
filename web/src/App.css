@@ -147,8 +147,14 @@ body {
   margin: auto;
 }
 
+.font-12{
+  font-size: 12px;
+}
 .font-14 {
   font-size: 14px;
+}
+.font-15{
+  font-size: 15px;
 }
 
 .btn-dark {
@@ -224,4 +230,8 @@ body {
   border: 2px solid #a2da41;
   border-radius: 5px;
   margin-top: -50px;
+}
+
+.badge{
+  font-size: 14px!important;
 }
