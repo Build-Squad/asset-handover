@@ -11,7 +11,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("edit");
+    setStep("nfts");
   }, []);  
 
   const logout = () => {
@@ -196,7 +196,7 @@ export default function Backup() {
 
               <h4 className='p-2 border-bottom-green blue-font mt-5'>NFT COLLECTION(S)</h4>
               <div className='d-flex mt-4'>
-                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nfts")}>
+                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
                   <FaPlus className='blue-font' size={40} />
                 </div>
                 <h5 className='blue-font mx-3 align-self-center'>
@@ -385,9 +385,353 @@ export default function Backup() {
             </Tab.Pane>
             }
 
-            {step === "nfts" &&
+            {step === "nftcollection" &&
             <Tab.Pane eventKey="first">
               <h4 className='blue-font p-2 border-bottom-green'>SELECT NFT COLLECTION(S)</h4>
+
+              <div className='row'>
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+
+                            <Form.Check className='mx-2 mt-2' type="checkbox" />
+                          </div>                          
+                        </div>
+                      </div>                      
+                    </Card.Body>
+                  </Card>
+                </div>
+
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+
+                            <Form.Check className='mx-2 mt-2' type="checkbox" />
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+
+                            <Form.Check className='mx-2 mt-2' type="checkbox" />
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+              </div>
+
+              <div className='row'>
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+
+                            <Form.Check className='mx-2 mt-2' type="checkbox" />
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+
+                            <Form.Check className='mx-2 mt-2' type="checkbox" />
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+
+                            <Form.Check className='mx-2 mt-2' type="checkbox" />
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+              </div>
+            </Tab.Pane>
+            }
+
+            {step === "nfts" && 
+            <Tab.Pane eventKey="first">
+              <div className='row pt-2 mx-2 border-bottom-green'>
+                <div className='col-md-4'>
+                  <h4 className='blue-font'>SELECT NFT(S)</h4>
+                </div>
+                <div className='col-md-4 pt-2'>
+                  <Form.Check type="checkbox" label="Select All NFTs" />
+                </div>
+                <div className='col-md-4 text-end'>
+                  <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                </div>                
+              </div>
+
+              <div className='row p-3'>
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className='row p-3'>
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+              </div>  
+
+              <div className='row p-3'>
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <Card.Title>NFT NAME</Card.Title>
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Button className='blue-bg border-none border-radius-none mt-5 me-3'>
+                ADD NFT(S) TO BACKUP
+              </Button>
             </Tab.Pane>
             }
             

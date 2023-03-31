@@ -219,3 +219,9 @@ body {
 .btn{
   font-weight: bold!important;
 }
+
+.nft-img{
+  border: 2px solid #a2da41;
+  border-radius: 5px;
+  margin-top: -50px;
+}
