@@ -13,7 +13,7 @@ export default function Backup() {
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
     setStep("nfts");
-    setPledgeStep("item");
+    setPledgeStep("nfts");
   }, []);  
 
   const logout = () => {
@@ -737,6 +737,7 @@ export default function Backup() {
             </Tab.Pane>
             }
             
+            {/* // Pledge  */}
             {pledgeStep === "default" &&
             <Tab.Pane eventKey="second">
               <div className='row'>
@@ -841,7 +842,7 @@ export default function Backup() {
                 <Badge className='mx-3' bg="danger">WITHDRAW</Badge>
               </h4>
               <div className='row'>
-                <div className='col-md-1'>
+                <div className='col-md-1 cursor-pointer' onClick={() => setPledgeStep("coins")}>
                   <img src="flowcoin.png" width="100%" height="auto" />
                   <p className='blue-font font-bold text-center'>(250)</p>
                 </div>
@@ -888,7 +889,7 @@ export default function Backup() {
               </h4>
               <div className='row'>
                 <div className='col-md-3 pt-2'>
-                  <Card className='p-2 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
+                  <Card className='p-2 pb-1 cursor-pointer' onClick={() => setPledgeStep("nftcollection")}>
                     <Card.Img variant="top" src="nfts.png" />
                     <Card.Body className='pb-0'>
                       <div className='row'>
@@ -909,6 +910,670 @@ export default function Backup() {
                       </div>                      
                     </Card.Body>
                   </Card>
+                </div>
+              </div>
+            </Tab.Pane>
+            }
+
+            {pledgeStep === "coins" &&
+            <Tab.Pane eventKey="second">
+              <h4 className='p-2 border-bottom-green blue-font'>
+                WITHDRAW COIN(S) FROM PLEDGE
+              </h4>
+
+              <div className='row p-3'>                
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+
+              <div className='row p-3'>                
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+
+              <div className='row p-3'>                
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='grey-border p-2'>
+                    <div className='row'>
+                      <div className='col-md-3'>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <h5 className='text-center'>(250)</h5>
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
+                        <p className='text-grey mb-1'>{user.addr}</p>
+                        
+                        <div className='row'>
+                          <div className='col-9 pr-0'>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          </div>
+
+                          <div className='col-3'>
+                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                          </div>
+                        </div>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div> 
+              </div>
+            </Tab.Pane>
+            }
+
+            {pledgeStep === "nftcollection" &&
+            <Tab.Pane eventKey="second">
+              <h4 className='p-2 border-bottom-green blue-font'>
+                SELECT NFT COLLECTION TO WITHDRAW NFT(S)
+              </h4>
+
+              <div className='row'>
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1 cursor-pointer' onClick={() => setPledgeStep("nfts")}>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+                          </div>                          
+                        </div>
+                      </div>                      
+                    </Card.Body>
+                  </Card>
+                </div>
+
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+              </div>
+
+              <div className='row'>
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+
+                <div className='col-md-4 pt-2'>
+                  <Card className='p-3 pb-1'>
+                    <Card.Img variant="top" src="nfts.png" />
+                    <Card.Body className='pb-0'>
+                      <div className='row'>
+                        <div className='col-3 p-0'>
+                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                          <h5 className='text-center'>(7)</h5>
+                        </div>
+
+                        <div className='col-9'>
+                          <Card.Title>Lorem ipsum dolor</Card.Title>
+                          <div className='d-flex'>
+                            <p className='text-grey font-14 mb-0'>
+                              Lorem ipsum dolor Lorem <br/>
+                              Lorem ipsum dolor Lorem
+                            </p>
+                          </div>                          
+                        </div>
+                      </div>
+                      
+                    </Card.Body>
+                  </Card>
+                </div>
+              </div>
+            </Tab.Pane>
+            }
+
+            {pledgeStep === "nfts" &&
+            <Tab.Pane eventKey="second">
+              <div className='row pt-2 mx-2 border-bottom-green'>
+                <div className='col-md-6'>
+                  <h4 className='blue-font'>
+                    WITHDRAW NFT(S) FROM PLEDGE
+                  </h4>
+                </div>
+                <div className='col-md-6 text-end'>
+                  <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                </div>                
+              </div>
+
+              <div className='row p-3'>
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className='row p-3'>
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className='row p-3'>
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-4'>
+                  <div className='row grey-border p-2 me-2 mt-2'>
+                    <div className='col-3 p-1'>
+                      <img className='green-border' src="nft.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-9'>
+                      <div className='row'>
+                        <div className='col-9'>
+                          <Card.Title>NFT NAME</Card.Title>
+                        </div>
+                        <div className='col-3'>
+                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                        </div>
+                      </div>                     
+                      
+                      <p className='font-14 mb-0'>
+                        Lorem ipsum dolor Lorem <br/>
+                        Lorem ipsum dolor Lorem
+                      </p>
+                      <p className='text-grey mb-0'>#567</p>                       
+                    </div>
+                  </div>
                 </div>
               </div>
             </Tab.Pane>

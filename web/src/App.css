@@ -235,3 +235,16 @@ body {
 .badge{
   font-size: 14px!important;
 }
+
+.withdraw-img{
+  border: 1px solid #9D9E9E;
+  border-radius: 50px;
+}
+
+.pr-0{
+  padding-right: 0px!important;
+}
+
+input::placeholder {
+  font-size: 12px;
+}
