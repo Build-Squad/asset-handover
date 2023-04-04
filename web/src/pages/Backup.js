@@ -3,6 +3,11 @@ import * as fcl from "@onflow/fcl";
 import { Tab, Nav, Card, Button, Form, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from 'react-icons/fa';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+import { createLockUp } from '../cadence/transaction/createLockUp';
+import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -10,15 +15,60 @@ export default function Backup() {
   const [pledgeStep, setPledgeStep] = useState("default");
   const navigate = useNavigate();
 
+  const [backupName, setBackupName] = useState('');
+  const [recipient, setRecipient] = useState('0x8527e930b7b21dae');
+  const [maturity, setMaturity] = useState(new Date());
+  const [description, setDescription] = useState('');
+
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("nfts");
+    setStep("create");
     setPledgeStep("nfts");
-  }, []);  
+  }, []); 
+  
+  useEffect(() => {
+    getBackup();
+  }, [user]);
 
   const logout = () => {
     fcl.unauthenticate();
     navigate("/");
+  }
+
+  console.log(user.addr);
+
+  const getBackup = async() => {
+    if(user.addr){
+      const res = await fcl.query({
+        cadence: getAccountLockUp,
+        args: (arg, t) => [arg(user.addr, t.Address)],
+      });
+  
+      console.log('backup - ', res);
+    }
+  }
+
+  const createBackup = async () => {
+    const releaseDate = maturity.getTime();
+    console.log(releaseDate);
+
+    try{
+      const txid = await fcl.mutate({
+        cadence: createLockUp,
+        args: (arg, t) => [
+          arg(releaseDate + ".0", t.UFix64),
+          arg(recipient, t.Address)
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+    }catch(error) {
+      console.log('err', error);
+    }
   }
 
   return(
@@ -119,36 +169,32 @@ export default function Backup() {
                       <Form.Label>
                         Backup Name <span className='text-danger'>*</span>
                       </Form.Label>
-                      <Form.Control type="text" />
+                      <Form.Control type="text" value={backupName} 
+                        onChange={(e) => setBackupName(e.target.value)} />
                     </Form.Group>
 
                     <Form.Group className="mb-3">
                       <Form.Label>
                         Recipient's Wallet ID <span className='text-danger'>*</span>
                       </Form.Label>
-                      <Form.Control type="text" />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Backup Date 
-                      </Form.Label>
-                      <Form.Control type="text" placeholder="Today's Date" />
+                      <Form.Control type="text" value={recipient}
+                       onChange={(e) => setRecipient(e.target.value)} />
                     </Form.Group>
 
                     <Form.Group className="mb-3">
                       <Form.Label>
                         Maturity Date <span className='text-danger'>*</span>
                       </Form.Label>
-                      <Form.Control type="text" />
+                      <DatePicker className='form-control' selected={maturity} onChange={(date) => setMaturity(date)} />
                     </Form.Group>
 
                     <Form.Group className="mb-3">
                       <Form.Label>Description</Form.Label>
-                      <Form.Control as="textarea" rows={3} />
+                      <Form.Control as="textarea" rows={3} value={description} 
+                       onChange={(e) => setDescription(e.target.value)} />
                     </Form.Group>
 
-                    <Button className='blue-bg border-radius-none mt-4' onClick={() => setStep("edit")}>
+                    <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
                       CREATE BACKUP
                     </Button>
                   </Form>
