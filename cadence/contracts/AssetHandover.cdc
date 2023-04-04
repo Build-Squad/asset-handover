@@ -225,7 +225,6 @@ pub contract AssetHandover {
         init(
             holder: Address,
             releasedAt: UFix64,
-            createdAt: UFix64,
             name: String,
             description: String,
             recipient: Address,
@@ -510,7 +509,6 @@ pub contract AssetHandover {
     pub fun createLockUp(
         holder: Address,
         releasedAt: UFix64,
-        createdAt: UFix64,
         name: String,
         description: String,
         recipient: Address,
@@ -533,7 +531,6 @@ pub contract AssetHandover {
         let lockUp <- create LockUp(
             holder: holder,
             releasedAt: releasedAt,
-            createdAt: getCurrentBlock().timestamp,
             name: name,
             description: description,
             recipient: recipient
