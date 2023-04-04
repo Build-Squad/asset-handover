@@ -19,6 +19,8 @@ pub contract AssetHandover {
     pub event LockUpDestroyed(holder: Address?, recipient: Address)
     pub event LockUpRecipientChanged(holder: Address, recipient: Address)
     pub event LockUpReleasedAtChanged(holder: Address, releasedAt: UFix64)
+    pub event LockUpNameChanged(holder: Address, name: String)
+    pub event LockUpDescriptionChanged(holder: Address, description: String)
 
     init() {
         self.lockUpsMapping = {}
@@ -108,6 +110,9 @@ pub contract AssetHandover {
     pub struct LockUpInfo {
         pub let holder: Address
         pub let releasedAt: UFix64
+        pub let createdAt: UFix64
+        pub let name: String
+        pub let description: String
         pub let recipient: Address
         pub let fungibleTokens: [FTLockUpInfo]
         pub let nonFungibleTokens: [NFTLockUpInfo]
@@ -115,12 +120,18 @@ pub contract AssetHandover {
         init(
             holder: Address,
             releasedAt: UFix64,
+            createdAt: UFix64,
+            name: String,
+            description: String,
             recipient: Address,
             fungibleTokens: [FTLockUpInfo],
             nonFungibleTokens: [NFTLockUpInfo]
         ) {
             self.holder = holder
             self.releasedAt = releasedAt
+            self.createdAt = createdAt
+            self.name = name
+            self.description = description
             self.recipient = recipient
             self.fungibleTokens = fungibleTokens
             self.nonFungibleTokens = nonFungibleTokens
@@ -160,6 +171,8 @@ pub contract AssetHandover {
         )
 
         pub fun setReleasedAt(releasedAt: UFix64)
+        pub fun setName(name: String)
+        pub fun setDescription(description: String)
         pub fun setRecipient(recipient: Address)
         pub fun setBalance(identifier: String, balance: UFix64)
         pub fun setNFTIDs(identifier: String, nftIDs: [UInt64])
@@ -202,6 +215,9 @@ pub contract AssetHandover {
     pub resource LockUp: LockUpPublic, LockUpPrivate {
         access(self) let holder: Address
         access(self) var releasedAt: UFix64
+        access(self) var createdAt: UFix64
+        access(self) var name: String
+        access(self) var description: String
         access(self) var recipient: Address
         access(self) let ftLockUps: {String: FTLockUp}
         access(self) let nftLockUps: {String: NFTLockUp}
@@ -209,10 +225,16 @@ pub contract AssetHandover {
         init(
             holder: Address,
             releasedAt: UFix64,
+            createdAt: UFix64,
+            name: String,
+            description: String,
             recipient: Address,
         ) {
             self.holder = holder
             self.releasedAt = releasedAt
+            self.createdAt = getCurrentBlock().timestamp
+            self.name = name
+            self.description = description
             self.recipient = recipient
             self.ftLockUps = {}
             self.nftLockUps = {}
@@ -241,6 +263,9 @@ pub contract AssetHandover {
             return LockUpInfo(
                 holder: self.holder,
                 releasedAt: self.releasedAt,
+                createdAt: self.createdAt,
+                name: self.name,
+                description: self.description,
                 recipient: self.recipient,
                 fungibleTokens: fungibleTokens,
                 nonFungibleTokens: nonFungibleTokens
@@ -385,6 +410,16 @@ pub contract AssetHandover {
             emit LockUpReleasedAtChanged(holder: self.holder, releasedAt: releasedAt)
         }
 
+        pub fun setName(name: String) {
+            self.name = name
+            emit LockUpNameChanged(holder: self.holder, name: name)
+        }
+
+        pub fun setDescription(description: String) {
+            self.description = description
+            emit LockUpDescriptionChanged(holder: self.holder, description: description)
+        }
+
         pub fun setRecipient(recipient: Address) {
             AssetHandover.removeFromLockUpsMapping(holder: self.holder, recipient: self.recipient)
             self.recipient = recipient
@@ -475,6 +510,9 @@ pub contract AssetHandover {
     pub fun createLockUp(
         holder: Address,
         releasedAt: UFix64,
+        createdAt: UFix64,
+        name: String,
+        description: String,
         recipient: Address,
         feeTokens: @FungibleToken.Vault
     ): @LockUp {
@@ -495,6 +533,9 @@ pub contract AssetHandover {
         let lockUp <- create LockUp(
             holder: holder,
             releasedAt: releasedAt,
+            createdAt: getCurrentBlock().timestamp,
+            name: name,
+            description: description,
             recipient: recipient
         )
 
