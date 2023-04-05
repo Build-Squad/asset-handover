@@ -57,7 +57,9 @@ export default function Backup() {
         cadence: createLockUp,
         args: (arg, t) => [
           arg(releaseDate + ".0", t.UFix64),
-          arg(recipient, t.Address)
+          arg(recipient, t.Address),
+          arg(backupName, t.String),
+          arg(description, t.String)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,

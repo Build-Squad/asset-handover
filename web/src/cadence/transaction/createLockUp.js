@@ -2,7 +2,7 @@ export const createLockUp = `
 import AssetHandover from 0xAssetHandover
 import FungibleToken from 0xFT
 
-transaction(releasedAt: UFix64, recipient: Address) {
+transaction(releasedAt: UFix64, recipient: Address, name: String, description: String) {
     prepare(account: AuthAccount) {
         let vault = account.borrow<&FungibleToken.Vault>(
             from: /storage/flowTokenVault
@@ -14,6 +14,8 @@ transaction(releasedAt: UFix64, recipient: Address) {
         let lockUp <- AssetHandover.createLockUp(
             holder: account.address,
             releasedAt: releasedAt,
+            name: name,
+            description: description,
             recipient: recipient,
             feeTokens: <- feeTokens
         )
