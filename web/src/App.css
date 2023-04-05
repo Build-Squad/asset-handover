@@ -248,3 +248,8 @@ body {
 input::placeholder {
   font-size: 12px;
 }
+
+#left-tabs-example-tabpane-first{
+  display: grid;
+  align-items: center;
+}

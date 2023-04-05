@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { FaPlus } from 'react-icons/fa';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { createLockUp } from '../cadence/transaction/createLockUp';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
@@ -20,14 +22,16 @@ export default function Backup() {
   const [maturity, setMaturity] = useState(new Date());
   const [description, setDescription] = useState('');
 
+  const [lockUp, setLockUp] = useState(null);
+
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("create");
+    setStep("default");
     setPledgeStep("nfts");
   }, []); 
   
   useEffect(() => {
-    // getBackup();
+    getBackup();    
   }, [user]);
 
   const logout = () => {
@@ -35,7 +39,17 @@ export default function Backup() {
     navigate("/");
   }
 
-  console.log(user.addr);
+  const convertDate = (timeStamp) => {
+    const date = new Date(timeStamp*1000);
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const formattedDate = `${day}/${month}/${year}`;
+
+    return formattedDate;
+  }
 
   const getBackup = async() => {
     if(user.addr){
@@ -45,18 +59,18 @@ export default function Backup() {
       });
   
       console.log('backup - ', res);
+      setLockUp(res);
     }
   }
 
   const createBackup = async () => {
-    const releaseDate = maturity.getTime();
-    console.log(releaseDate);
+    const releaseDate = Math.floor(maturity.getTime() / 1000).toFixed(1);
 
     try{
       const txid = await fcl.mutate({
         cadence: createLockUp,
         args: (arg, t) => [
-          arg(releaseDate.toFixed(2), t.String),
+          arg(releaseDate, t.UFix64),
           arg(recipient, t.Address),
           arg(backupName, t.String),
           arg(description, t.String)
@@ -68,8 +82,10 @@ export default function Backup() {
       });
 
       console.log(txid);
+      toast.success("Successfully created!");
     }catch(error) {
       console.log('err', error);
+      toast.error(error);
     }
   }
 
@@ -108,20 +124,30 @@ export default function Backup() {
           <Tab.Content className='w-100'>
             {step === "default" &&
             <Tab.Pane eventKey="first">
-              <div className='row'>
+              {lockUp ? 
+              <div className='row justify-content-center'>
                 <div className='col-xl-3 col-lg-5'>
                   <Card className="text-center">
                     <Card.Img className='item-img' variant="top" src="safe.png" />
                     <Card.Body>
-                      <Card.Title className="blue-font">Lorem ipsum dolor</Card.Title>
+                      <Card.Title className="blue-font">
+                        {lockUp.name}
+                      </Card.Title>
                       <p className='text-grey mb-0'>
-                        {user.addr}
+                        {lockUp.recipient}
                       </p>
-                      <p className='font-14 mb-0 blue-font'>Created on</p>
-                      <p className='mb-1 blue-font'>12 March 2023</p>
-
-                      <p className='red-font font-14 mb-0'>Maturity Date</p>
-                      <p className='red-font'>3 Jan 2027</p>
+                      <p className='font-14 mb-0 blue-font'>
+                        Created on
+                      </p>
+                      <p className='mb-1 blue-font'>
+                        {convertDate(Math.floor(lockUp.createdAt))}
+                      </p>
+                      <p className='red-font font-14 mb-0'>
+                        Maturity Date
+                      </p>
+                      <p className='red-font'>
+                        {convertDate(Math.floor(lockUp.releasedAt))}
+                      </p>
 
                       <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
                         Edit
@@ -132,14 +158,15 @@ export default function Backup() {
                     </Card.Body>
                   </Card>
                 </div>
-              </div> 
-
-              <div className='row justify-content-end mt-5'>
+              </div>
+              :
+              <div className='row justify-content-center'>
                 <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
                   <FaPlus className='blue-font mt-5 me-2' size={60} />
                   <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
                 </div>
-              </div>             
+              </div>
+              }         
             </Tab.Pane>
             }
 
@@ -1630,6 +1657,8 @@ export default function Backup() {
           </Tab.Content>
         </div>        
       </div>
+
+      <ToastContainer />
     </Tab.Container>
   )
 }
