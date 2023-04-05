@@ -334,7 +334,7 @@ Let's proceed with the `AssetHandover.LockUp` resource creation:
 
 ```bash
 # Create a AssetHandover.LockUp resource for the holder account.
-flow transactions send ./cadence/transactions/lockUps/createLockUp.cdc 1700034523.0 $RECIPIENT_ADDRESS "first backup" "Its going to be used to for all of my assets" --network=emulator --signer=holder
+flow transactions send ./cadence/transactions/lockUps/createLockUp.cdc 1700034523.0 $RECIPIENT_ADDRESS "first backup" "Its going to be used for all of my assets" --network=emulator --signer=holder
 
 # View the public info of the holder's AssetHandover.LockUp resource.
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
