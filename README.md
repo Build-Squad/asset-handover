@@ -334,7 +334,7 @@ Let's proceed with the `AssetHandover.LockUp` resource creation:
 
 ```bash
 # Create a AssetHandover.LockUp resource for the holder account.
-flow transactions send ./cadence/transactions/lockUps/createLockUp.cdc 1700034523.0 $RECIPIENT_ADDRESS "first backup" "Its going to be used for all of my assets" --network=emulator --signer=holder
+flow transactions send ./cadence/transactions/lockUps/createLockUp.cdc 1700034523 $RECIPIENT_ADDRESS "first backup" "Its going to be used for all of my assets" --network=emulator --signer=holder
 
 # View the public info of the holder's AssetHandover.LockUp resource.
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
@@ -403,7 +403,7 @@ flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.c
 error: panic: The assets are still in lock-up period!
 
 # For the sake of testing, we use the holder account to change the `releasedAt` value to a past date.
-flow transactions send ./cadence/transactions/lockUps/setLockUpReleasedAt.cdc 1663224523.0 --network=emulator --signer=holder
+flow transactions send ./cadence/transactions/lockUps/setLockUpReleasedAt.cdc 1663224523 --network=emulator --signer=holder
 
 # Recipient attempts to withdraw the NFTs again.
 flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS --network=emulator --signer=recipient

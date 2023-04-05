@@ -1,7 +1,7 @@
 import AssetHandover from "../../contracts/AssetHandover.cdc"
 import FungibleToken from "../../contracts/interfaces/FungibleToken.cdc"
 
-transaction(releasedAt: UFix64, recipient: Address, name: String, description: String) {
+transaction(releasedAt: UInt64, recipient: Address, name: String, description: String) {
     prepare(account: AuthAccount) {
         let vault = account.borrow<&FungibleToken.Vault>(
             from: /storage/flowTokenVault
