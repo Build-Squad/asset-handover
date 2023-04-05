@@ -27,7 +27,7 @@ export default function Backup() {
   }, []); 
   
   useEffect(() => {
-    getBackup();
+    // getBackup();
   }, [user]);
 
   const logout = () => {
@@ -56,7 +56,7 @@ export default function Backup() {
       const txid = await fcl.mutate({
         cadence: createLockUp,
         args: (arg, t) => [
-          arg(releaseDate + ".0", t.UFix64),
+          arg(releaseDate.toFixed(2), t.String),
           arg(recipient, t.Address),
           arg(backupName, t.String),
           arg(description, t.String)
