@@ -18,7 +18,7 @@ pub contract AssetHandover {
     pub event LockUpCreated(holder: Address, recipient: Address)
     pub event LockUpDestroyed(holder: Address?, recipient: Address)
     pub event LockUpRecipientChanged(holder: Address, recipient: Address)
-    pub event LockUpReleasedAtChanged(holder: Address, releasedAt: UFix64)
+    pub event LockUpReleasedAtChanged(holder: Address, releasedAt: UInt64)
     pub event LockUpNameChanged(holder: Address, name: String)
     pub event LockUpDescriptionChanged(holder: Address, description: String)
 
@@ -109,8 +109,8 @@ pub contract AssetHandover {
 
     pub struct LockUpInfo {
         pub let holder: Address
-        pub let releasedAt: UFix64
-        pub let createdAt: UFix64
+        pub let releasedAt: UInt64
+        pub let createdAt: UInt64
         pub let name: String
         pub let description: String
         pub let recipient: Address
@@ -119,8 +119,8 @@ pub contract AssetHandover {
 
         init(
             holder: Address,
-            releasedAt: UFix64,
-            createdAt: UFix64,
+            releasedAt: UInt64,
+            createdAt: UInt64,
             name: String,
             description: String,
             recipient: Address,
@@ -170,7 +170,7 @@ pub contract AssetHandover {
             nftIDs: [UInt64]?
         )
 
-        pub fun setReleasedAt(releasedAt: UFix64)
+        pub fun setReleasedAt(releasedAt: UInt64)
         pub fun setName(name: String)
         pub fun setDescription(description: String)
         pub fun setRecipient(recipient: Address)
@@ -214,8 +214,8 @@ pub contract AssetHandover {
 
     pub resource LockUp: LockUpPublic, LockUpPrivate {
         access(self) let holder: Address
-        access(self) var releasedAt: UFix64
-        access(self) var createdAt: UFix64
+        access(self) var releasedAt: UInt64
+        access(self) var createdAt: UInt64
         access(self) var name: String
         access(self) var description: String
         access(self) var recipient: Address
@@ -224,14 +224,14 @@ pub contract AssetHandover {
 
         init(
             holder: Address,
-            releasedAt: UFix64,
+            releasedAt: UInt64,
             name: String,
             description: String,
             recipient: Address,
         ) {
             self.holder = holder
             self.releasedAt = releasedAt
-            self.createdAt = getCurrentBlock().timestamp
+            self.createdAt = UInt64(getCurrentBlock().timestamp)
             self.name = name
             self.description = description
             self.recipient = recipient
@@ -277,7 +277,7 @@ pub contract AssetHandover {
             receiver: Capability<&{FungibleToken.Receiver}>,
             feeTokens: @FungibleToken.Vault
         ) {
-            let currentTime = getCurrentBlock().timestamp
+            let currentTime = UInt64(getCurrentBlock().timestamp)
             if self.releasedAt > currentTime {
                 panic("The assets are still in lock-up period.")
             }
@@ -327,7 +327,7 @@ pub contract AssetHandover {
             receiver: Capability<&{NonFungibleToken.Receiver}>,
             feeTokens: @FungibleToken.Vault
         ) {
-            let currentTime = getCurrentBlock().timestamp
+            let currentTime = UInt64(getCurrentBlock().timestamp)
             if self.releasedAt > currentTime {
                 panic("The assets are still in lock-up period!")
             }
@@ -404,7 +404,7 @@ pub contract AssetHandover {
             )
         }
 
-        pub fun setReleasedAt(releasedAt: UFix64) {
+        pub fun setReleasedAt(releasedAt: UInt64) {
             self.releasedAt = releasedAt
             emit LockUpReleasedAtChanged(holder: self.holder, releasedAt: releasedAt)
         }
@@ -508,14 +508,14 @@ pub contract AssetHandover {
 
     pub fun createLockUp(
         holder: Address,
-        releasedAt: UFix64,
+        releasedAt: UInt64,
         name: String,
         description: String,
         recipient: Address,
         feeTokens: @FungibleToken.Vault
     ): @LockUp {
         pre {
-            releasedAt > getCurrentBlock().timestamp : "releasedAt should be a future date timestamp"
+            releasedAt > UInt64(getCurrentBlock().timestamp) : "releasedAt should be a future date timestamp"
         }
 
         let admin = self.getAdmin()
