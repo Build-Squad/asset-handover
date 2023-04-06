@@ -10,5 +10,6 @@ config({
 	'app.detail.icon': "",
   "0xAssetHandover": "0x873f10f2f8faa11d",
   "0xFT": "0x9a0766d93b6608b7",
-  "0xNFT": "0x631e88ae7f1d7c20"
+  "0xNFT": "0x631e88ae7f1d7c20",
+  "0xFlowToken": "0x7e60df042a9c0868"
 })
