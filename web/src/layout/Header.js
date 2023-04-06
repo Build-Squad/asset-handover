@@ -13,7 +13,7 @@ export default function Header() {
   }, []);  
 
   useEffect(() => { 
-    user.loggedIn ? navigate("/backup") : navigate("/backup");
+    user.loggedIn ? navigate("/backup") : navigate("/");
   }, [user]);
 
   return(

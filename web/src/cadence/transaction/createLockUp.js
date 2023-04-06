@@ -13,7 +13,7 @@ transaction(releasedAt: UFix64, recipient: Address, name: String, description: S
         )
         let lockUp <- AssetHandover.createLockUp(
             holder: account.address,
-            releasedAt: releasedAt,
+            releasedAt: UFix64(releasedAt),
             name: name,
             description: description,
             recipient: recipient,

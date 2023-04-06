@@ -5,9 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { FaPlus } from 'react-icons/fa';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import { createLockUp } from '../cadence/transaction/createLockUp';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
+import { addTokenInfo } from '../cadence/transaction/addTokenInfo';
+import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -20,14 +24,16 @@ export default function Backup() {
   const [maturity, setMaturity] = useState(new Date());
   const [description, setDescription] = useState('');
 
+  const [lockUp, setLockUp] = useState(null);
+
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("create");
+    setStep("default");
     setPledgeStep("nfts");
   }, []); 
   
   useEffect(() => {
-    getBackup();
+    getBackup();    
   }, [user]);
 
   const logout = () => {
@@ -35,7 +41,17 @@ export default function Backup() {
     navigate("/");
   }
 
-  console.log(user.addr);
+  const convertDate = (timeStamp) => {
+    const date = new Date(timeStamp*1000);
+
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const formattedDate = `${month}-${day}-${year}`;
+
+    return formattedDate;
+  }
 
   const getBackup = async() => {
     if(user.addr){
@@ -45,18 +61,38 @@ export default function Backup() {
       });
   
       console.log('backup - ', res);
+      setLockUp(res);
+
+      // try{
+      //   const txid = await fcl.mutate({
+      //     cadence: addTokenInfo,
+      //     proposer: fcl.currentUser,
+      //     payer: fcl.currentUser,
+      //     authorizations: [fcl.currentUser],
+      //     limit: 999,
+      //   });
+  
+      //   console.log(txid);        
+      // }catch(error) {
+      //   console.log('err', error);
+      // }     
+      
+      const ftinfo = await fcl.query({
+        cadence: getFungibleTokenInfoMapping
+      });
+
+      console.log('ftinfo - ', ftinfo);
     }
   }
 
   const createBackup = async () => {
-    const releaseDate = maturity.getTime();
-    console.log(releaseDate);
+    const releaseDate = Math.floor(maturity.getTime() / 1000).toFixed(1);
 
     try{
       const txid = await fcl.mutate({
         cadence: createLockUp,
         args: (arg, t) => [
-          arg(releaseDate + ".0", t.UFix64),
+          arg(releaseDate, t.UFix64),
           arg(recipient, t.Address),
           arg(backupName, t.String),
           arg(description, t.String)
@@ -68,8 +104,11 @@ export default function Backup() {
       });
 
       console.log(txid);
+      toast.success("Successfully created!");
+      setStep("default");
     }catch(error) {
       console.log('err', error);
+      toast.error(error);
     }
   }
 
@@ -108,20 +147,30 @@ export default function Backup() {
           <Tab.Content className='w-100'>
             {step === "default" &&
             <Tab.Pane eventKey="first">
-              <div className='row'>
+              {lockUp ? 
+              <div className='row justify-content-center'>
                 <div className='col-xl-3 col-lg-5'>
-                  <Card className="text-center">
+                  <Card className="text-center cursor-pointer" onClick={() => setStep("detail")}>
                     <Card.Img className='item-img' variant="top" src="safe.png" />
                     <Card.Body>
-                      <Card.Title className="blue-font">Lorem ipsum dolor</Card.Title>
+                      <Card.Title className="blue-font">
+                        {lockUp.name}
+                      </Card.Title>
                       <p className='text-grey mb-0'>
-                        {user.addr}
+                        {lockUp.recipient}
                       </p>
-                      <p className='font-14 mb-0 blue-font'>Created on</p>
-                      <p className='mb-1 blue-font'>12 March 2023</p>
-
-                      <p className='red-font font-14 mb-0'>Maturity Date</p>
-                      <p className='red-font'>3 Jan 2027</p>
+                      <p className='font-14 mb-0 blue-font'>
+                        Created on
+                      </p>
+                      <p className='mb-1 blue-font'>
+                        {convertDate(Math.floor(lockUp.createdAt))}
+                      </p>
+                      <p className='red-font font-14 mb-0'>
+                        Maturity Date
+                      </p>
+                      <p className='red-font'>
+                        {convertDate(Math.floor(lockUp.releasedAt))}
+                      </p>
 
                       <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
                         Edit
@@ -132,14 +181,15 @@ export default function Backup() {
                     </Card.Body>
                   </Card>
                 </div>
-              </div> 
-
-              <div className='row justify-content-end mt-5'>
+              </div>
+              :
+              <div className='row justify-content-center'>
                 <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
                   <FaPlus className='blue-font mt-5 me-2' size={60} />
                   <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
                 </div>
-              </div>             
+              </div>
+              }         
             </Tab.Pane>
             }
 
@@ -205,7 +255,7 @@ export default function Backup() {
             </Tab.Pane>
             }
 
-            {step === "edit" &&
+            {step === "detail" &&
             <Tab.Pane eventKey="first">
               <div className='row p-3 mb-3'>
                 <div className='col-md-6'>
@@ -215,21 +265,20 @@ export default function Backup() {
                     </div>
 
                     <div className='col-md-9'>
-                      <h5 className='blue-font'>Lorem ipsum dolor</h5>
-                      <p className='blue-font mb-0'>Lorem ipsum dolor Lorem ipsum dolor</p>
-                      <p className='blue-font mb-1'>Lorem ipsum dolor Lorem ipsum dolor</p>
-                      <p className='text-grey'>{user.addr}</p>
+                      <h5 className='blue-font'>{lockUp.name}</h5>
+                      <p className='blue-font mb-0'>{lockUp.description}</p>
+                      <p className='text-grey'>{lockUp.recipient}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className='col-md-6 text-webkit-right'>
                   <p className='font-bold backup-date blue-font'>
-                    BACKUP DATE: 12-08-2024
+                    BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
                   </p>
 
                   <p className='font-bold maturity-date blue-bg border-none'>
-                    MATURITY DATE: 1-08-2028
+                    MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
                   </p>                  
                 </div>
               </div>
@@ -1630,6 +1679,8 @@ export default function Backup() {
           </Tab.Content>
         </div>        
       </div>
+
+      <ToastContainer />
     </Tab.Container>
   )
 }
