@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { createLockUp } from '../cadence/transaction/createLockUp';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
-import { addTokenInfo } from '../cadence/transaction/addTokenInfo';
+// import { addTokenInfo } from '../cadence/transaction/addTokenInfo';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
 
 export default function Backup() {
@@ -86,13 +86,13 @@ export default function Backup() {
   }
 
   const createBackup = async () => {
-    const releaseDate = Math.floor(maturity.getTime() / 1000).toFixed(1);
+    const releaseDate = maturity.getTime();
 
     try{
       const txid = await fcl.mutate({
         cadence: createLockUp,
         args: (arg, t) => [
-          arg(releaseDate, t.UFix64),
+          arg(releaseDate, t.UInt64),
           arg(recipient, t.Address),
           arg(backupName, t.String),
           arg(description, t.String)
