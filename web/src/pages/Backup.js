@@ -10,7 +10,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { createLockUp } from '../cadence/transaction/createLockUp';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
-// import { addTokenInfo } from '../cadence/transaction/addTokenInfo';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
 
 export default function Backup() {
@@ -25,15 +24,19 @@ export default function Backup() {
   const [description, setDescription] = useState('');
 
   const [lockUp, setLockUp] = useState(null);
+  const [ft, setFT] = useState(null);
+
+  const [flowSelect, setFlowSelect] = useState(false);
+  const [blpSelect, setBLPSelect] = useState(false);
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("default");
+    setStep("coins");
     setPledgeStep("nfts");
   }, []); 
   
   useEffect(() => {
-    getBackup();    
+    getBackup();
   }, [user]);
 
   const logout = () => {
@@ -58,30 +61,14 @@ export default function Backup() {
       const res = await fcl.query({
         cadence: getAccountLockUp,
         args: (arg, t) => [arg(user.addr, t.Address)],
-      });
-  
-      console.log('backup - ', res);
-      setLockUp(res);
+      });  
+      setLockUp(res);      
+      // console.log('lockup - ', res);
 
-      // try{
-      //   const txid = await fcl.mutate({
-      //     cadence: addTokenInfo,
-      //     proposer: fcl.currentUser,
-      //     payer: fcl.currentUser,
-      //     authorizations: [fcl.currentUser],
-      //     limit: 999,
-      //   });
-  
-      //   console.log(txid);        
-      // }catch(error) {
-      //   console.log('err', error);
-      // }     
-      
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
       });
-
-      console.log('ftinfo - ', ftinfo);
+      setFT(ftinfo);
     }
   }
 
@@ -109,6 +96,18 @@ export default function Backup() {
     }catch(error) {
       console.log('err', error);
       toast.error(error);
+    }
+  }
+
+  const selectFT = (e, id) => {
+    if(id === 0){
+      console.log('0 - ', e.target.checked);
+      setFlowSelect(e.target.checked);
+
+    }else if(id === 1){
+      console.log('1 - ', e.target.checked);
+      setBLPSelect(e.target.checked);
+
     }
   }
 
@@ -308,163 +307,36 @@ export default function Backup() {
             {step === "coins" &&
             <Tab.Pane eventKey="first">
               <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
-              <div className='row p-3'>                
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
+              <div className='row p-3'>
+              {ft !== null && 
+                Object.keys(ft).map((key, index) => (
+                  <div className='col-md-4' key={index} >
+                    <div className='grey-border p-2'>
+                      <div className='row'>
+                        <div className='col-md-3'>
+                          { ft[key].name === 'FLOW' ?
+                            <img src="flowcoin.png" width="100%" height="auto" />
+                          :
+                            <img src="coin.png" width="100%" height="auto" />
+                          }
+                          
+                          <h5 className='text-center'>(0)</h5>
+                        </div>
 
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                        <div className='col-md-9'>
+                          <div className='d-flex justify-content-between'>
+                            <h5 className='blue-font mb-0'>{ft[key].name}</h5>
+                            <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)}/>
+                          </div>
+                          
+                          <p className='text-grey mb-1'>{key}</p>
+                          <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>                
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="coin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(150)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(150)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                      </div>
-                    </div>
-                  </div>                  
-                </div>
-              </div>
-
-              <div className='row p-3'>                
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="coin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                      </div>
-                    </div>
-                  </div>
-                </div>                
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(150)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="coin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(150)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                      </div>
-                    </div>
-                  </div>                  
-                </div>
-              </div>
-
-              <div className='row p-3'>                
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="coin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                      </div>
-                    </div>
-                  </div>
-                </div>                
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(150)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="coin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(150)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                      </div>
-                    </div>
-                  </div>                  
-                </div>
+                ))
+              }
               </div>
 
               <div className='row mt-3 p-3'>
@@ -834,7 +706,7 @@ export default function Backup() {
             </Tab.Pane>
             }
             
-            {/* // Pledge  */}
+            {/* Pledge */}
             {pledgeStep === "default" &&
             <Tab.Pane eventKey="second">
               <div className='row'>
