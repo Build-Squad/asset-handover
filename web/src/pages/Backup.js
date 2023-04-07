@@ -11,6 +11,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { createLockUp } from '../cadence/transaction/createLockUp';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
+import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
+import { setLockUpBalance } from '../cadence/transaction/setLockUpBalance';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -25,6 +27,9 @@ export default function Backup() {
 
   const [lockUp, setLockUp] = useState(null);
   const [ft, setFT] = useState(null);
+  const [flowID, setFlowID] = useState(null);
+  const [blpID, setBLPID] = useState(null);
+  const [flowAmount, setFlowAmount] = useState("");
 
   const [flowSelect, setFlowSelect] = useState(false);
   const [blpSelect, setBLPSelect] = useState(false);
@@ -34,10 +39,19 @@ export default function Backup() {
     setStep("coins");
     setPledgeStep("nfts");
   }, []); 
-  
+
   useEffect(() => {
     getBackup();
   }, [user]);
+
+  useEffect(() => {
+    if(ft !== null){
+      Object.keys(ft).map((key) => {
+        if(key.includes("FlowToken")) setFlowID(key);
+        if(key.includes("BlpToken")) setBLPID(key);
+      });
+    }    
+  }, [ft]);
 
   const logout = () => {
     fcl.unauthenticate();
@@ -63,7 +77,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });  
       setLockUp(res);      
-      // console.log('lockup - ', res);
+      console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -101,13 +115,69 @@ export default function Backup() {
 
   const selectFT = (e, id) => {
     if(id === 0){
-      console.log('0 - ', e.target.checked);
       setFlowSelect(e.target.checked);
-
     }else if(id === 1){
-      console.log('1 - ', e.target.checked);
       setBLPSelect(e.target.checked);
+    }
+  }
 
+  const addFT = async () => {
+    if(flowSelect){
+      try{
+        const txid = await fcl.mutate({
+          cadence: lockFungibleToken,
+          args: (arg, t) => [
+            arg(flowID, t.String)
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+      }catch(error) {
+        console.log('err', error);
+      }
+
+      if(flowAmount !== ""){
+        try{
+          const txid = await fcl.mutate({
+            cadence: setLockUpBalance,
+            args: (arg, t) => [
+              arg(flowID, t.String),
+              arg(flowAmount+".0", t.UFix64)
+            ],
+            proposer: fcl.currentUser,
+            payer: fcl.currentUser,
+            authorizations: [fcl.currentUser],
+            limit: 999,
+          });
+    
+          console.log(txid);
+        }catch(error) {
+          console.log('err', error);
+        }
+      }
+    }
+
+    if(blpSelect){
+      try{
+        const txid = await fcl.mutate({
+          cadence: lockFungibleToken,
+          args: (arg, t) => [
+            arg(blpID, t.String)
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+      }catch(error) {
+        console.log('err', error);
+      }
     }
   }
 
@@ -330,7 +400,12 @@ export default function Backup() {
                           </div>
                           
                           <p className='text-grey mb-1'>{key}</p>
+                          {ft[key].name === "FLOW" ?
+                          <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                          value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
+                          :
                           <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          }                          
                         </div>
                       </div>
                     </div>
@@ -348,7 +423,7 @@ export default function Backup() {
                 </div>
 
                 <div className='col-md-4'>
-                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => setStep("edit")}>
+                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
                     ADD COINS TO BACKUP
                   </Button>
                 </div>
