@@ -13,6 +13,7 @@ import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
 import { setLockUpBalance } from '../cadence/transaction/setLockUpBalance';
+import { getNonFungibleTokenInfoMapping } from '../cadence/script/getNonFungibleTokenInfoMapping';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -36,7 +37,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("coins");
+    setStep("default");
     setPledgeStep("nfts");
   }, []); 
 
@@ -83,6 +84,11 @@ export default function Backup() {
         cadence: getFungibleTokenInfoMapping
       });
       setFT(ftinfo);
+
+      const nftinfo = await fcl.query({
+        cadence: getNonFungibleTokenInfoMapping
+      });
+      console.log("nftinfo - ", nftinfo);
     }
   }
 
@@ -351,19 +357,43 @@ export default function Backup() {
                   </p>                  
                 </div>
               </div>
+              
+              <h4 className='p-2 border-bottom-green blue-font mt-4'>COIN(S)</h4>
+              {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
+              <div className='row'>
+                {lockUp.fungibleTokens.map((item, index) => {
+                  return(
+                  <>
+                  {item.identifier.includes("FlowToken") &&
+                    <div className='col-md-1'>
+                      <img src="flowcoin.png" width="100%" height="auto" />
+                      <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                    </div>
+                  }
 
-              <h4 className='p-2 border-bottom-green blue-font mt-5'>COIN(S)</h4>
-              <div className='d-flex mt-4'>
+                  {item.identifier.includes("BlpToken") &&
+                    <div className='col-md-1'>
+                      <img src="coin.png" width="100%" height="auto" />
+                      <p className='blue-font font-bold text-center'>(0)</p>
+                    </div>
+                  }
+                  </>                  
+                  )       
+                })}
+              </div>
+              :
+              <div className='d-flex'>
                 <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
                   <FaPlus className='blue-font' size={40} />
                 </div>
                 <h5 className='blue-font mx-3 align-self-center'>
                   ADD COIN(S) TO BACKUP
                 </h5>
-              </div> 
+              </div>
+              }     
 
-              <h4 className='p-2 border-bottom-green blue-font mt-5'>NFT COLLECTION(S)</h4>
-              <div className='d-flex mt-4'>
+              <h4 className='p-2 border-bottom-green blue-font mt-4'>NFT COLLECTION(S)</h4>
+              <div className='d-flex'>
                 <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
                   <FaPlus className='blue-font' size={40} />
                 </div>
