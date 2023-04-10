@@ -2,6 +2,7 @@ export const getNFTsForAccountCollection = `
 import MetadataViews from 0xMetadataViews
 import NFTCatalog from 0xNFTCatalog
 import NFTRetrieval from 0xNFTRetrieval
+
 pub struct NFT {
     pub let id : UInt64
     pub let name : String
