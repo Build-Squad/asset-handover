@@ -95,13 +95,13 @@ export default function Backup() {
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
       });
-      // console.log("nftinfo - ", nftinfo);
+      console.log("nftinfo - ", nftinfo);
 
       const collection = await fcl.query({
         cadence: getCollectionsForAccount,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
-      // console.log('collection - ', collection);
+      console.log('collection - ', collection);
 
       // Object.keys(nftinfo).map((item) => {
       //   console.log('nftinfo - ', item);
@@ -115,7 +115,7 @@ export default function Backup() {
         ],
       });
       setNFT(nft);
-      // console.log('nft - ', nft);
+      console.log('nft - ', nft);
     }
   }
 
@@ -226,15 +226,13 @@ export default function Backup() {
     setNFTIDs(ids);
   }
 
-  console.log(nftIDs);
+  // console.log(nftIDs);
 
   const addNFT = async () => {
     const id = [];
     nft.map((item) => {
       id.push(item.id);
     });
-
-    console.log("id - ", id);
 
     // try{
     //   const txid = await fcl.mutate({
