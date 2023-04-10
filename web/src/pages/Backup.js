@@ -16,6 +16,7 @@ import { setLockUpBalance } from '../cadence/transaction/setLockUpBalance';
 import { getNonFungibleTokenInfoMapping } from '../cadence/script/getNonFungibleTokenInfoMapping';
 import { getCollectionsForAccount } from '../cadence/script/getCollectionsForAccount';
 import { getNFTsForAccountCollection } from '../cadence/script/getNFTsForAccountCollection';
+import { lockNonFungibleToken } from '../cadence/transaction/lockNonFungibleToken';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -101,6 +102,10 @@ export default function Backup() {
       });
       console.log('collection - ', collection);
 
+      // Object.keys(nftinfo).map((item) => {
+      //   console.log('nftinfo - ', item);
+      // });
+
       const nft = await fcl.query({
         cadence: getNFTsForAccountCollection,
         args: (arg, t) => [
@@ -108,6 +113,7 @@ export default function Backup() {
           arg("TheMonsterMakerCollection", t.String)
         ],
       });
+      setNFT(nft);
       console.log('nft - ', nft);
     }
   }
@@ -207,6 +213,27 @@ export default function Backup() {
     }
   }
 
+  const addNFT = async () => {
+    try{
+      const txid = await fcl.mutate({
+        cadence: lockNonFungibleToken,
+        args: (arg, t) => [
+          arg("A.fd3d8fe2c8056370.MonsterMaker", t.String)
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+      toast.success("Successfully added!");
+    }catch(error) {
+      console.log('err', error);
+      toast.error(error);
+    }
+  }
+
   return(
     <Tab.Container id="left-tabs-example" defaultActiveKey="first">
       <div className="row mt-5 mb-5">
@@ -243,38 +270,40 @@ export default function Backup() {
             {step === "default" &&
             <Tab.Pane eventKey="first">
               {lockUp ? 
-              <div className='row justify-content-center'>
-                <div className='col-xl-3 col-lg-5'>
-                  <Card className="text-center cursor-pointer" onClick={() => setStep("detail")}>
-                    <Card.Img className='item-img' variant="top" src="safe.png" />
-                    <Card.Body>
-                      <Card.Title className="blue-font">
-                        {lockUp.name}
-                      </Card.Title>
-                      <p className='text-grey mb-0'>
-                        {lockUp.recipient}
-                      </p>
-                      <p className='font-14 mb-0 blue-font'>
-                        Created on
-                      </p>
-                      <p className='mb-1 blue-font'>
-                        {convertDate(Math.floor(lockUp.createdAt*1000))}
-                      </p>
-                      <p className='red-font font-14 mb-0'>
-                        Maturity Date
-                      </p>
-                      <p className='red-font'>
-                        {convertDate(Math.floor(lockUp.releasedAt))}
-                      </p>
+              <div className='center-pad'>
+                <div className='row justify-content-center'>
+                  <div className='col-xl-3 col-lg-5'>
+                    <Card className="text-center cursor-pointer" onClick={() => setStep("detail")}>
+                      <Card.Img className='item-img' variant="top" src="safe.png" />
+                      <Card.Body>
+                        <Card.Title className="blue-font">
+                          {lockUp.name}
+                        </Card.Title>
+                        <p className='text-grey mb-0'>
+                          {lockUp.recipient}
+                        </p>
+                        <p className='font-14 mb-0 blue-font'>
+                          Created on
+                        </p>
+                        <p className='mb-1 blue-font'>
+                          {convertDate(Math.floor(lockUp.createdAt*1000))}
+                        </p>
+                        <p className='red-font font-14 mb-0'>
+                          Maturity Date
+                        </p>
+                        <p className='red-font'>
+                          {convertDate(Math.floor(lockUp.releasedAt))}
+                        </p>
 
-                      <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
-                        Edit
-                      </Button>
-                      <Button variant="danger" size="sm" className='red-bg'>
-                        Remove
-                      </Button>
-                    </Card.Body>
-                  </Card>
+                        <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
+                          Edit
+                        </Button>
+                        <Button variant="danger" size="sm" className='red-bg'>
+                          Remove
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </div>
                 </div>
               </div>
               :
@@ -381,8 +410,7 @@ export default function Backup() {
               <h4 className='p-2 border-bottom-green blue-font mt-4'>COIN(S)</h4>
               {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
               <div className='row'>
-                {lockUp.fungibleTokens.map((item, index) => {
-                  return(
+                {lockUp.fungibleTokens.map((item, index) => (
                   <>
                   {item.identifier.includes("FlowToken") &&
                     <div className='col-md-1' key={index}>
@@ -397,12 +425,12 @@ export default function Backup() {
                       <p className='blue-font font-bold text-center'>(0)</p>
                     </div>
                   }
-                  </>                  
+                  </>
                   )       
-                })}
+                )}
               </div>
               :
-              <div className='d-flex'>
+              <div className='d-flex mt-4'>
                 <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
                   <FaPlus className='blue-font' size={40} />
                 </div>
@@ -413,7 +441,7 @@ export default function Backup() {
               }     
 
               <h4 className='p-2 border-bottom-green blue-font mt-4'>NFT COLLECTION(S)</h4>
-              <div className='d-flex'>
+              <div className='d-flex mt-4'>
                 <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
                   <FaPlus className='blue-font' size={40} />
                 </div>
@@ -486,168 +514,36 @@ export default function Backup() {
               <h4 className='blue-font p-2 border-bottom-green'>SELECT NFT COLLECTION(S)</h4>
 
               <div className='row'>
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
+                {nft.length > 0 && nft.map((item, index) => (
+                  <div className='col-md-4 pt-2' key={index}>
+                    <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
+                      <Card.Img variant="top" src={item.collectionBannerImage} />
+                      <Card.Body className='pb-0'>
+                        <div className='row'>
+                          <div className='col-3 p-0'>
+                            <img className='nft-img' src={item.thumbnail} width="100%" height="auto" />
+                            <h5 className='text-center'>({nft.length})</h5>
+                          </div>
 
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
+                          <div className='col-9'>
+                            <Card.Title>{item.collectionName}</Card.Title>
+                            <div className='d-flex'>
+                              <p className='text-grey font-14 mb-0'>
+                                {item.collectionDescription}
+                              </p>
 
-                            <Form.Check className='mx-2 mt-2' type="checkbox" />
-                          </div>                          
-                        </div>
-                      </div>                      
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-
-                            <Form.Check className='mx-2 mt-2' type="checkbox" />
-                          </div>                          
-                        </div>
-                      </div>
-                      
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-
-                            <Form.Check className='mx-2 mt-2' type="checkbox" />
-                          </div>                          
-                        </div>
-                      </div>
-                      
-                    </Card.Body>
-                  </Card>
-                </div>
+                              <Form.Check className='mx-2 mt-2' type="checkbox" />
+                            </div>                          
+                          </div>
+                        </div>                      
+                      </Card.Body>
+                    </Card>
+                  </div>
+                ))}
               </div>
 
               <div className='row'>
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
 
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-
-                            <Form.Check className='mx-2 mt-2' type="checkbox" />
-                          </div>                          
-                        </div>
-                      </div>
-                      
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-
-                            <Form.Check className='mx-2 mt-2' type="checkbox" />
-                          </div>                          
-                        </div>
-                      </div>
-                      
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-
-                            <Form.Check className='mx-2 mt-2' type="checkbox" />
-                          </div>                          
-                        </div>
-                      </div>
-                      
-                    </Card.Body>
-                  </Card>
-                </div>
               </div>
             </Tab.Pane>
             }
@@ -667,165 +563,26 @@ export default function Backup() {
               </div>
 
               <div className='row p-3'>
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
+                {nft.length > 0 && nft.map((item, index) => (
+                  <div className='col-md-4' key={index}>
+                    <div className='row grey-border p-2 me-2 mt-2'>
+                      <div className='col-3 p-1'>
+                        <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
+                      </div>
 
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
+                      <div className='col-9'>
+                        <Card.Title>{item.name}</Card.Title>
+                        <p className='font-14 mb-0'>
+                          {item.description}
+                        </p>
+                        <p className='text-grey mb-0'>#{item.id}</p>                       
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
+                ))}                
               </div>
 
-              <div className='row p-3'>
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-              </div>  
-
-              <div className='row p-3'>
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <Card.Title>NFT NAME</Card.Title>
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <Button className='blue-bg border-none border-radius-none mt-5 me-3'>
+              <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
                 ADD NFT(S) TO BACKUP
               </Button>
             </Tab.Pane>

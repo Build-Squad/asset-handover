@@ -1,5 +1,6 @@
-import AssetHandover from "../../contracts/AssetHandover.cdc"
-import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
+export const lockNonFungibleToken = `
+import AssetHandover from 0xAssetHandover
+import NonFungibleToken from 0xNFT
 
 transaction(identifier: String, nftIDs: [UInt64]) {
     prepare(account: AuthAccount) {
@@ -21,3 +22,6 @@ transaction(identifier: String, nftIDs: [UInt64]) {
         )
     }
 }
+
+`
+ 

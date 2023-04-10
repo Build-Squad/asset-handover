@@ -250,6 +250,11 @@ input::placeholder {
 }
 
 #left-tabs-example-tabpane-first{
+  align-items: center;
+}
+
+.center-pad{
+  height: 100%;
   display: grid;
   align-items: center;
 }
