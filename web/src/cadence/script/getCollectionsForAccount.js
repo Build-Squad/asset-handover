@@ -5,33 +5,18 @@ import NFTRetrieval from 0xNFTRetrieval
 
 pub struct COLLECTION {
     pub let count : UInt64
-    pub let storagePath : StoragePath
-    pub let publicPath : PublicPath
-    pub let privatePath: PrivatePath
-    pub let publicLinkedType: Type
-    pub let privateLinkedType: Type
     pub let collectionName : String
     pub let collectionDescription: String
     pub let collectionSquareImage : String
     pub let collectionBannerImage : String
     init(
         count: UInt64,
-        storagePath : StoragePath,
-        publicPath : PublicPath,
-        privatePath : PrivatePath,
-        publicLinkedType : Type,
-        privateLinkedType : Type,
         collectionName : String,
         collectionDescription : String,
         collectionSquareImage : String,
         collectionBannerImage : String
     ) {
         self.count = count
-        self.storagePath = storagePath
-        self.publicPath = publicPath
-        self.privatePath = privatePath
-        self.publicLinkedType = publicLinkedType
-        self.privateLinkedType = privateLinkedType
         self.collectionName = collectionName
         self.collectionDescription = collectionDescription
         self.collectionSquareImage = collectionSquareImage
@@ -58,18 +43,15 @@ pub fun main(ownerAddress: Address) : {String : [COLLECTION]} {
         let count = NFTRetrieval.getNFTCountFromCap(collectionIdentifier : key, collectionCap : collectionCap)
         if count != 0 {
             let collectionWithMetadata = NFTCatalog.getCatalogEntry(collectionIdentifier: key)
-            items[key].append(COLLECTION(
+            items[key]?.append(
+             COLLECTION(
                 count: count,
-                storagePath : collectionWithMetadata.collectionData!.storagePath,
-                publicPath : collectionWithMetadata.collectionData!.publicPath,
-                privatePath : collectionWithMetadata.collectionData!.providerPath,
-                publicLinkedType : collectionWithMetadata.collectionData!.publicLinkedType,
-                privateLinkedType : collectionWithMetadata.collectionData!.providerLinkedType,
-                collectionName : collectionWithMetadata.collectionDisplay!.name,
-                collectionDescription : collectionWithMetadata.collectionDisplay!.description,
-                collectionSquareImage : collectionWithMetadata.collectionDisplay!.squareImage.file.uri(),
-                collectionBannerImage : collectionWithMetadata.collectionDisplay!.bannerImage.file.uri()
-            ))
+                collectionName : collectionWithMetadata!.collectionDisplay.name,
+                collectionDescription : collectionWithMetadata!.collectionDisplay.description,
+                collectionSquareImage : collectionWithMetadata!.collectionDisplay.squareImage.file.uri(),
+                collectionBannerImage : collectionWithMetadata!.collectionDisplay.bannerImage.file.uri()
+            )
+          )
         }
     }
     return items
