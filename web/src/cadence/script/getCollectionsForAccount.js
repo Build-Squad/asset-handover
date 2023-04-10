@@ -2,6 +2,7 @@ export const getCollectionsForAccount = `
 import MetadataViews from 0xMetadataViews
 import NFTCatalog from 0xNFTCatalog
 import NFTRetrieval from 0xNFTRetrieval
+
 pub fun main(ownerAddress: Address) : {String : Number} {
     let catalog = NFTCatalog.getCatalog()
     let account = getAuthAccount(ownerAddress)

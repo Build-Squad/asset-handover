@@ -14,6 +14,8 @@ import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenI
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
 import { setLockUpBalance } from '../cadence/transaction/setLockUpBalance';
 import { getNonFungibleTokenInfoMapping } from '../cadence/script/getNonFungibleTokenInfoMapping';
+import { getCollectionsForAccount } from '../cadence/script/getCollectionsForAccount';
+import { getNFTsForAccountCollection } from '../cadence/script/getNFTsForAccountCollection';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -22,7 +24,7 @@ export default function Backup() {
   const navigate = useNavigate();
 
   const [backupName, setBackupName] = useState('');
-  const [recipient, setRecipient] = useState('0x8527e930b7b21dae');
+  const [recipient, setRecipient] = useState('0xd01ffe52e7bf2b25');
   const [maturity, setMaturity] = useState(new Date());
   const [description, setDescription] = useState('');
 
@@ -34,6 +36,9 @@ export default function Backup() {
 
   const [flowSelect, setFlowSelect] = useState(false);
   const [blpSelect, setBLPSelect] = useState(false);
+
+  const [collection, setCollection] = useState(null);
+  const [nft, setNFT] = useState([]);
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
@@ -60,7 +65,7 @@ export default function Backup() {
   }
 
   const convertDate = (timeStamp) => {
-    const date = new Date(timeStamp*1000);
+    const date = new Date(timeStamp);
 
     const day = date.getDate().toString().padStart(2, '0');
     const month = date.getMonth() + 1;
@@ -89,6 +94,21 @@ export default function Backup() {
         cadence: getNonFungibleTokenInfoMapping
       });
       console.log("nftinfo - ", nftinfo);
+
+      const collection = await fcl.query({
+        cadence: getCollectionsForAccount,
+        args: (arg, t) => [arg(user.addr, t.Address)],
+      });
+      console.log('collection - ', collection);
+
+      const nft = await fcl.query({
+        cadence: getNFTsForAccountCollection,
+        args: (arg, t) => [
+          arg(user.addr, t.Address),
+          arg("TheMonsterMakerCollection", t.String)
+        ],
+      });
+      console.log('nft - ', nft);
     }
   }
 
@@ -238,7 +258,7 @@ export default function Backup() {
                         Created on
                       </p>
                       <p className='mb-1 blue-font'>
-                        {convertDate(Math.floor(lockUp.createdAt))}
+                        {convertDate(Math.floor(lockUp.createdAt*1000))}
                       </p>
                       <p className='red-font font-14 mb-0'>
                         Maturity Date
@@ -365,14 +385,14 @@ export default function Backup() {
                   return(
                   <>
                   {item.identifier.includes("FlowToken") &&
-                    <div className='col-md-1'>
+                    <div className='col-md-1' key={index}>
                       <img src="flowcoin.png" width="100%" height="auto" />
                       <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
                     </div>
                   }
 
                   {item.identifier.includes("BlpToken") &&
-                    <div className='col-md-1'>
+                    <div className='col-md-1' key={index}>
                       <img src="coin.png" width="100%" height="auto" />
                       <p className='blue-font font-bold text-center'>(0)</p>
                     </div>
