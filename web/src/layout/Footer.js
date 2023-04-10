@@ -1,19 +1,29 @@
-import { FaLinkedin, FaGithub } from 'react-icons/fa';
+import { FaLinkedin, FaGithub, FaTwitter, FaMedium } from 'react-icons/fa';
 
 export default function Footer() {
   return (
     <div className="footer d-flex justify-content-between">
       <div className='d-flex'>
         <p className="text-white font-bold me-3">
-          Made by BLOCKCHAINNOOSE S.R.L with
+          Made by <a href="https://buildsquad.net" target="_blank" rel="noreferrer">BuildSquad</a> with
         </p>
         <img src="Footer-heart.png" width="25px" height="25px" />
       </div>
 
       <div>
         <div className="d-flex flex-reverse">
-          <img src="footer-github.png" width="25px" height="25px" />
-          <img className='me-2' src="footer-linkedin.png" width="25px" height="25px" />
+          <a href="https://github.com/Build-Squad" target="_blank" rel="noreferrer">
+            <img src="footer-github.png" alt="Github logo" width="25px" height="25px"></img>
+          </a>
+          <a href="https://www.linkedin.com/company/build-squad" target="_blank" rel="noreferrer">
+            <img src="footer-linkedin.png" alt="LinkedIn logo" width="25px" height="25px"></img>
+          </a>
+          <a href="https://twitter.com/build_squad" target="_blank" rel="noreferrer">
+            <img src="footer-twitter.png" alt="Twitter logo" width="25px" height="25px"></img>
+          </a>
+          <a href="https://medium.com/@build_squad" target="_blank" rel="noreferrer">
+            <img src="footer-medium.png" alt="Medium logo" width="25px" height="25px"></img>
+          </a>
           <p className="text-white font-bold me-3">
             Follow us
           </p>
