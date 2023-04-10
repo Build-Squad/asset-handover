@@ -40,10 +40,11 @@ export default function Backup() {
 
   const [collection, setCollection] = useState(null);
   const [nft, setNFT] = useState([]);
+  const [nftIDs, setNFTIDs] = useState([]);
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("default");
+    setStep("nfts");
     setPledgeStep("nfts");
   }, []); 
 
@@ -84,7 +85,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });  
       setLockUp(res);      
-      console.log('lockup - ', res);
+      // console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -94,13 +95,13 @@ export default function Backup() {
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
       });
-      console.log("nftinfo - ", nftinfo);
+      // console.log("nftinfo - ", nftinfo);
 
       const collection = await fcl.query({
         cadence: getCollectionsForAccount,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
-      console.log('collection - ', collection);
+      // console.log('collection - ', collection);
 
       // Object.keys(nftinfo).map((item) => {
       //   console.log('nftinfo - ', item);
@@ -114,7 +115,7 @@ export default function Backup() {
         ],
       });
       setNFT(nft);
-      console.log('nft - ', nft);
+      // console.log('nft - ', nft);
     }
   }
 
@@ -213,25 +214,47 @@ export default function Backup() {
     }
   }
 
-  const addNFT = async () => {
-    try{
-      const txid = await fcl.mutate({
-        cadence: lockNonFungibleToken,
-        args: (arg, t) => [
-          arg("A.fd3d8fe2c8056370.MonsterMaker", t.String)
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
+  const selectNFT = (e, id) => {
+    const ids = nftIDs;
 
-      console.log(txid);
-      toast.success("Successfully added!");
-    }catch(error) {
-      console.log('err', error);
-      toast.error(error);
+    if(e.target.checked){
+      if(!ids.includes(id)) ids.push(id);
+    }else{
+      if(ids.includes(id)) ids.pop(id);
     }
+
+    setNFTIDs(ids);
+  }
+
+  console.log(nftIDs);
+
+  const addNFT = async () => {
+    const id = [];
+    nft.map((item) => {
+      id.push(item.id);
+    });
+
+    console.log("id - ", id);
+
+    // try{
+    //   const txid = await fcl.mutate({
+    //     cadence: lockNonFungibleToken,
+    //     args: (arg, t) => [
+    //       arg("A.fd3d8fe2c8056370.MonsterMaker", t.String),
+    //       arg(id, t.Array(t.UInt64))
+    //     ],
+    //     proposer: fcl.currentUser,
+    //     payer: fcl.currentUser,
+    //     authorizations: [fcl.currentUser],
+    //     limit: 999,
+    //   });
+
+    //   console.log(txid);
+    //   toast.success("Successfully added!");
+    // }catch(error) {
+    //   console.log('err', error);
+    //   toast.error(error);
+    // }
   }
 
   return(
@@ -515,6 +538,8 @@ export default function Backup() {
 
               <div className='row'>
                 {nft.length > 0 && nft.map((item, index) => (
+                  // <>
+                  // {nft[index+1].collectionName !== nft[index].collectionName && 
                   <div className='col-md-4 pt-2' key={index}>
                     <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
                       <Card.Img variant="top" src={item.collectionBannerImage} />
@@ -539,6 +564,8 @@ export default function Backup() {
                       </Card.Body>
                     </Card>
                   </div>
+                  // }
+                  // </>                  
                 ))}
               </div>
 
@@ -571,7 +598,11 @@ export default function Backup() {
                       </div>
 
                       <div className='col-9'>
-                        <Card.Title>{item.name}</Card.Title>
+                        <div className='d-flex justify-content-between'>
+                          <Card.Title>{item.name}</Card.Title>
+                          <Form.Check type="checkbox" onClick={(e) => selectNFT(e, item.id)}/>
+                        </div> 
+                        
                         <p className='font-14 mb-0'>
                           {item.description}
                         </p>

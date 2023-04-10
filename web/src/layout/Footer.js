@@ -15,13 +15,13 @@ export default function Footer() {
           <a href="https://github.com/Build-Squad" target="_blank" rel="noreferrer">
             <img src="footer-github.png" alt="Github logo" width="25px" height="25px"></img>
           </a>
-          <a href="https://www.linkedin.com/company/build-squad" target="_blank" rel="noreferrer">
+          <a className='me-2' href="https://www.linkedin.com/company/build-squad" target="_blank" rel="noreferrer">
             <img src="footer-linkedin.png" alt="LinkedIn logo" width="25px" height="25px"></img>
           </a>
-          <a href="https://twitter.com/build_squad" target="_blank" rel="noreferrer">
+          <a className='me-2' href="https://twitter.com/build_squad" target="_blank" rel="noreferrer">
             <img src="footer-twitter.png" alt="Twitter logo" width="25px" height="25px"></img>
           </a>
-          <a href="https://medium.com/@build_squad" target="_blank" rel="noreferrer">
+          <a className='me-2' href="https://medium.com/@build_squad" target="_blank" rel="noreferrer">
             <img src="footer-medium.png" alt="Medium logo" width="25px" height="25px"></img>
           </a>
           <p className="text-white font-bold me-3">
