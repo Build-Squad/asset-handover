@@ -2,7 +2,6 @@ export const getCollectionsForAccount = `
 import MetadataViews from 0xMetadataViews
 import NFTCatalog from 0xNFTCatalog
 import NFTRetrieval from 0xNFTRetrieval
-
 pub struct NFTCollection {
     pub let contractName: String
     pub let contractAddress: String
@@ -47,18 +46,10 @@ pub struct NFTCollection {
         self.nftsCount = nftsCount
     }
 }
-
-<<<<<<< HEAD
-pub fun main(ownerAddress: Address) : {String : [NFTCollection]} {
-    let catalog = NFTCatalog.getCatalog()
-    let account = getAuthAccount(ownerAddress)
-    let items : {String : [NFTCollection]} = {}
-=======
 pub fun main(ownerAddress: Address) : [NFTCollection] {
     let catalog = NFTCatalog.getCatalog()
     let account = getAuthAccount(ownerAddress)
     let collectionsData : [NFTCollection] = []
->>>>>>> 88fa60fa7e6162be96ec98f2998f0f84c395eb36
     for key in catalog.keys {
         let value = catalog[key]!
         let tempPathStr = "catalog".concat(key)
@@ -72,19 +63,11 @@ pub fun main(ownerAddress: Address) : [NFTCollection] {
             continue
         }
         let count = NFTRetrieval.getNFTCountFromCap(collectionIdentifier : key, collectionCap : collectionCap)
-<<<<<<< HEAD
-=======
         let valueIdent = NFTCatalog.getCatalogEntry(collectionIdentifier: key)!
->>>>>>> 88fa60fa7e6162be96ec98f2998f0f84c395eb36
         let contractView = catalog[key]!
         let collectionDataView = catalog[key]!.collectionData
         let collectionDisplayView = catalog[key]!.collectionDisplay
-
-<<<<<<< HEAD
-        items[key]?.append(
-=======
         collectionsData.append(
->>>>>>> 88fa60fa7e6162be96ec98f2998f0f84c395eb36
             NFTCollection(
                 contractName: contractView.contractName,
                 contractAddress: contractView.contractAddress.toString(),
@@ -97,21 +80,11 @@ pub fun main(ownerAddress: Address) : [NFTCollection] {
                 collectionDescription : collectionDisplayView!.description,
                 collectionSquareImage : collectionDisplayView!.squareImage.file.uri(),
                 collectionBannerImage : collectionDisplayView!.bannerImage.file.uri(),
-<<<<<<< HEAD
-                collectionIdentifier : key,
-                nftsCount: count
-            )
-        )
-    }
-    return items
-=======
                 collectionIdentifier : valueIdent.nftType.identifier,
                 nftsCount: count
               )
           )
       }
-
     return collectionsData
->>>>>>> 88fa60fa7e6162be96ec98f2998f0f84c395eb36
 }
 `;

@@ -44,7 +44,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("edit");
+    setStep("nftcollection");
     setPledgeStep("nfts");
   }, []); 
 
@@ -102,6 +102,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
       console.log('collection - ', collection);
+      setCollection(collection);
 
       // Object.keys(nftinfo).map((item) => {
       //   console.log('nftinfo - ', item);
@@ -667,17 +668,15 @@ export default function Backup() {
               <h4 className='blue-font p-2 border-bottom-green'>SELECT NFT COLLECTION(S)</h4>
 
               <div className='row'>
-                {nft.length > 0 && nft.map((item, index) => (
-                  // <>
-                  // {nft[index+1].collectionName !== nft[index].collectionName && 
+                {collection.length > 0 && collection.map((item, index) => (
                   <div className='col-md-4 pt-2' key={index}>
                     <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
                       <Card.Img variant="top" src={item.collectionBannerImage} />
                       <Card.Body className='pb-0'>
                         <div className='row'>
                           <div className='col-3 p-0'>
-                            <img className='nft-img' src={item.thumbnail} width="100%" height="auto" />
-                            <h5 className='text-center'>({nft.length})</h5>
+                            <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                            <h5 className='text-center'>({item.nftsCount})</h5>
                           </div>
 
                           <div className='col-9'>
@@ -693,9 +692,7 @@ export default function Backup() {
                         </div>                      
                       </Card.Body>
                     </Card>
-                  </div>
-                  // }
-                  // </>                  
+                  </div>         
                 ))}
               </div>
 
