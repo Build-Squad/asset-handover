@@ -44,7 +44,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("nftcollection");
+    setStep("removecoins");
     setPledgeStep("nfts");
   }, []); 
 
@@ -85,7 +85,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });  
       setLockUp(res);      
-      // console.log('lockup - ', res);
+      console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -95,13 +95,13 @@ export default function Backup() {
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
       });
-      console.log("nftinfo - ", nftinfo);
+      // console.log("nftinfo - ", nftinfo);
 
       const collection = await fcl.query({
         cadence: getCollectionsForAccount,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
-      console.log('collection - ', collection);
+      // console.log('collection - ', collection);
       setCollection(collection);
 
       // Object.keys(nftinfo).map((item) => {
@@ -116,7 +116,7 @@ export default function Backup() {
         ],
       });
       setNFT(nft);
-      console.log('nft - ', nft);
+      // console.log('nft - ', nft);
     }
   }
 
@@ -323,10 +323,12 @@ export default function Backup() {
                 </div>
               </div>
               :
-              <div className='row justify-content-center'>
-                <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
-                  <FaPlus className='blue-font mt-5 me-2' size={60} />
-                  <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
+              <div className='center-pad'>              
+                <div className='row justify-content-center'>
+                  <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
+                    <FaPlus className='blue-font mt-5 me-2' size={60} />
+                    <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
+                  </div>
                 </div>
               </div>
               }         
@@ -608,36 +610,43 @@ export default function Backup() {
             }
             {step === "removecoins" &&
             <Tab.Pane eventKey="first">
-              <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
+              <h4 className='blue-font p-2 border-bottom-green'>EDIT COIN(S)</h4>
               <div className='row p-3'>
-              {ft !== null && 
-                Object.keys(ft).map((key, index) => (
+              {lockUp !== null && 
+                lockUp.fungibleTokens.map((item, index) => (
                   <div className='col-md-4' key={index} >
                     <div className='grey-border p-2'>
                       <div className='row'>
                         <div className='col-md-3'>
-                          { ft[key].name === 'FLOW' ?
+                          {item.identifier.includes("FlowToken")  ?
                             <img src="flowcoin.png" width="100%" height="auto" />
                           :
                             <img src="coin.png" width="100%" height="auto" />
                           }
                           
+                          {item.balance ?
+                          <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                          :
                           <h5 className='text-center'>(0)</h5>
+                          }
+
+                          
                         </div>
 
                         <div className='col-md-9'>
                           <div className='d-flex justify-content-between'>
-                            <h5 className='blue-font mb-0'>{ft[key].name}</h5>
-                            <img src="remove-button.png" alt="" width="50px" height="50px" />
+                            {item.identifier.includes("FlowToken") ?
+                            <h5 className='blue-font mb-0'>FLOW</h5>
+                            :
+                            <h5 className='blue-font mb-0'>BLP</h5>
+                            }
+                            
+                            <img src="remove-button.png" alt="" width="20px" height="20px" />
                           </div>
                           
-                          <p className='text-grey mb-1'>{key}</p>
-                          {ft[key].name === "FLOW" ?
+                          <p className='text-grey mb-1'>{item.identifier}</p>
                           <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
-                          value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
-                          :
-                          <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          }                          
+                           onChange={(e) => setFlowAmount(e.target.value)} />                                                    
                         </div>
                       </div>
                     </div>
@@ -646,7 +655,12 @@ export default function Backup() {
               }
               </div>
 
-              <div className='row mt-3 p-3'>
+              <div className='d-flex p-2 mt-5'>
+                <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
+                <h5>= Remove from the Coin(s)</h5>
+              </div>
+
+              <div className='row p-3 pt-0'>
                 <div className='col-md-8'>
                   <h5 className='text-danger'>
                     * If you don’t enter quantity of Coin(s) to handover, whole ownership of
@@ -656,7 +670,7 @@ export default function Backup() {
 
                 <div className='col-md-4'>
                   <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
-                    ADD COINS TO BACKUP
+                    SAVE CHANGES TO COIN(S)
                   </Button>
                 </div>
               </div>
