@@ -44,7 +44,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("nfts");
+    setStep("edit");
     setPledgeStep("nfts");
   }, []); 
 
@@ -215,44 +215,37 @@ export default function Backup() {
   }
 
   const selectNFT = (e, id) => {
-    const ids = nftIDs;
+    let ids = nftIDs;
 
     if(e.target.checked){
       if(!ids.includes(id)) ids.push(id);
     }else{
-      if(ids.includes(id)) ids.pop(id);
+      if(ids.includes(id))  ids = ids.filter(item => item !== id)
     }
 
     setNFTIDs(ids);
   }
 
-  // console.log(nftIDs);
-
   const addNFT = async () => {
-    const id = [];
-    nft.map((item) => {
-      id.push(item.id);
-    });
+    try{
+      const txid = await fcl.mutate({
+        cadence: lockNonFungibleToken,
+        args: (arg, t) => [
+          arg("A.fd3d8fe2c8056370.MonsterMaker", t.String),
+          arg(nftIDs, t.Array(t.UInt64))
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
 
-    // try{
-    //   const txid = await fcl.mutate({
-    //     cadence: lockNonFungibleToken,
-    //     args: (arg, t) => [
-    //       arg("A.fd3d8fe2c8056370.MonsterMaker", t.String),
-    //       arg(id, t.Array(t.UInt64))
-    //     ],
-    //     proposer: fcl.currentUser,
-    //     payer: fcl.currentUser,
-    //     authorizations: [fcl.currentUser],
-    //     limit: 999,
-    //   });
-
-    //   console.log(txid);
-    //   toast.success("Successfully added!");
-    // }catch(error) {
-    //   console.log('err', error);
-    //   toast.error(error);
-    // }
+      console.log(txid);
+      toast.success("Successfully added!");
+    }catch(error) {
+      console.log('err', error);
+      toast.error(error);
+    }
   }
 
   return(
@@ -294,8 +287,9 @@ export default function Backup() {
               <div className='center-pad'>
                 <div className='row justify-content-center'>
                   <div className='col-xl-3 col-lg-5'>
-                    <Card className="text-center cursor-pointer" onClick={() => setStep("detail")}>
-                      <Card.Img className='item-img' variant="top" src="safe.png" />
+                    <Card className="text-center" >
+                      <Card.Img className='item-img cursor-pointer' variant="top" src="safe.png" 
+                        onClick={() => setStep("detail")} />
                       <Card.Body>
                         <Card.Title className="blue-font">
                           {lockUp.name}
@@ -473,6 +467,88 @@ export default function Backup() {
             </Tab.Pane>
             }
 
+            {step === "edit" &&
+            <Tab.Pane eventKey="first">
+              <div className='row p-3 mb-3'>
+                <div className='col-md-6'>
+                  <div className='row'>
+                    <div className='col-md-3 d-flex green-border'>
+                      <img src="safe.png" width="100%" height="auto" />
+                    </div>
+
+                    <div className='col-md-9'>
+                      <h5 className='blue-font'>{lockUp.name}</h5>
+                      <p className='blue-font mb-0'>{lockUp.description}</p>
+                      <p className='text-grey'>{lockUp.recipient}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className='col-md-6 text-webkit-right'>
+                  <p className='font-bold backup-date blue-font'>
+                    BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
+                  </p>
+
+                  <p className='font-bold maturity-date blue-bg border-none'>
+                    MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
+                  </p>                  
+                </div>
+              </div>
+              
+              <h4 className='p-2 border-bottom-green blue-font mt-4'>
+                COIN(S)
+                <Button className='mx-3' variant="danger" size="sm" 
+                onClick={() => setStep("removecoins")}>
+                  Edit
+                </Button>
+              </h4>
+              {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
+              <div className='row'>
+                {lockUp.fungibleTokens.map((item, index) => (
+                  <>
+                  {item.identifier.includes("FlowToken") &&
+                    <div className='col-md-1' key={index}>
+                      <img src="flowcoin.png" width="100%" height="auto" />
+                      <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                    </div>
+                  }
+
+                  {item.identifier.includes("BlpToken") &&
+                    <div className='col-md-1' key={index}>
+                      <img src="coin.png" width="100%" height="auto" />
+                      <p className='blue-font font-bold text-center'>(0)</p>
+                    </div>
+                  }
+                  </>
+                  )       
+                )}
+              </div>
+              :
+              <div className='d-flex mt-4'>
+                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
+                  <FaPlus className='blue-font' size={40} />
+                </div>
+                <h5 className='blue-font mx-3 align-self-center'>
+                  ADD COIN(S) TO BACKUP
+                </h5>
+              </div>
+              }     
+
+              <h4 className='p-2 border-bottom-green blue-font mt-4'>
+                NFT COLLECTION(S)
+                <Button className='mx-3' variant="danger" size="sm">Edit</Button>
+              </h4>
+              <div className='d-flex mt-4'>
+                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
+                  <FaPlus className='blue-font' size={40} />
+                </div>
+                <h5 className='blue-font mx-3 align-self-center'>
+                  ADD NFT(S) TO BACKUP
+                </h5>
+              </div>             
+            </Tab.Pane>
+            }
+
             {step === "coins" &&
             <Tab.Pane eventKey="first">
               <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
@@ -496,6 +572,62 @@ export default function Backup() {
                           <div className='d-flex justify-content-between'>
                             <h5 className='blue-font mb-0'>{ft[key].name}</h5>
                             <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)}/>
+                          </div>
+                          
+                          <p className='text-grey mb-1'>{key}</p>
+                          {ft[key].name === "FLOW" ?
+                          <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                          value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
+                          :
+                          <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                          }                          
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              }
+              </div>
+
+              <div className='row mt-3 p-3'>
+                <div className='col-md-8'>
+                  <h5 className='text-danger'>
+                    * If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                    the Coin(s) will goes to recipient.
+                  </h5>
+                </div>
+
+                <div className='col-md-4'>
+                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
+                    ADD COINS TO BACKUP
+                  </Button>
+                </div>
+              </div>
+            </Tab.Pane>
+            }
+            {step === "removecoins" &&
+            <Tab.Pane eventKey="first">
+              <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
+              <div className='row p-3'>
+              {ft !== null && 
+                Object.keys(ft).map((key, index) => (
+                  <div className='col-md-4' key={index} >
+                    <div className='grey-border p-2'>
+                      <div className='row'>
+                        <div className='col-md-3'>
+                          { ft[key].name === 'FLOW' ?
+                            <img src="flowcoin.png" width="100%" height="auto" />
+                          :
+                            <img src="coin.png" width="100%" height="auto" />
+                          }
+                          
+                          <h5 className='text-center'>(0)</h5>
+                        </div>
+
+                        <div className='col-md-9'>
+                          <div className='d-flex justify-content-between'>
+                            <h5 className='blue-font mb-0'>{ft[key].name}</h5>
+                            <img src="remove-button.png" alt="" width="50px" height="50px" />
                           </div>
                           
                           <p className='text-grey mb-1'>{key}</p>
