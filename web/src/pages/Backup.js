@@ -44,8 +44,8 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("removecoins");
-    setPledgeStep("nfts");
+    setStep("default");
+    setPledgeStep("default");
   }, []); 
 
   useEffect(() => {
@@ -282,557 +282,520 @@ export default function Backup() {
 
         <div className='col-xl-10 col-lg-9 d-flex pb-2'>
           <Tab.Content className='w-100'>
-            {step === "default" &&
-            <Tab.Pane eventKey="first">
-              {lockUp ? 
-              <div className='center-pad'>
-                <div className='row justify-content-center'>
-                  <div className='col-xl-3 col-lg-5'>
-                    <Card className="text-center" >
-                      <Card.Img className='item-img cursor-pointer' variant="top" src="safe.png" 
-                        onClick={() => setStep("detail")} />
-                      <Card.Body>
-                        <Card.Title className="blue-font">
-                          {lockUp.name}
-                        </Card.Title>
-                        <p className='text-grey mb-0'>
-                          {lockUp.recipient}
-                        </p>
-                        <p className='font-14 mb-0 blue-font'>
-                          Created on
-                        </p>
-                        <p className='mb-1 blue-font'>
-                          {convertDate(Math.floor(lockUp.createdAt*1000))}
-                        </p>
-                        <p className='red-font font-14 mb-0'>
-                          Maturity Date
-                        </p>
-                        <p className='red-font'>
-                          {convertDate(Math.floor(lockUp.releasedAt))}
-                        </p>
+            <>
+              {step === "default" &&
+              <Tab.Pane eventKey="first">
+                {(lockUp && user.addr === lockUp.holder) ? 
+                <div className='center-pad'>
+                  <div className='row justify-content-center'>
+                    <div className='col-xl-3 col-lg-5'>
+                      <Card className="text-center" >
+                        <Card.Img className='item-img cursor-pointer' variant="top" src="safe.png" 
+                          onClick={() => setStep("detail")} />
+                        <Card.Body>
+                          <Card.Title className="blue-font">
+                            {lockUp.name}
+                          </Card.Title>
+                          <p className='text-grey mb-0'>
+                            {lockUp.recipient}
+                          </p>
+                          <p className='font-14 mb-0 blue-font'>
+                            Created on
+                          </p>
+                          <p className='mb-1 blue-font'>
+                            {convertDate(Math.floor(lockUp.createdAt*1000))}
+                          </p>
+                          <p className='red-font font-14 mb-0'>
+                            Maturity Date
+                          </p>
+                          <p className='red-font'>
+                            {convertDate(Math.floor(lockUp.releasedAt))}
+                          </p>
 
-                        <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
-                          Edit
-                        </Button>
-                        <Button variant="danger" size="sm" className='red-bg'>
-                          Remove
-                        </Button>
-                      </Card.Body>
-                    </Card>
-                  </div>
-                </div>
-              </div>
-              :
-              <div className='center-pad'>              
-                <div className='row justify-content-center'>
-                  <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
-                    <FaPlus className='blue-font mt-5 me-2' size={60} />
-                    <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
-                  </div>
-                </div>
-              </div>
-              }         
-            </Tab.Pane>
-            }
-
-            {step === "create" &&
-            <Tab.Pane eventKey="first">
-              <div className='row p-3'>
-                <div className='col-md-6'>
-                  <h4 className='blue-font mb-4'>
-                    CREATE NEW BACKUP
-                  </h4>
-                  <h5 className='mb-5'>
-                    Lorem ipsum dolor sit amet, consectetur
-                    adipiscing elit. Proin luctus ut enim a aliquam. Ut
-                    vel ante non nibh lacinia hendrerit a sed risus.
-                    Sed elit diam, mattis quis porta in, dignissim quis
-                    ex. Morbi ut nulla a nisl sagittis luctus id sed erat.
-                    Class aptent taciti sociosqu ad litora torquent per
-                    conubia nostra, per inceptos himenaeos. Sed
-                    efficitur pulvinar sapien.
-                  </h5>
-                  <div className='d-flex justify-content-center'>
-                    <img src="page-3-banner.png" width="80%" height="auto" />
-                  </div>                  
-                </div>
-
-                <div className='col-md-6'>
-                  <Form>
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Backup Name <span className='text-danger'>*</span>
-                      </Form.Label>
-                      <Form.Control type="text" value={backupName} 
-                        onChange={(e) => setBackupName(e.target.value)} />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Recipient's Wallet ID <span className='text-danger'>*</span>
-                      </Form.Label>
-                      <Form.Control type="text" value={recipient}
-                       onChange={(e) => setRecipient(e.target.value)} />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        Maturity Date <span className='text-danger'>*</span>
-                      </Form.Label>
-                      <DatePicker className='form-control' selected={maturity} onChange={(date) => setMaturity(date)} />
-                    </Form.Group>
-
-                    <Form.Group className="mb-3">
-                      <Form.Label>Description</Form.Label>
-                      <Form.Control as="textarea" rows={3} value={description} 
-                       onChange={(e) => setDescription(e.target.value)} />
-                    </Form.Group>
-
-                    <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
-                      CREATE BACKUP
-                    </Button>
-                  </Form>
-                </div>
-              </div>
-            </Tab.Pane>
-            }
-
-            {step === "detail" &&
-            <Tab.Pane eventKey="first">
-              <div className='row p-3 mb-3'>
-                <div className='col-md-6'>
-                  <div className='row'>
-                    <div className='col-md-3 d-flex green-border'>
-                      <img src="safe.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-md-9'>
-                      <h5 className='blue-font'>{lockUp.name}</h5>
-                      <p className='blue-font mb-0'>{lockUp.description}</p>
-                      <p className='text-grey'>{lockUp.recipient}</p>
+                          <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
+                            Edit
+                          </Button>
+                          <Button variant="danger" size="sm" className='red-bg'>
+                            Remove
+                          </Button>
+                        </Card.Body>
+                      </Card>
                     </div>
                   </div>
                 </div>
-
-                <div className='col-md-6 text-webkit-right'>
-                  <p className='font-bold backup-date blue-font'>
-                    BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
-                  </p>
-
-                  <p className='font-bold maturity-date blue-bg border-none'>
-                    MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
-                  </p>                  
-                </div>
-              </div>
-              
-              <h4 className='p-2 border-bottom-green blue-font mt-4'>COIN(S)</h4>
-              {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-              <div className='row'>
-                {lockUp.fungibleTokens.map((item, index) => (
-                  <>
-                  {item.identifier.includes("FlowToken") &&
-                    <div className='col-md-1' key={index}>
-                      <img src="flowcoin.png" width="100%" height="auto" />
-                      <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                    </div>
-                  }
-
-                  {item.identifier.includes("BlpToken") &&
-                    <div className='col-md-1' key={index}>
-                      <img src="coin.png" width="100%" height="auto" />
-                      <p className='blue-font font-bold text-center'>(0)</p>
-                    </div>
-                  }
-                  </>
-                  )       
-                )}
-              </div>
-              :
-              <div className='d-flex mt-4'>
-                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
-                  <FaPlus className='blue-font' size={40} />
-                </div>
-                <h5 className='blue-font mx-3 align-self-center'>
-                  ADD COIN(S) TO BACKUP
-                </h5>
-              </div>
-              }     
-
-              <h4 className='p-2 border-bottom-green blue-font mt-4'>NFT COLLECTION(S)</h4>
-              <div className='d-flex mt-4'>
-                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
-                  <FaPlus className='blue-font' size={40} />
-                </div>
-                <h5 className='blue-font mx-3 align-self-center'>
-                  ADD NFT(S) TO BACKUP
-                </h5>
-              </div>             
-            </Tab.Pane>
-            }
-
-            {step === "edit" &&
-            <Tab.Pane eventKey="first">
-              <div className='row p-3 mb-3'>
-                <div className='col-md-6'>
-                  <div className='row'>
-                    <div className='col-md-3 d-flex green-border'>
-                      <img src="safe.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-md-9'>
-                      <h5 className='blue-font'>{lockUp.name}</h5>
-                      <p className='blue-font mb-0'>{lockUp.description}</p>
-                      <p className='text-grey'>{lockUp.recipient}</p>
+                :
+                <div className='center-pad'>              
+                  <div className='row justify-content-center'>
+                    <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
+                      <FaPlus className='blue-font mt-5 me-2' size={60} />
+                      <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
                     </div>
                   </div>
                 </div>
+                }         
+              </Tab.Pane>
+              }
 
-                <div className='col-md-6 text-webkit-right'>
-                  <p className='font-bold backup-date blue-font'>
-                    BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
-                  </p>
+              {step === "create" &&
+              <Tab.Pane eventKey="first">
+                <div className='row p-3'>
+                  <div className='col-md-6'>
+                    <h4 className='blue-font mb-4'>
+                      CREATE NEW BACKUP
+                    </h4>
+                    <h5 className='mb-5'>
+                      Lorem ipsum dolor sit amet, consectetur
+                      adipiscing elit. Proin luctus ut enim a aliquam. Ut
+                      vel ante non nibh lacinia hendrerit a sed risus.
+                      Sed elit diam, mattis quis porta in, dignissim quis
+                      ex. Morbi ut nulla a nisl sagittis luctus id sed erat.
+                      Class aptent taciti sociosqu ad litora torquent per
+                      conubia nostra, per inceptos himenaeos. Sed
+                      efficitur pulvinar sapien.
+                    </h5>
+                    <div className='d-flex justify-content-center'>
+                      <img src="page-3-banner.png" width="80%" height="auto" />
+                    </div>                  
+                  </div>
 
-                  <p className='font-bold maturity-date blue-bg border-none'>
-                    MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
-                  </p>                  
+                  <div className='col-md-6'>
+                    <Form>
+                      <Form.Group className="mb-3">
+                        <Form.Label>
+                          Backup Name <span className='text-danger'>*</span>
+                        </Form.Label>
+                        <Form.Control type="text" value={backupName} 
+                          onChange={(e) => setBackupName(e.target.value)} />
+                      </Form.Group>
+
+                      <Form.Group className="mb-3">
+                        <Form.Label>
+                          Recipient's Wallet ID <span className='text-danger'>*</span>
+                        </Form.Label>
+                        <Form.Control type="text" value={recipient}
+                        onChange={(e) => setRecipient(e.target.value)} />
+                      </Form.Group>
+
+                      <Form.Group className="mb-3">
+                        <Form.Label>
+                          Maturity Date <span className='text-danger'>*</span>
+                        </Form.Label>
+                        <DatePicker className='form-control' selected={maturity} onChange={(date) => setMaturity(date)} />
+                      </Form.Group>
+
+                      <Form.Group className="mb-3">
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control as="textarea" rows={3} value={description} 
+                        onChange={(e) => setDescription(e.target.value)} />
+                      </Form.Group>
+
+                      <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
+                        CREATE BACKUP
+                      </Button>
+                    </Form>
+                  </div>
                 </div>
-              </div>
-              
-              <h4 className='p-2 border-bottom-green blue-font mt-4'>
-                COIN(S)
-                <Button className='mx-3' variant="danger" size="sm" 
-                onClick={() => setStep("removecoins")}>
-                  Edit
-                </Button>
-              </h4>
-              {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-              <div className='row'>
-                {lockUp.fungibleTokens.map((item, index) => (
-                  <>
-                  {item.identifier.includes("FlowToken") &&
-                    <div className='col-md-1' key={index}>
-                      <img src="flowcoin.png" width="100%" height="auto" />
-                      <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                    </div>
-                  }
+              </Tab.Pane>
+              }
 
-                  {item.identifier.includes("BlpToken") &&
-                    <div className='col-md-1' key={index}>
-                      <img src="coin.png" width="100%" height="auto" />
-                      <p className='blue-font font-bold text-center'>(0)</p>
-                    </div>
-                  }
-                  </>
-                  )       
-                )}
-              </div>
-              :
-              <div className='d-flex mt-4'>
-                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
-                  <FaPlus className='blue-font' size={40} />
-                </div>
-                <h5 className='blue-font mx-3 align-self-center'>
-                  ADD COIN(S) TO BACKUP
-                </h5>
-              </div>
-              }     
+              {step === "detail" &&
+              <Tab.Pane eventKey="first">
+                <div className='row p-3 mb-3'>
+                  <div className='col-md-6'>
+                    <div className='row'>
+                      <div className='col-md-3 d-flex green-border'>
+                        <img src="safe.png" width="100%" height="auto" />
+                      </div>
 
-              <h4 className='p-2 border-bottom-green blue-font mt-4'>
-                NFT COLLECTION(S)
-                <Button className='mx-3' variant="danger" size="sm">Edit</Button>
-              </h4>
-              <div className='d-flex mt-4'>
-                <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
-                  <FaPlus className='blue-font' size={40} />
-                </div>
-                <h5 className='blue-font mx-3 align-self-center'>
-                  ADD NFT(S) TO BACKUP
-                </h5>
-              </div>             
-            </Tab.Pane>
-            }
-
-            {step === "coins" &&
-            <Tab.Pane eventKey="first">
-              <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
-              <div className='row p-3'>
-              {ft !== null && 
-                Object.keys(ft).map((key, index) => (
-                  <div className='col-md-4' key={index} >
-                    <div className='grey-border p-2'>
-                      <div className='row'>
-                        <div className='col-md-3'>
-                          { ft[key].name === 'FLOW' ?
-                            <img src="flowcoin.png" width="100%" height="auto" />
-                          :
-                            <img src="coin.png" width="100%" height="auto" />
-                          }
-                          
-                          <h5 className='text-center'>(0)</h5>
-                        </div>
-
-                        <div className='col-md-9'>
-                          <div className='d-flex justify-content-between'>
-                            <h5 className='blue-font mb-0'>{ft[key].name}</h5>
-                            <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)}/>
-                          </div>
-                          
-                          <p className='text-grey mb-1'>{key}</p>
-                          {ft[key].name === "FLOW" ?
-                          <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
-                          value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
-                          :
-                          <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          }                          
-                        </div>
+                      <div className='col-md-9'>
+                        <h5 className='blue-font'>{lockUp.name}</h5>
+                        <p className='blue-font mb-0'>{lockUp.description}</p>
+                        <p className='text-grey'>{lockUp.recipient}</p>
                       </div>
                     </div>
                   </div>
-                ))
-              }
-              </div>
 
-              <div className='row mt-3 p-3'>
-                <div className='col-md-8'>
-                  <h5 className='text-danger'>
-                    * If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                    the Coin(s) will goes to recipient.
+                  <div className='col-md-6 text-webkit-right'>
+                    <p className='font-bold backup-date blue-font'>
+                      BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
+                    </p>
+
+                    <p className='font-bold maturity-date blue-bg border-none'>
+                      MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
+                    </p>                  
+                  </div>
+                </div>
+                
+                <h4 className='p-2 border-bottom-green blue-font mt-4'>COIN(S)</h4>
+                {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
+                <div className='row'>
+                  {lockUp.fungibleTokens.map((item, index) => (
+                    <>
+                    {item.identifier.includes("FlowToken") &&
+                      <div className='col-md-1' key={index}>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                      </div>
+                    }
+
+                    {item.identifier.includes("BlpToken") &&
+                      <div className='col-md-1' key={index}>
+                        <img src="coin.png" width="100%" height="auto" />
+                        <p className='blue-font font-bold text-center'>(0)</p>
+                      </div>
+                    }
+                    </>
+                    )       
+                  )}
+                </div>
+                :
+                <div className='d-flex mt-4'>
+                  <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
+                    <FaPlus className='blue-font' size={40} />
+                  </div>
+                  <h5 className='blue-font mx-3 align-self-center'>
+                    ADD COIN(S) TO BACKUP
                   </h5>
                 </div>
+                }     
 
-                <div className='col-md-4'>
-                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
-                    ADD COINS TO BACKUP
-                  </Button>
+                <h4 className='p-2 border-bottom-green blue-font mt-4'>NFT COLLECTION(S)</h4>
+                <div className='d-flex mt-4'>
+                  <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
+                    <FaPlus className='blue-font' size={40} />
+                  </div>
+                  <h5 className='blue-font mx-3 align-self-center'>
+                    ADD NFT(S) TO BACKUP
+                  </h5>
+                </div>             
+              </Tab.Pane>
+              }
+
+              {step === "edit" &&
+              <Tab.Pane eventKey="first">
+                <div className='row p-3 mb-3'>
+                  <div className='col-md-6'>
+                    <div className='row'>
+                      <div className='col-md-3 d-flex green-border'>
+                        <img src="safe.png" width="100%" height="auto" />
+                      </div>
+
+                      <div className='col-md-9'>
+                        <h5 className='blue-font'>{lockUp.name}</h5>
+                        <p className='blue-font mb-0'>{lockUp.description}</p>
+                        <p className='text-grey'>{lockUp.recipient}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className='col-md-6 text-webkit-right'>
+                    <p className='font-bold backup-date blue-font'>
+                      BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
+                    </p>
+
+                    <p className='font-bold maturity-date blue-bg border-none'>
+                      MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
+                    </p>                  
+                  </div>
                 </div>
-              </div>
-            </Tab.Pane>
-            }
-            {step === "removecoins" &&
-            <Tab.Pane eventKey="first">
-              <h4 className='blue-font p-2 border-bottom-green'>EDIT COIN(S)</h4>
-              <div className='row p-3'>
-              {lockUp !== null && 
-                lockUp.fungibleTokens.map((item, index) => (
-                  <div className='col-md-4' key={index} >
-                    <div className='grey-border p-2'>
-                      <div className='row'>
-                        <div className='col-md-3'>
-                          {item.identifier.includes("FlowToken")  ?
-                            <img src="flowcoin.png" width="100%" height="auto" />
-                          :
-                            <img src="coin.png" width="100%" height="auto" />
-                          }
-                          
-                          {item.balance ?
-                          <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                          :
-                          <h5 className='text-center'>(0)</h5>
-                          }
+                
+                <h4 className='p-2 border-bottom-green blue-font mt-4'>
+                  COIN(S)
+                  <Button className='mx-3' variant="danger" size="sm" 
+                  onClick={() => setStep("removecoins")}>
+                    Edit
+                  </Button>
+                </h4>
+                {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
+                <div className='row'>
+                  {lockUp.fungibleTokens.map((item, index) => (
+                    <>
+                    {item.identifier.includes("FlowToken") &&
+                      <div className='col-md-1' key={index}>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                      </div>
+                    }
 
-                          
-                        </div>
+                    {item.identifier.includes("BlpToken") &&
+                      <div className='col-md-1' key={index}>
+                        <img src="coin.png" width="100%" height="auto" />
+                        <p className='blue-font font-bold text-center'>(0)</p>
+                      </div>
+                    }
+                    </>
+                    )       
+                  )}
+                </div>
+                :
+                <div className='d-flex mt-4'>
+                  <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
+                    <FaPlus className='blue-font' size={40} />
+                  </div>
+                  <h5 className='blue-font mx-3 align-self-center'>
+                    ADD COIN(S) TO BACKUP
+                  </h5>
+                </div>
+                }     
 
-                        <div className='col-md-9'>
-                          <div className='d-flex justify-content-between'>
-                            {item.identifier.includes("FlowToken") ?
-                            <h5 className='blue-font mb-0'>FLOW</h5>
+                <h4 className='p-2 border-bottom-green blue-font mt-4'>
+                  NFT COLLECTION(S)
+                  <Button className='mx-3' variant="danger" size="sm">Edit</Button>
+                </h4>
+                <div className='d-flex mt-4'>
+                  <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
+                    <FaPlus className='blue-font' size={40} />
+                  </div>
+                  <h5 className='blue-font mx-3 align-self-center'>
+                    ADD NFT(S) TO BACKUP
+                  </h5>
+                </div>             
+              </Tab.Pane>
+              }
+
+              {step === "coins" &&
+              <Tab.Pane eventKey="first">
+                <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
+                <div className='row p-3'>
+                {ft !== null && 
+                  Object.keys(ft).map((key, index) => (
+                    <div className='col-md-4' key={index} >
+                      <div className='grey-border p-2'>
+                        <div className='row'>
+                          <div className='col-md-3'>
+                            { ft[key].name === 'FLOW' ?
+                              <img src="flowcoin.png" width="100%" height="auto" />
                             :
-                            <h5 className='blue-font mb-0'>BLP</h5>
+                              <img src="coin.png" width="100%" height="auto" />
                             }
                             
-                            <img src="remove-button.png" alt="" width="20px" height="20px" />
+                            <h5 className='text-center'>(0)</h5>
                           </div>
-                          
-                          <p className='text-grey mb-1'>{item.identifier}</p>
-                          <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
-                           onChange={(e) => setFlowAmount(e.target.value)} />                                                    
+
+                          <div className='col-md-9'>
+                            <div className='d-flex justify-content-between'>
+                              <h5 className='blue-font mb-0'>{ft[key].name}</h5>
+                              <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)}/>
+                            </div>
+                            
+                            <p className='text-grey mb-1'>{key}</p>
+                            {ft[key].name === "FLOW" ?
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                            value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
+                            :
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                            }                          
+                          </div>
                         </div>
                       </div>
                     </div>
+                  ))
+                }
+                </div>
+
+                <div className='row mt-3 p-3'>
+                  <div className='col-md-8'>
+                    <h5 className='text-danger'>
+                      * If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                      the Coin(s) will goes to recipient.
+                    </h5>
                   </div>
-                ))
+
+                  <div className='col-md-4'>
+                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
+                      ADD COINS TO BACKUP
+                    </Button>
+                  </div>
+                </div>
+              </Tab.Pane>
               }
-              </div>
-
-              <div className='d-flex p-2 mt-5'>
-                <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
-                <h5>= Remove from the Coin(s)</h5>
-              </div>
-
-              <div className='row p-3 pt-0'>
-                <div className='col-md-8'>
-                  <h5 className='text-danger'>
-                    * If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                    the Coin(s) will goes to recipient.
-                  </h5>
-                </div>
-
-                <div className='col-md-4'>
-                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
-                    SAVE CHANGES TO COIN(S)
-                  </Button>
-                </div>
-              </div>
-            </Tab.Pane>
-            }
-
-            {step === "nftcollection" &&
-            <Tab.Pane eventKey="first">
-              <h4 className='blue-font p-2 border-bottom-green'>SELECT NFT COLLECTION(S)</h4>
-
-              <div className='row'>
-                {collection.length > 0 && collection.map((item, index) => (
-                  <div className='col-md-4 pt-2' key={index}>
-                    <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
-                      <Card.Img variant="top" src={item.collectionBannerImage} />
-                      <Card.Body className='pb-0'>
+              {step === "removecoins" &&
+              <Tab.Pane eventKey="first">
+                <h4 className='blue-font p-2 border-bottom-green'>EDIT COIN(S)</h4>
+                <div className='row p-3'>
+                {lockUp !== null && 
+                  lockUp.fungibleTokens.map((item, index) => (
+                    <div className='col-md-4' key={index} >
+                      <div className='grey-border p-2'>
                         <div className='row'>
-                          <div className='col-3 p-0'>
-                            <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                            <h5 className='text-center'>({item.nftsCount})</h5>
+                          <div className='col-md-3'>
+                            {item.identifier.includes("FlowToken")  ?
+                              <img src="flowcoin.png" width="100%" height="auto" />
+                            :
+                              <img src="coin.png" width="100%" height="auto" />
+                            }
+                            
+                            {item.balance ?
+                            <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                            :
+                            <h5 className='text-center'>(0)</h5>
+                            }
+
+                            
                           </div>
 
-                          <div className='col-9'>
-                            <Card.Title>{item.collectionName}</Card.Title>
-                            <div className='d-flex'>
-                              <p className='text-grey font-14 mb-0'>
-                                {item.collectionDescription}
-                              </p>
-
-                              <Form.Check className='mx-2 mt-2' type="checkbox" />
-                            </div>                          
+                          <div className='col-md-9'>
+                            <div className='d-flex justify-content-between'>
+                              {item.identifier.includes("FlowToken") ?
+                              <h5 className='blue-font mb-0'>FLOW</h5>
+                              :
+                              <h5 className='blue-font mb-0'>BLP</h5>
+                              }
+                              
+                              <img src="remove-button.png" alt="" width="20px" height="20px" />
+                            </div>
+                            
+                            <p className='text-grey mb-1'>{item.identifier}</p>
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                            onChange={(e) => setFlowAmount(e.target.value)} />                                                    
                           </div>
-                        </div>                      
-                      </Card.Body>
-                    </Card>
-                  </div>         
-                ))}
-              </div>
-
-              <div className='row'>
-
-              </div>
-            </Tab.Pane>
-            }
-
-            {step === "nfts" && 
-            <Tab.Pane eventKey="first">
-              <div className='row pt-2 mx-2 border-bottom-green'>
-                <div className='col-md-4'>
-                  <h4 className='blue-font'>SELECT NFT(S)</h4>
-                </div>
-                <div className='col-md-4 pt-2'>
-                  <Form.Check type="checkbox" label="Select All NFTs" />
-                </div>
-                <div className='col-md-4 text-end'>
-                  <h4 className='blue-font'>NFT COLLECTION(S)</h4>
-                </div>                
-              </div>
-
-              <div className='row p-3'>
-                {nft.length > 0 && nft.map((item, index) => (
-                  <div className='col-md-4' key={index}>
-                    <div className='row grey-border p-2 me-2 mt-2'>
-                      <div className='col-3 p-1'>
-                        <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
-                      </div>
-
-                      <div className='col-9'>
-                        <div className='d-flex justify-content-between'>
-                          <Card.Title>{item.name}</Card.Title>
-                          <Form.Check type="checkbox" onClick={(e) => selectNFT(e, item.id)}/>
-                        </div> 
-                        
-                        <p className='font-14 mb-0'>
-                          {item.description}
-                        </p>
-                        <p className='text-grey mb-0'>#{item.id}</p>                       
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}                
-              </div>
+                  ))
+                }
+                </div>
 
-              <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
-                ADD NFT(S) TO BACKUP
-              </Button>
-            </Tab.Pane>
-            }
-            
+                <div className='d-flex p-2 mt-5'>
+                  <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
+                  <h5>= Remove from the Coin(s)</h5>
+                </div>
+
+                <div className='row p-3 pt-0'>
+                  <div className='col-md-8'>
+                    <h5 className='text-danger'>
+                      * If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                      the Coin(s) will goes to recipient.
+                    </h5>
+                  </div>
+
+                  <div className='col-md-4'>
+                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
+                      SAVE CHANGES TO COIN(S)
+                    </Button>
+                  </div>
+                </div>
+              </Tab.Pane>
+              }
+
+              {step === "nftcollection" &&
+              <Tab.Pane eventKey="first">
+                <h4 className='blue-font p-2 border-bottom-green'>SELECT NFT COLLECTION(S)</h4>
+
+                <div className='row'>
+                  {collection.length > 0 && collection.map((item, index) => (
+                    <div className='col-md-4 pt-2' key={index}>
+                      <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
+                        <Card.Img variant="top" src={item.collectionBannerImage} />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                              <h5 className='text-center'>({item.nftsCount})</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <Card.Title>{item.collectionName}</Card.Title>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  {item.collectionDescription}
+                                </p>
+
+                                <Form.Check className='mx-2 mt-2' type="checkbox" />
+                              </div>                          
+                            </div>
+                          </div>                      
+                        </Card.Body>
+                      </Card>
+                    </div>         
+                  ))}
+                </div>
+
+                <div className='row'>
+
+                </div>
+              </Tab.Pane>
+              }
+
+              {step === "nfts" && 
+              <Tab.Pane eventKey="first">
+                <div className='row pt-2 mx-2 border-bottom-green'>
+                  <div className='col-md-4'>
+                    <h4 className='blue-font'>SELECT NFT(S)</h4>
+                  </div>
+                  <div className='col-md-4 pt-2'>
+                    <Form.Check type="checkbox" label="Select All NFTs" />
+                  </div>
+                  <div className='col-md-4 text-end'>
+                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                  </div>                
+                </div>
+
+                <div className='row p-3'>
+                  {nft.length > 0 && nft.map((item, index) => (
+                    <div className='col-md-4' key={index}>
+                      <div className='row grey-border p-2 me-2 mt-2'>
+                        <div className='col-3 p-1'>
+                          <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
+                        </div>
+
+                        <div className='col-9'>
+                          <div className='d-flex justify-content-between'>
+                            <Card.Title>{item.name}</Card.Title>
+                            <Form.Check type="checkbox" onClick={(e) => selectNFT(e, item.id)}/>
+                          </div> 
+                          
+                          <p className='font-14 mb-0'>
+                            {item.description}
+                          </p>
+                          <p className='text-grey mb-0'>#{item.id}</p>                       
+                        </div>
+                      </div>
+                    </div>
+                  ))}                
+                </div>
+
+                <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
+                  ADD NFT(S) TO BACKUP
+                </Button>
+              </Tab.Pane>
+              }         
+            </>
+
             {/* Pledge */}
             {pledgeStep === "default" &&
-            <Tab.Pane eventKey="second">
-              <div className='row'>
-                <div className='col-xl-3 col-lg-5'>
-                  <Card className="text-center cursor-pointer" onClick={() => setPledgeStep("item")}>
-                    <Card.Img className='item-img' variant="top" src="pleages.png" />
-                    <Card.Body className='p-0'>
-                      <Card.Title className="blue-font">Lorem ipsum dolor</Card.Title>
-                      <p className='text-grey mb-0'>
-                        {user.addr}
-                      </p>
-                      <p className='font-14 mb-0 blue-font'>Created on</p>
-                      <p className='mb-1 blue-font'>12 March 2023</p>
+              <Tab.Pane eventKey="second">
+                {(lockUp && user.addr === lockUp.recipient) ?
+                <div className='center-pad'>
+                  <div className='row justify-content-center'>
+                    <div className='col-xl-3 col-lg-5'>
+                      <Card className="text-center cursor-pointer" onClick={() => setPledgeStep("item")}>
+                        <Card.Img className='item-img' variant="top" src="pleages.png" />
+                        <Card.Body className='p-0'>
+                          <Card.Title className="blue-font">{lockUp.name}</Card.Title>
+                          <p className='text-grey mb-0'>
+                            {lockUp.holder}
+                          </p>
+                          <p className='font-14 mb-0 blue-font'>Created on</p>
+                          <p className='mb-1 blue-font'>
+                          {convertDate(Math.floor(lockUp.createdAt*1000))}
+                          </p>
 
-                      <p className='red-font font-14 mb-0'>Maturity Date</p>
-                      <p className='red-font'>3 Jan 2027</p>
-                    </Card.Body>
-                  </Card>
+                          <p className='red-font font-14 mb-0'>Maturity Date</p>
+                          <p className='red-font'>
+                          {convertDate(Math.floor(lockUp.releasedAt))}
+                          </p>
+                        </Card.Body>
+                      </Card>
+                    </div>
+                  </div>
                 </div>
-
-                <div className='col-xl-3 col-lg-5'>
-                  <Card className="text-center">
-                    <Card.Img className='item-img' variant="top" src="pleages.png" />
-                    <Card.Body className='p-0'>
-                      <Card.Title className="blue-font">Lorem ipsum dolor</Card.Title>
-                      <p className='text-grey mb-0'>
-                        {user.addr}
-                      </p>
-                      <p className='font-14 mb-0 blue-font'>Created on</p>
-                      <p className='mb-1 blue-font'>12 March 2023</p>
-
-                      <p className='red-font font-14 mb-0'>Maturity Date</p>
-                      <p className='red-font'>3 Jan 2027</p>
-                    </Card.Body>
-                  </Card>
+                :
+                <div className='center-pad text-center'>
+                  <h1>There's no pledges</h1>
                 </div>
-
-                <div className='col-xl-3 col-lg-5'>
-                  <Card className="text-center">
-                    <Card.Img className='item-img' variant="top" src="pleages.png" />
-                    <Card.Body className='p-0'>
-                      <Card.Title className="blue-font">Lorem ipsum dolor</Card.Title>
-                      <p className='text-grey mb-0'>
-                        {user.addr}
-                      </p>
-                      <p className='font-14 mb-0 blue-font'>Created on</p>
-                      <p className='mb-1 blue-font'>12 March 2023</p>
-
-                      <p className='red-font font-14 mb-0'>Maturity Date</p>
-                      <p className='red-font'>3 Jan 2027</p>
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-xl-3 col-lg-5'>
-                  <Card className="text-center">
-                    <Card.Img className='item-img' variant="top" src="pleages.png" />
-                    <Card.Body className='p-0'>
-                      <Card.Title className="blue-font">Lorem ipsum dolor</Card.Title>
-                      <p className='text-grey mb-0'>
-                        {user.addr}
-                      </p>
-                      <p className='font-14 mb-0 blue-font'>Created on</p>
-                      <p className='mb-1 blue-font'>12 March 2023</p>
-
-                      <p className='red-font font-14 mb-0'>Maturity Date</p>
-                      <p className='red-font'>3 Jan 2027</p>
-                    </Card.Body>
-                  </Card>
-                </div>
-              </div>
-            </Tab.Pane>
+                }              
+              </Tab.Pane>
             }
 
             {pledgeStep === "item" &&
@@ -845,17 +808,16 @@ export default function Backup() {
                     </div>
 
                     <div className='col-md-9'>
-                      <h5 className='blue-font'>Lorem ipsum dolor</h5>
-                      <p className='blue-font mb-0'>Lorem ipsum dolor Lorem ipsum dolor</p>
-                      <p className='blue-font mb-1'>Lorem ipsum dolor Lorem ipsum dolor</p>
-                      <p className='text-grey'>{user.addr}</p>
+                      <h5 className='blue-font'>{lockUp.name}</h5>
+                      <p className='blue-font mb-0'>{lockUp.description}</p>
+                      <p className='text-grey'>{lockUp.holder}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className='col-md-6 text-webkit-right'>
                   <p className='font-bold maturity-date blue-bg border-none'>
-                    MATURITY DATE: 12-08-2028
+                    MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
                   </p>                  
                 </div>
               </div>
