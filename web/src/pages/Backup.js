@@ -18,6 +18,8 @@ import { getCollectionsForAccount } from '../cadence/script/getCollectionsForAcc
 import { getNFTsForAccountCollection } from '../cadence/script/getNFTsForAccountCollection';
 import { lockNonFungibleToken } from '../cadence/transaction/lockNonFungibleToken';
 
+import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
+
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
   const [step, setStep] = useState("default");
@@ -41,6 +43,9 @@ export default function Backup() {
   const [collection, setCollection] = useState(null);
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
+
+  //pledges
+  const [pledge, setPledge] = useState(null);
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
@@ -117,6 +122,15 @@ export default function Backup() {
       });
       setNFT(nft);
       // console.log('nft - ', nft);
+
+      const pledge = await fcl.query({
+        cadence: getLockUpsByRecipient,
+        args: (arg, t) => [
+          arg(user.addr, t.Address),
+        ],
+      });
+      console.log('pledge - ', pledge);
+      setPledge(pledge);
     }
   }
 
@@ -285,7 +299,7 @@ export default function Backup() {
             <>
               {step === "default" &&
               <Tab.Pane eventKey="first">
-                {(lockUp && user.addr === lockUp.holder) ? 
+                {lockUp ? 
                 <div className='center-pad'>
                   <div className='row justify-content-center'>
                     <div className='col-xl-3 col-lg-5'>
@@ -765,25 +779,25 @@ export default function Backup() {
             {/* Pledge */}
             {pledgeStep === "default" &&
               <Tab.Pane eventKey="second">
-                {(lockUp && user.addr === lockUp.recipient) ?
+                {pledge !== null ?
                 <div className='center-pad'>
                   <div className='row justify-content-center'>
                     <div className='col-xl-3 col-lg-5'>
                       <Card className="text-center cursor-pointer" onClick={() => setPledgeStep("item")}>
                         <Card.Img className='item-img' variant="top" src="pleages.png" />
                         <Card.Body className='p-0'>
-                          <Card.Title className="blue-font">{lockUp.name}</Card.Title>
+                          <Card.Title className="blue-font">{pledge.name}</Card.Title>
                           <p className='text-grey mb-0'>
-                            {lockUp.holder}
+                            {pledge.holder}
                           </p>
                           <p className='font-14 mb-0 blue-font'>Created on</p>
                           <p className='mb-1 blue-font'>
-                          {convertDate(Math.floor(lockUp.createdAt*1000))}
+                          {convertDate(Math.floor(pledge.createdAt*1000))}
                           </p>
 
                           <p className='red-font font-14 mb-0'>Maturity Date</p>
                           <p className='red-font'>
-                          {convertDate(Math.floor(lockUp.releasedAt))}
+                          {convertDate(Math.floor(pledge.releasedAt))}
                           </p>
                         </Card.Body>
                       </Card>
