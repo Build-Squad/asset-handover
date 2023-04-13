@@ -1,8 +1,8 @@
-export const initCollectionTemplate = `
+export const initCollectionTemplate = (contractName, contractAddress) => `
 import AssetHandover from 0xAssetHandover
 import NonFungibleToken from 0xNonFungibleToken
 import MetadataViews from 0xMetadataViews
-import CONTRACT_NAME from 0xCONTRACT_ADDRESS
+import ${contractName} from ${contractAddress}
 
 transaction(identifier: String) {
     prepare(account: AuthAccount) {
@@ -18,7 +18,7 @@ transaction(identifier: String) {
         )
 
         if !receiverRef.check() && !receiverRefP.check() {
-            let collection <- CONTRACT_NAME.createEmptyCollection()
+            let collection <- ${contractName}.createEmptyCollection()
             account.save<@NonFungibleToken.Collection>(<- collection, to: info.storagePath)
             account.link<PUBLIC_TYPE>(
                 info.publicPath,

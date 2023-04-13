@@ -17,6 +17,7 @@ import { getNonFungibleTokenInfoMapping } from '../cadence/script/getNonFungible
 import { getCollectionsForAccount } from '../cadence/script/getCollectionsForAccount';
 import { getNFTsForAccountCollection } from '../cadence/script/getNFTsForAccountCollection';
 import { lockNonFungibleToken } from '../cadence/transaction/lockNonFungibleToken';
+import { initCollectionTemplate } from '../cadence/transaction/initCollectionTemplate';
 
 import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 
@@ -41,6 +42,8 @@ export default function Backup() {
   const [blpSelect, setBLPSelect] = useState(false);
 
   const [collection, setCollection] = useState(null);
+  const [contractName, setContractName] = useState(null);
+  const [contractAddress, setContractAddress] = useState(null);
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
 
@@ -106,8 +109,10 @@ export default function Backup() {
         cadence: getCollectionsForAccount,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
-      // console.log('collection - ', collection);
+      console.log('collection - ', collection);
       setCollection(collection);
+      setContractName(collection[0].contractName);
+      setContractAddress(collection[0].contractAddress);
 
       // Object.keys(nftinfo).map((item) => {
       //   console.log('nftinfo - ', item);
@@ -244,10 +249,9 @@ export default function Backup() {
   const addNFT = async () => {
     try{
       const txid = await fcl.mutate({
-        cadence: lockNonFungibleToken,
+        cadence: initCollectionTemplate(contractName, contractAddress),
         args: (arg, t) => [
-          arg("A.fd3d8fe2c8056370.MonsterMaker", t.String),
-          arg(nftIDs, t.Array(t.UInt64))
+          arg("A.fd3d8fe2c8056370.MonsterMaker", t.String)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -256,11 +260,29 @@ export default function Backup() {
       });
 
       console.log(txid);
-      toast.success("Successfully added!");
-    }catch(error) {
+    }catch(error){
       console.log('err', error);
-      toast.error(error);
     }
+
+    // try{
+    //   const txid = await fcl.mutate({
+    //     cadence: lockNonFungibleToken,
+    //     args: (arg, t) => [
+    //       arg("A.fd3d8fe2c8056370.MonsterMaker", t.String),
+    //       arg(nftIDs, t.Array(t.UInt64))
+    //     ],
+    //     proposer: fcl.currentUser,
+    //     payer: fcl.currentUser,
+    //     authorizations: [fcl.currentUser],
+    //     limit: 999,
+    //   });
+
+    //   console.log(txid);
+    //   toast.success("Successfully added!");
+    // }catch(error) {
+    //   console.log('err', error);
+    //   toast.error(error);
+    // }
   }
 
   return(
@@ -697,7 +719,7 @@ export default function Backup() {
                 <h4 className='blue-font p-2 border-bottom-green'>SELECT NFT COLLECTION(S)</h4>
 
                 <div className='row'>
-                  {collection.length > 0 && collection.map((item, index) => (
+                  {collection && collection.map((item, index) => (
                     <div className='col-md-4 pt-2' key={index}>
                       <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
                         <Card.Img variant="top" src={item.collectionBannerImage} />
