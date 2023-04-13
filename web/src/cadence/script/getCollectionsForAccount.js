@@ -2,6 +2,7 @@ export const getCollectionsForAccount = `
 import MetadataViews from 0xMetadataViews
 import NFTCatalog from 0xNFTCatalog
 import NFTRetrieval from 0xNFTRetrieval
+
 pub struct NFTCollection {
     pub let contractName: String
     pub let contractAddress: String
@@ -46,6 +47,7 @@ pub struct NFTCollection {
         self.nftsCount = nftsCount
     }
 }
+
 pub fun main(ownerAddress: Address) : [NFTCollection] {
     let catalog = NFTCatalog.getCatalog()
     let account = getAuthAccount(ownerAddress)

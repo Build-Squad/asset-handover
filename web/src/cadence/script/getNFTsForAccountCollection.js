@@ -53,6 +53,7 @@ pub struct NFT {
         self.royalties = royalties
     }
 }
+
 pub fun main(ownerAddress: Address, collectionIdentifier: String): [NFT] {
     let items : [NFT] = []
     let catalog = NFTCatalog.getCatalog()

@@ -99,34 +99,36 @@ export default function Backup() {
         cadence: getFungibleTokenInfoMapping
       });
       setFT(ftinfo);
+      // console.log("ftinfo - ", ftinfo);
 
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
       });
-      // console.log("nftinfo - ", nftinfo);
+      console.log("nftinfo - ", nftinfo);
 
-      const collection = await fcl.query({
-        cadence: getCollectionsForAccount,
-        args: (arg, t) => [arg(user.addr, t.Address)],
-      });
-      console.log('collection - ', collection);
-      setCollection(collection);
-      setContractName(collection[0].contractName);
-      setContractAddress(collection[0].contractAddress);
-
-      // Object.keys(nftinfo).map((item) => {
-      //   console.log('nftinfo - ', item);
+      // const collection = await fcl.query({
+      //   cadence: getCollectionsForAccount,
+      //   args: (arg, t) => [arg(user.addr, t.Address)],
       // });
+      // console.log('collection - ', collection);
+      // setCollection(collection);
+      // setContractName(collection[0].contractName);
+      // setContractAddress(collection[0].contractAddress);
+
+      // // Object.keys(nftinfo).map((item) => {
+      // //   console.log('nftinfo - ', item);
+      // // });
 
       const nft = await fcl.query({
         cadence: getNFTsForAccountCollection,
         args: (arg, t) => [
           arg(user.addr, t.Address),
           arg("TheMonsterMakerCollection", t.String)
+          // arg("TheKittyItemsCollection", t.String)
         ],
       });
       setNFT(nft);
-      // console.log('nft - ', nft);
+      console.log('nft - ', nft);
 
       const pledge = await fcl.query({
         cadence: getLockUpsByRecipient,
@@ -801,32 +803,34 @@ export default function Backup() {
             {/* Pledge */}
             {pledgeStep === "default" &&
               <Tab.Pane eventKey="second">
-                {pledge !== null ?
                 <div className='center-pad'>
                   <div className='row justify-content-center'>
-                    <div className='col-xl-3 col-lg-5'>
+                  {pledge && pledge.map((item, index) =>(           
+                    <div className='col-xl-3 col-lg-5' key={index}>
                       <Card className="text-center cursor-pointer" onClick={() => setPledgeStep("item")}>
                         <Card.Img className='item-img' variant="top" src="pleages.png" />
                         <Card.Body className='p-0'>
-                          <Card.Title className="blue-font">{pledge.name}</Card.Title>
+                          <Card.Title className="blue-font">{item.name}</Card.Title>
                           <p className='text-grey mb-0'>
-                            {pledge.holder}
+                            {item.holder}
                           </p>
                           <p className='font-14 mb-0 blue-font'>Created on</p>
                           <p className='mb-1 blue-font'>
-                          {convertDate(Math.floor(pledge.createdAt*1000))}
+                          {convertDate(Math.floor(item.createdAt*1000))}
                           </p>
 
                           <p className='red-font font-14 mb-0'>Maturity Date</p>
                           <p className='red-font'>
-                          {convertDate(Math.floor(pledge.releasedAt))}
+                          {convertDate(Math.floor(item.releasedAt))}
                           </p>
                         </Card.Body>
                       </Card>
-                    </div>
+                    </div>                  
+                  ))}
                   </div>
                 </div>
-                :
+
+                {pledge && pledge.length === 0 &&
                 <div className='center-pad text-center'>
                   <h1>There's no pledges</h1>
                 </div>
