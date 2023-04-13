@@ -49,6 +49,7 @@ export default function Backup() {
 
   //pledges
   const [pledge, setPledge] = useState(null);
+  const [pledgeItem, setPledgeItem] = useState(null);
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
@@ -287,6 +288,12 @@ export default function Backup() {
     // }
   }
 
+  //Pledges
+  const clickPledge = (item) => {
+    setPledgeItem(item);
+    setPledgeStep("item");
+  }
+
   return(
     <Tab.Container id="left-tabs-example" defaultActiveKey="first">
       <div className="row mt-5 mb-5">
@@ -300,7 +307,7 @@ export default function Backup() {
             </Nav.Item>        
 
             <Nav.Item className="type">
-              <Nav.Link eventKey="second" className="text-center">
+              <Nav.Link eventKey="second" className="text-center" onClick={() => setPledgeStep("default")}>
                 <img src="pleages.png" width="80%" height="80%" />
                 <h5 className='mt-3 blue-font'>PLEDGES</h5>
               </Nav.Link>
@@ -495,7 +502,7 @@ export default function Backup() {
                     ADD COIN(S) TO BACKUP
                   </h5>
                 </div>
-                }     
+                }
 
                 <h4 className='p-2 border-bottom-green blue-font mt-4'>NFT COLLECTION(S)</h4>
                 <div className='d-flex mt-4'>
@@ -803,11 +810,10 @@ export default function Backup() {
             {/* Pledge */}
             {pledgeStep === "default" &&
               <Tab.Pane eventKey="second">
-                <div className='center-pad'>
-                  <div className='row justify-content-center'>
+                  <div className='row'>
                   {pledge && pledge.map((item, index) =>(           
                     <div className='col-xl-3 col-lg-5' key={index}>
-                      <Card className="text-center cursor-pointer" onClick={() => setPledgeStep("item")}>
+                      <Card className="text-center cursor-pointer" onClick={() => clickPledge(item)}>
                         <Card.Img className='item-img' variant="top" src="pleages.png" />
                         <Card.Body className='p-0'>
                           <Card.Title className="blue-font">{item.name}</Card.Title>
@@ -827,7 +833,6 @@ export default function Backup() {
                       </Card>
                     </div>                  
                   ))}
-                  </div>
                 </div>
 
                 {pledge && pledge.length === 0 &&
@@ -848,69 +853,58 @@ export default function Backup() {
                     </div>
 
                     <div className='col-md-9'>
-                      <h5 className='blue-font'>{lockUp.name}</h5>
-                      <p className='blue-font mb-0'>{lockUp.description}</p>
-                      <p className='text-grey'>{lockUp.holder}</p>
+                      <h5 className='blue-font'>{pledgeItem.name}</h5>
+                      <p className='blue-font mb-0'>{pledgeItem.description}</p>
+                      <p className='text-grey'>{pledgeItem.holder}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className='col-md-6 text-webkit-right'>
                   <p className='font-bold maturity-date blue-bg border-none'>
-                    MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
+                    MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt))}
                   </p>                  
                 </div>
               </div>
 
               <h4 className='p-2 border-bottom-green blue-font'>
                 COIN(S)
-                <Badge className='mx-3' bg="danger">WITHDRAW</Badge>
+                <Button className='mx-3' variant="danger" size="sm" onClick={() => setPledgeStep("coins")}>
+                  WITHDRAW
+                </Button>
               </h4>
-              <div className='row'>
-                <div className='col-md-1 cursor-pointer' onClick={() => setPledgeStep("coins")}>
-                  <img src="flowcoin.png" width="100%" height="auto" />
-                  <p className='blue-font font-bold text-center'>(250)</p>
-                </div>
+              {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
+                <div className='row'>
+                  {pledgeItem.fungibleTokens.map((item, index) => (
+                    <>
+                    {item.identifier.includes("FlowToken") &&
+                      <div className='col-md-1' key={index}>
+                        <img src="flowcoin.png" width="100%" height="auto" />
+                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                      </div>
+                    }
 
-                <div className='col-md-1'>
-                  <img src="coin.png" width="100%" height="auto" />
-                  <p className='blue-font font-bold text-center'>(250)</p>
+                    {item.identifier.includes("BlpToken") &&
+                      <div className='col-md-1' key={index}>
+                        <img src="coin.png" width="100%" height="auto" />
+                        <p className='blue-font font-bold text-center'>(0)</p>
+                      </div>
+                    }
+                    </>
+                    )       
+                  )}
                 </div>
-
-                <div className='col-md-1'>
-                  <img src="flowcoin.png" width="100%" height="auto" />
-                  <p className='blue-font font-bold text-center'>(100)</p>
+                :
+                <div className='d-flex mt-4 mb-5'>
+                  <h5 className='blue-font mx-3 align-self-center'>
+                    NO COIN(S)
+                  </h5>
                 </div>
-
-                <div className='col-md-1'>
-                  <img src="coin.png" width="100%" height="auto" />
-                  <p className='blue-font font-bold text-center'>(150)</p>
-                </div>
-
-                <div className='col-md-1'>
-                  <img src="flowcoin.png" width="100%" height="auto" />
-                  <p className='blue-font font-bold text-center'>(250)</p>
-                </div>
-
-                <div className='col-md-1'>
-                  <img src="coin.png" width="100%" height="auto" />
-                  <p className='blue-font font-bold text-center'>(250)</p>
-                </div>
-
-                <div className='col-md-1'>
-                  <img src="flowcoin.png" width="100%" height="auto" />
-                  <p className='blue-font font-bold text-center'>(250)</p>
-                </div>
-
-                <div className='col-md-1'>
-                  <img src="coin.png" width="100%" height="auto" />
-                  <p className='blue-font font-bold text-center'>(250)</p>
-                </div>
-              </div> 
+              }
 
               <h4 className='p-2 border-bottom-green blue-font'>
                 NFT COLLECTION(S)
-                <Badge className='mx-3' bg="danger">WITHDRAW</Badge>
+                <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button>
               </h4>
               <div className='row'>
                 <div className='col-md-3 pt-2'>
@@ -946,254 +940,74 @@ export default function Backup() {
                 WITHDRAW COIN(S) FROM PLEDGE
               </h4>
 
-              <div className='row p-3'>                
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+              {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 &&
+              <div className='row p-3'>      
+                {pledgeItem.fungibleTokens.map((item, index) => (
+                  <>
+                  {item.identifier.includes("FlowToken") &&
+                    <div className='col-md-4'>
+                      <div className='grey-border p-2'>
+                        <div className='row'>          
+    
+                          <div className='col-md-3'>
+                            <img src="flowcoin.png" width="100%" height="auto" />
+                            <h5 className='text-center'>({parseInt(item.balance)})</h5>
                           </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+    
+                          <div className='col-md-9'>
+                            <h5 className='blue-font mb-0'>FLOW</h5>
+                            <p className='text-grey mb-1'>{pledgeItem.holder}</p>
+                            
+                            <div className='row'>
+                              <div className='col-9 pr-0'>
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                              </div>
+    
+                              <div className='col-3'>
+                                <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                              </div>
+                            </div>                        
                           </div>
+    
                         </div>
-                        
                       </div>
                     </div>
-                  </div>
-                </div>
+                  }
 
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                  {item.identifier.includes("BlpToken") &&
+                    <div className='col-md-4'>
+                      <div className='grey-border p-2'>
+                        <div className='row'>          
+    
+                          <div className='col-md-3'>
+                            <img src="coin.png" width="100%" height="auto" />
+                            <h5 className='text-center'>(0)</h5>
                           </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+    
+                          <div className='col-md-9'>
+                            <h5 className='blue-font mb-0'>BLP</h5>
+                            <p className='text-grey mb-1'>{pledgeItem.holder}</p>
+                            
+                            <div className='row'>
+                              <div className='col-9 pr-0'>
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                              </div>
+    
+                              <div className='col-3'>
+                                <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                              </div>
+                            </div>                        
                           </div>
+    
                         </div>
-                        
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </div>
-                  </div>
-                </div> 
+                  } 
+                  </>
+                )
+                )}                
               </div>
-
-              <div className='row p-3'>                
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </div>
-                  </div>
-                </div> 
-              </div>
-
-              <div className='row p-3'>                
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='grey-border p-2'>
-                    <div className='row'>
-                      <div className='col-md-3'>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <h5 className='text-center'>(250)</h5>
-                      </div>
-
-                      <div className='col-md-9'>
-                        <h5 className='blue-font mb-0'>Lorem ipsum dolor</h5>
-                        <p className='text-grey mb-1'>{user.addr}</p>
-                        
-                        <div className='row'>
-                          <div className='col-9 pr-0'>
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
-                          </div>
-
-                          <div className='col-3'>
-                            <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                          </div>
-                        </div>
-                        
-                      </div>
-                    </div>
-                  </div>
-                </div> 
-              </div>
+              }
             </Tab.Pane>
             }
 
@@ -1602,8 +1416,7 @@ export default function Backup() {
                 </div>
               </div>
             </Tab.Pane>
-            }
-            
+            }            
           </Tab.Content>
         </div>        
       </div>
