@@ -348,7 +348,7 @@ Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, 
 The `AssetHandover.LockUp` resource that was just created by the `holder` account, does not have any tokens specified for handover. Let's see how to achieve this, with fungible tokens:
 
 ```bash
-# With this transaction, we specify the tokens from which fungible token smart contract we want to handover.
+# With this transaction, we specify the token from which fungible token smart contract we want to handover.
 flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc $FLOW_TOKEN_IDENTIFIER --network=emulator --signer=holder
 
 # For fungible tokens, we can optionally specify a maximum withdrawal amount, here being 450.0 FLOW tokens.
@@ -361,7 +361,25 @@ flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc $BLP
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
 
 # => Output:
-Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1700034523.00000000, recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [])
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [])
+
+# With this transaction, we specify multiple tokens we want to handover. This would update any fungible token smart contracts we previously added and remove the ones we ommited.
+flow transactions send ./cadence/transactions/lockUps/lockFungibleTokens.cdc '{"'$FLOW_TOKEN_IDENTIFIER'": 1.0}' --network=emulator --signer=holder
+
+# With this script, we can view the updated public info of the AssetHandover.LockUp resource.
+flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
+
+# => Output:
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 1.00000000)], nonFungibleTokens: [])
+
+# Now we are going to set it back to how it was when we locked single fungible tokens.
+flow transactions send ./cadence/transactions/lockUps/lockFungibleTokens.cdc '{"'$BLP_TOKEN_IDENTIFIER'": nil, "'$FLOW_TOKEN_IDENTIFIER'": 450.0}' --network=emulator --signer=holder
+
+# Let's check once more our updated LockUp resource to verify the state of our fungible tokens.
+flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
+
+# => Output:
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000)], nonFungibleTokens: [])
 ```
 
 ### 8. Lock your NFTs
