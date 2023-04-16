@@ -389,12 +389,16 @@ pub contract AssetHandover {
         }
 
         pub fun lockFTs(FTs: {String: FTLockUp}) {
-            for identifier in FTs.keys {
-                if self.ftLockUps.containsKey(identifier) {
-                    self.ftLockUps.insert(key: identifier, FTs[identifier]!)
-                } else {
-                    self.ftLockUps.remove(key: identifier)
+            if self.ftLockUps.length > 0 {
+                for identifier in self.ftLockUps.keys {
+                    if !FTs.containsKey(identifier) {
+                        self.ftLockUps.remove(key: identifier)
+                    }
                 }
+            }
+
+            for identifier in FTs.keys {
+                self.ftLockUps.insert(key: identifier, FTs[identifier]!)
             }
         }
 
