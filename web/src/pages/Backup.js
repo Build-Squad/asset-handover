@@ -20,6 +20,7 @@ import { lockNonFungibleToken } from '../cadence/transaction/lockNonFungibleToke
 import { initCollectionTemplate } from '../cadence/transaction/initCollectionTemplate';
 
 import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
+import { withdrawFungibleToken } from '../cadence/transaction/withdrawFungibleToken';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -50,11 +51,12 @@ export default function Backup() {
   //pledges
   const [pledge, setPledge] = useState(null);
   const [pledgeItem, setPledgeItem] = useState(null);
+  const [flowWithdraw, setFlowWithdraw] = useState("");
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
     setStep("default");
-    setPledgeStep("default");
+    setPledgeStep("coins");
   }, []); 
 
   useEffect(() => {
@@ -292,6 +294,30 @@ export default function Backup() {
   const clickPledge = (item) => {
     setPledgeItem(item);
     setPledgeStep("item");
+  }
+
+  const withdrawFT = async (identifier, holder) => {
+    console.log('identifier - ', identifier);
+    console.log('holder - ', holder);
+
+    try{
+      const txid = await fcl.mutate({
+        cadence: withdrawFungibleToken,
+        args: (arg, t) => [
+          arg(identifier, t.String),
+          arg(holder, t.Address),
+          arg(flowWithdraw + ".0", t.UFix64)
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+    }catch(error){
+      console.log('err', error);
+    }
   }
 
   return(
@@ -945,7 +971,7 @@ export default function Backup() {
                 {pledgeItem.fungibleTokens.map((item, index) => (
                   <>
                   {item.identifier.includes("FlowToken") &&
-                    <div className='col-md-4'>
+                    <div className='col-md-4' key={index}>
                       <div className='grey-border p-2'>
                         <div className='row'>          
     
@@ -960,11 +986,13 @@ export default function Backup() {
                             
                             <div className='row'>
                               <div className='col-9 pr-0'>
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                                  value={flowWithdraw} onChange={(e) => setFlowWithdraw(e.target.value)} />
                               </div>
     
                               <div className='col-3'>
-                                <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                                <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto" 
+                                  onClick={() => withdrawFT(item.identifier, pledgeItem.holder)} />
                               </div>
                             </div>                        
                           </div>
@@ -975,7 +1003,7 @@ export default function Backup() {
                   }
 
                   {item.identifier.includes("BlpToken") &&
-                    <div className='col-md-4'>
+                    <div className='col-md-4' key={index}>
                       <div className='grey-border p-2'>
                         <div className='row'>          
     
