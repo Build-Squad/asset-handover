@@ -340,7 +340,7 @@ flow transactions send ./cadence/transactions/lockUps/createLockUp.cdc 170003452
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
 
 # => Output:
-Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1700034523.00000000, recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [], nonFungibleTokens: [])
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [], nonFungibleTokens: [])
 ```
 
 ### 8. Lock your fungible tokens
@@ -394,7 +394,7 @@ flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
 
 # => Output:
-Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1700034523.00000000, recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31,  releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])
 ```
 
 ### 9. Recipient account withdraws the NFTs from the LockUp
@@ -547,7 +547,7 @@ Using the address contained in the key of the dictionary above, we can view the 
 flow scripts execute ./cadence/scripts/lockUps/getLockUpsByRecipient.cdc $RECIPIENT_ADDRESS --network=emulator
 
 # => Output:
-Result: [A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1663224523.00000000, recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 200.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])]
+Result: [A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1663224523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 200.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])]
 ```
 
 ### 12. View and update creation/withdraw fees
@@ -651,7 +651,7 @@ flow transactions send ./cadence/transactions/lockUps/lockFungibleToken.cdc $FUS
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
 
 # => Output: The Array of fungibleTokens, now contains FUSD also, however the account does not own any such tokes at the moment. In the future, this could change, and the authorized recipient could withdraw them.
-Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1663224523.00000000, recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.f8d6e0586b0a20c7.FUSD", balance: nil), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 200.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1663224523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.f8d6e0586b0a20c7.FUSD", balance: nil), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 200.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])
 ```
 
 Without having to make changes to the `AssetHandover` smart contract and re-deploy, we were able to support a new `FungibleToken` and properly initialize a `FUSD.Vault` for the `holder` account. We can achieve the same functionality with smart contracts implementing the `NonFungibleToken` smart contract interface.
@@ -735,7 +735,7 @@ flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
 
 # => Output: The Array of nonFungibleTokens, now also contains "A.f8d6e0586b0a20c7.ExampleNFT".
-Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1663224523.00000000, recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.f8d6e0586b0a20c7.FUSD", balance: nil), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 200.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.f8d6e0586b0a20c7.ExampleNFT", nftIDs: []), A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31, releasedAt: 1663224523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.f8d6e0586b0a20c7.FUSD", balance: nil), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 200.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.f8d6e0586b0a20c7.ExampleNFT", nftIDs: []), A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])
 ```
 
 By adding the necessary info of the `ExampleNFT` NFT smart contract, we were able to support it in our `AssetHandover` contract, without having to re-deploy. The info that was needed are:
