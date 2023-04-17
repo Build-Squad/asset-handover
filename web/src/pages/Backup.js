@@ -9,6 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { createLockUp } from '../cadence/transaction/createLockUp';
+import { destroyLockup } from '../cadence/transaction/destroyLockup';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
@@ -21,6 +22,7 @@ import { initCollectionTemplate } from '../cadence/transaction/initCollectionTem
 
 import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { withdrawFungibleToken } from '../cadence/transaction/withdrawFungibleToken';
+import { setupAccount } from '../cadence/transaction/setupAccount';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -147,6 +149,8 @@ export default function Backup() {
   const createBackup = async () => {
     const releaseDate = maturity.getTime();
 
+    console.log('release - ', releaseDate);
+
     try{
       const txid = await fcl.mutate({
         cadence: createLockUp,
@@ -164,6 +168,25 @@ export default function Backup() {
 
       console.log(txid);
       toast.success("Successfully created!");
+      setStep("default");
+    }catch(error) {
+      console.log('err', error);
+      toast.error(error);
+    }
+  }
+
+  const destoryBackup = async () => {
+    try{
+      const txid = await fcl.mutate({
+        cadence: destroyLockup,
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+      toast.success("Successfully destroyed!");
       setStep("default");
     }catch(error) {
       console.log('err', error);
@@ -297,8 +320,19 @@ export default function Backup() {
   }
 
   const withdrawFT = async (identifier, holder) => {
-    console.log('identifier - ', identifier);
-    console.log('holder - ', holder);
+    // try{
+    //   const txid = await fcl.mutate({
+    //     cadence: setupAccount,
+    //     proposer: fcl.currentUser,
+    //     payer: fcl.currentUser,
+    //     authorizations: [fcl.currentUser],
+    //     limit: 999,
+    //   });
+
+    //   console.log(txid);
+    // }catch(error){
+    //   console.log('err', error);
+    // }
 
     try{
       const txid = await fcl.mutate({
@@ -386,7 +420,7 @@ export default function Backup() {
                           <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
                             Edit
                           </Button>
-                          <Button variant="danger" size="sm" className='red-bg'>
+                          <Button variant="danger" size="sm" className='red-bg' onClick={() => destoryBackup()}>
                             Remove
                           </Button>
                         </Card.Body>

@@ -1,7 +1,7 @@
 export const withdrawFungibleToken = `
 import AssetHandover from 0xAssetHandover
 import FungibleToken from 0xFT
-import FungibleTokenSwitchboard from "../../../cadence/contracts/utility/FungibleTokenSwitchboard.cdc"
+import FungibleTokenSwitchboard from 0xFT
 
 transaction(identifier: String, address: Address, amount: UFix64) {
   let lockUp: &{AssetHandover.LockUpPublic}
