@@ -2,7 +2,6 @@ export const getCollectionsForAccount = `
 import MetadataViews from 0xMetadataViews
 import NFTCatalog from 0xNFTCatalog
 import NFTRetrieval from 0xNFTRetrieval
-
 pub struct NFTCollection {
     pub let contractName: String
     pub let contractAddress: String
@@ -47,14 +46,13 @@ pub struct NFTCollection {
         self.nftsCount = nftsCount
     }
 }
-
 pub fun main(ownerAddress: Address) : [NFTCollection] {
-    let catalog = NFTCatalog.getCatalog()
     let account = getAuthAccount(ownerAddress)
     let collectionsData : [NFTCollection] = []
-    for key in catalog.keys {
-        let value = catalog[key]!
-        let tempPathStr = "catalog".concat(key)
+    NFTCatalog.forEachCatalogKey(fun (collectionIdentifier: String):Bool {
+        let value = NFTCatalog.getCatalogEntry(collectionIdentifier: collectionIdentifier)!
+        let keyHash = String.encodeHex(HashAlgorithm.SHA3_256.hash(collectionIdentifier.utf8))
+        let tempPathStr = "catalog".concat(keyHash)
         let tempPublicPath = PublicPath(identifier: tempPathStr)!
         account.link<&{MetadataViews.ResolverCollection}>(
             tempPublicPath,
@@ -62,31 +60,31 @@ pub fun main(ownerAddress: Address) : [NFTCollection] {
         )
         let collectionCap = account.getCapability<&AnyResource{MetadataViews.ResolverCollection}>(tempPublicPath)
         if !collectionCap.check() {
-            continue
+            return true
         }
-        let count = NFTRetrieval.getNFTCountFromCap(collectionIdentifier : key, collectionCap : collectionCap)
-        let valueIdent = NFTCatalog.getCatalogEntry(collectionIdentifier: key)!
-        let contractView = catalog[key]!
-        let collectionDataView = catalog[key]!.collectionData
-        let collectionDisplayView = catalog[key]!.collectionDisplay
+        let count = NFTRetrieval.getNFTCountFromCap(collectionIdentifier : collectionIdentifier, collectionCap : collectionCap)
+        let valueIdent = NFTCatalog.getCatalogEntry(collectionIdentifier: collectionIdentifier)!
+        let collectionDataView = valueIdent.collectionData
+        let collectionDisplayView = valueIdent.collectionDisplay
         collectionsData.append(
-            NFTCollection(
-                contractName: contractView.contractName,
-                contractAddress: contractView.contractAddress.toString(),
-                storagePath : collectionDataView!.storagePath,
-                publicPath : collectionDataView!.publicPath,
-                privatePath : collectionDataView!.privatePath,
-                publicLinkedType : collectionDataView!.publicLinkedType,
-                privateLinkedType : collectionDataView!.privateLinkedType,
-                collectionName : collectionDisplayView!.name,
-                collectionDescription : collectionDisplayView!.description,
-                collectionSquareImage : collectionDisplayView!.squareImage.file.uri(),
-                collectionBannerImage : collectionDisplayView!.bannerImage.file.uri(),
-                collectionIdentifier : valueIdent.nftType.identifier,
-                nftsCount: count
-              )
+          NFTCollection(
+              contractName: valueIdent.contractName,
+              contractAddress: valueIdent.contractAddress.toString(),
+              storagePath : collectionDataView!.storagePath,
+              publicPath : collectionDataView!.publicPath,
+              privatePath : collectionDataView!.privatePath,
+              publicLinkedType : collectionDataView!.publicLinkedType,
+              privateLinkedType : collectionDataView!.privateLinkedType,
+              collectionName : collectionDisplayView!.name,
+              collectionDescription : collectionDisplayView!.description,
+              collectionSquareImage : collectionDisplayView!.squareImage.file.uri(),
+              collectionBannerImage : collectionDisplayView!.bannerImage.file.uri(),
+              collectionIdentifier : valueIdent.nftType.identifier,
+              nftsCount: count
           )
-      }
+        )
+        return true
+      })
     return collectionsData
 }
 `;

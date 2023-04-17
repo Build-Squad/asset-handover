@@ -15,6 +15,7 @@ import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenI
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
 import { setLockUpBalance } from '../cadence/transaction/setLockUpBalance';
 import { getNonFungibleTokenInfoMapping } from '../cadence/script/getNonFungibleTokenInfoMapping';
+import { getCollectionID } from '../cadence/script/getCollectionID';
 import { getCollectionsForAccount } from '../cadence/script/getCollectionsForAccount';
 import { getNFTsForAccountCollection } from '../cadence/script/getNFTsForAccountCollection';
 import { lockNonFungibleToken } from '../cadence/transaction/lockNonFungibleToken';
@@ -31,7 +32,7 @@ export default function Backup() {
   const navigate = useNavigate();
 
   const [backupName, setBackupName] = useState('');
-  const [recipient, setRecipient] = useState('0xd01ffe52e7bf2b25');
+  const [recipient, setRecipient] = useState('0x8527e930b7b21dae');
   const [maturity, setMaturity] = useState(new Date());
   const [description, setDescription] = useState('');
 
@@ -109,13 +110,29 @@ export default function Backup() {
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
       });
-      console.log("nftinfo - ", nftinfo);
-
-      // const collection = await fcl.query({
-      //   cadence: getCollectionsForAccount,
-      //   args: (arg, t) => [arg(user.addr, t.Address)],
-      // });
+      // console.log("nftinfo - ", nftinfo);
+      const collection = await fcl.query({
+        cadence: getCollectionsForAccount,
+        args: (arg, t) => [arg(user.addr, t.Address)],
+      });
       // console.log('collection - ', collection);
+      const nftCollection = [];
+      Object.keys(nftinfo).map((info) => {
+        collection.map((item) => {
+          if(item.collectionIdentifier.includes(info)) nftCollection.push(item);
+        })
+      });
+      console.log("nftCollection - ", nftCollection);
+      setCollection(nftCollection);
+
+      // const collectionID = await fcl.query({
+      //   cadence: getCollectionID,
+      //   args: (arg, t) => [
+      //     arg(user.addr, t.Address),
+      //   ],
+      // });
+      // console.log("collectionID - ", collectionID);
+
       // setCollection(collection);
       // setContractName(collection[0].contractName);
       // setContractAddress(collection[0].contractAddress);
@@ -124,32 +141,22 @@ export default function Backup() {
       // //   console.log('nftinfo - ', item);
       // // });
 
-      const nft = await fcl.query({
-        cadence: getNFTsForAccountCollection,
-        args: (arg, t) => [
-          arg(user.addr, t.Address),
-          arg("TheMonsterMakerCollection", t.String)
-          // arg("TheKittyItemsCollection", t.String)
-        ],
-      });
-      setNFT(nft);
-      console.log('nft - ', nft);
-
       const pledge = await fcl.query({
         cadence: getLockUpsByRecipient,
         args: (arg, t) => [
           arg(user.addr, t.Address),
         ],
       });
-      console.log('pledge - ', pledge);
+      // console.log('pledge - ', pledge);
       setPledge(pledge);
     }
   }
 
   const createBackup = async () => {
-    const releaseDate = maturity.getTime();
+    const releaseDate = maturity.getTime()/1000;
 
     console.log('release - ', releaseDate);
+
 
     try{
       const txid = await fcl.mutate({
@@ -260,6 +267,24 @@ export default function Backup() {
         console.log('err', error);
       }
     }
+  }
+
+  const selectNFTCollection = async (id) => {
+    let collectionID = "";
+
+    id === "MonsterMakerCollection" ? collectionID = "TheMonsterMakerCollection" : collectionID = id;
+
+    const nft = await fcl.query({
+      cadence: getNFTsForAccountCollection,
+      args: (arg, t) => [
+        arg(user.addr, t.Address),
+        arg(collectionID, t.String)
+      ],
+    });
+    setNFT(nft);
+    console.log('nft - ', nft);
+
+    setStep("nfts");
   }
 
   const selectNFT = (e, id) => {
@@ -414,7 +439,7 @@ export default function Backup() {
                             Maturity Date
                           </p>
                           <p className='red-font'>
-                            {convertDate(Math.floor(lockUp.releasedAt))}
+                            {convertDate(Math.floor(lockUp.releasedAt*1000))}
                           </p>
 
                           <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
@@ -790,7 +815,7 @@ export default function Backup() {
                 <div className='row'>
                   {collection && collection.map((item, index) => (
                     <div className='col-md-4 pt-2' key={index}>
-                      <Card className='p-3 pb-1 cursor-pointer' onClick={() => setStep("nfts")}>
+                      <Card className='p-3 pb-1 cursor-pointer' onClick={() => selectNFTCollection(item.privatePath.identifier)}>
                         <Card.Img variant="top" src={item.collectionBannerImage} />
                         <Card.Body className='pb-0'>
                           <div className='row'>
@@ -805,8 +830,6 @@ export default function Backup() {
                                 <p className='text-grey font-14 mb-0'>
                                   {item.collectionDescription}
                                 </p>
-
-                                <Form.Check className='mx-2 mt-2' type="checkbox" />
                               </div>                          
                             </div>
                           </div>                      
@@ -841,7 +864,11 @@ export default function Backup() {
                     <div className='col-md-4' key={index}>
                       <div className='row grey-border p-2 me-2 mt-2'>
                         <div className='col-3 p-1'>
+                          {item.thumbnail.includes("ipfs") ?
+                          <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")} width="100%" height="auto" />
+                          :
                           <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
+                          }                          
                         </div>
 
                         <div className='col-9'>
@@ -870,7 +897,7 @@ export default function Backup() {
             {/* Pledge */}
             {pledgeStep === "default" &&
               <Tab.Pane eventKey="second">
-                  <div className='row'>
+                <div className='row'>
                   {pledge && pledge.map((item, index) =>(           
                     <div className='col-xl-3 col-lg-5' key={index}>
                       <Card className="text-center cursor-pointer" onClick={() => clickPledge(item)}>
@@ -887,7 +914,7 @@ export default function Backup() {
 
                           <p className='red-font font-14 mb-0'>Maturity Date</p>
                           <p className='red-font'>
-                          {convertDate(Math.floor(item.releasedAt))}
+                          {convertDate(Math.floor(item.releasedAt*1000))}
                           </p>
                         </Card.Body>
                       </Card>
