@@ -48,6 +48,7 @@ export default function Backup() {
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
   const [contractAddress, setContractAddress] = useState(null);
+  const [collectionID, setCollectionID] = useState(null);
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
 
@@ -119,7 +120,7 @@ export default function Backup() {
       const nftCollection = [];
       Object.keys(nftinfo).map((info) => {
         collection.map((item) => {
-          if(item.collectionIdentifier.includes(info)) nftCollection.push(item);
+          if(item.nftType.includes(info)) nftCollection.push(item);
         })
       });
       console.log("nftCollection - ", nftCollection);
@@ -269,10 +270,10 @@ export default function Backup() {
     }
   }
 
-  const selectNFTCollection = async (id) => {
+  const selectNFTCollection = async (item) => {
     let collectionID = "";
 
-    id === "MonsterMakerCollection" ? collectionID = "TheMonsterMakerCollection" : collectionID = id;
+    item.privatePath.identifier === "MonsterMakerCollection" ? collectionID = "TheMonsterMakerCollection" : collectionID = item.privatePath.identifier;
 
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
@@ -283,6 +284,9 @@ export default function Backup() {
     });
     setNFT(nft);
     console.log('nft - ', nft);
+    setContractName(item.contractName);
+    setContractAddress(item.contractAddress);
+    setCollectionID(item.nftType);
 
     setStep("nfts");
   }
@@ -304,7 +308,7 @@ export default function Backup() {
       const txid = await fcl.mutate({
         cadence: initCollectionTemplate(contractName, contractAddress),
         args: (arg, t) => [
-          arg("A.fd3d8fe2c8056370.MonsterMaker", t.String)
+          arg(collectionID, t.String)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -815,7 +819,7 @@ export default function Backup() {
                 <div className='row'>
                   {collection && collection.map((item, index) => (
                     <div className='col-md-4 pt-2' key={index}>
-                      <Card className='p-3 pb-1 cursor-pointer' onClick={() => selectNFTCollection(item.privatePath.identifier)}>
+                      <Card className='p-3 pb-1 cursor-pointer' onClick={() => selectNFTCollection(item)}>
                         <Card.Img variant="top" src={item.collectionBannerImage} />
                         <Card.Body className='pb-0'>
                           <div className='row'>

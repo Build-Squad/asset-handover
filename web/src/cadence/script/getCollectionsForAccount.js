@@ -15,7 +15,9 @@ pub struct NFTCollection {
     pub let collectionSquareImage : String
     pub let collectionBannerImage : String
     pub let collectionIdentifier: String
+    pub let nftType: String
     pub let nftsCount: UInt64
+
     init(
         contractName: String,
         contractAddress: String,
@@ -29,6 +31,7 @@ pub struct NFTCollection {
         collectionSquareImage : String,
         collectionBannerImage : String,
         collectionIdentifier: String,
+        nftType: String,
         nftsCount: UInt64
     ) {
         self.contractName = contractName
@@ -43,6 +46,7 @@ pub struct NFTCollection {
         self.collectionSquareImage = collectionSquareImage
         self.collectionBannerImage = collectionBannerImage
         self.collectionIdentifier = collectionIdentifier
+        self.nftType = nftType
         self.nftsCount = nftsCount
     }
 }
@@ -79,7 +83,8 @@ pub fun main(ownerAddress: Address) : [NFTCollection] {
               collectionDescription : collectionDisplayView!.description,
               collectionSquareImage : collectionDisplayView!.squareImage.file.uri(),
               collectionBannerImage : collectionDisplayView!.bannerImage.file.uri(),
-              collectionIdentifier : valueIdent.nftType.identifier,
+              collectionIdentifier : collectionIdentifier,
+              nftType : valueIdent.nftType.identifier,
               nftsCount: count
           )
         )
