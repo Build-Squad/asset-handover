@@ -164,7 +164,7 @@ pub contract AssetHandover {
             balance: UFix64?
         )
 
-        pub fun lockFTs(FTs: {String: FTLockUp})
+        pub fun lockFTs(_ ftsMapping: {String: FTLockUp})
 
         pub fun lockNFT(
             identifier: String,
@@ -388,17 +388,15 @@ pub contract AssetHandover {
             )
         }
 
-        pub fun lockFTs(FTs: {String: FTLockUp}) {
-            if self.ftLockUps.length > 0 {
-                for identifier in self.ftLockUps.keys {
-                    if !FTs.containsKey(identifier) {
-                        self.ftLockUps.remove(key: identifier)
-                    }
+        pub fun lockFTs(_ ftMapping: {String: FTLockUp}) {
+            for identifier in self.ftLockUps.keys {
+                if !ftMapping.containsKey(identifier) {
+                    self.ftLockUps.remove(key: identifier)
                 }
             }
 
-            for identifier in FTs.keys {
-                self.ftLockUps.insert(key: identifier, FTs[identifier]!)
+            for identifier in ftMapping.keys {
+                self.ftLockUps.insert(key: identifier, ftMapping[identifier]!)
             }
         }
 

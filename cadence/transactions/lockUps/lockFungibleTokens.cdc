@@ -22,6 +22,6 @@ transaction(fts: {String: UFix64?}) {
         ftsLockUp.insert(key: key, ftLockUp)
       }
 
-      lockUp.lockFTs(FTs: ftsLockUp)
+      lockUp.lockFTs(ftsLockUp)
     }
 }
