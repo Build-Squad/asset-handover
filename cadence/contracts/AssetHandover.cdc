@@ -164,6 +164,8 @@ pub contract AssetHandover {
             balance: UFix64?
         )
 
+        pub fun lockFTs(_ ftsMapping: {String: FTLockUp})
+
         pub fun lockNFT(
             identifier: String,
             collection: Capability<&NonFungibleToken.Collection>,
@@ -384,6 +386,18 @@ pub contract AssetHandover {
                 vault: vault,
                 balance: balance
             )
+        }
+
+        pub fun lockFTs(_ ftMapping: {String: FTLockUp}) {
+            for identifier in self.ftLockUps.keys {
+                if !ftMapping.containsKey(identifier) {
+                    self.ftLockUps.remove(key: identifier)
+                }
+            }
+
+            for identifier in ftMapping.keys {
+                self.ftLockUps.insert(key: identifier, ftMapping[identifier]!)
+            }
         }
 
         pub fun lockNFT(
