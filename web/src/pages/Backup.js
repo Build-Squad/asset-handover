@@ -24,6 +24,7 @@ import { initCollectionTemplate } from '../cadence/transaction/initCollectionTem
 import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { withdrawFungibleToken } from '../cadence/transaction/withdrawFungibleToken';
 import { setupAccount } from '../cadence/transaction/setupAccount';
+import { addVaultCapability } from '../cadence/transaction/addVaultCapability';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -48,6 +49,8 @@ export default function Backup() {
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
   const [contractAddress, setContractAddress] = useState(null);
+  const [publicType, setPublicType] = useState(null);
+  const [privateType, setPrivateType] = useState(null);
   const [collectionID, setCollectionID] = useState(null);
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
@@ -271,21 +274,21 @@ export default function Backup() {
   }
 
   const selectNFTCollection = async (item) => {
-    let collectionID = "";
-
-    item.privatePath.identifier === "MonsterMakerCollection" ? collectionID = "TheMonsterMakerCollection" : collectionID = item.privatePath.identifier;
-
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
       args: (arg, t) => [
         arg(user.addr, t.Address),
-        arg(collectionID, t.String)
+        arg(item.collectionIdentifier, t.String)
       ],
     });
+    
     setNFT(nft);
     console.log('nft - ', nft);
     setContractName(item.contractName);
     setContractAddress(item.contractAddress);
+    setPublicType(item.publicLinkedType.typeID);
+    // setPrivateType(item.privateLinkedType.typeID);
+    setPrivateType(item.privateLinkedType.type.typeID);
     setCollectionID(item.nftType);
 
     setStep("nfts");
@@ -306,7 +309,7 @@ export default function Backup() {
   const addNFT = async () => {
     try{
       const txid = await fcl.mutate({
-        cadence: initCollectionTemplate(contractName, contractAddress),
+        cadence: initCollectionTemplate(contractName, contractAddress, publicType, privateType),
         args: (arg, t) => [
           arg(collectionID, t.String)
         ],
@@ -363,6 +366,23 @@ export default function Backup() {
     //   console.log('err', error);
     // }
 
+    // try{
+    //   const txid = await fcl.mutate({
+    //     cadence: addVaultCapability,
+    //     args: (arg, t) => [
+    //       arg(identifier, t.String)
+    //     ],
+    //     proposer: fcl.currentUser,
+    //     payer: fcl.currentUser,
+    //     authorizations: [fcl.currentUser],
+    //     limit: 999,
+    //   });
+
+    //   console.log(txid);
+    // }catch(error){
+    //   console.log('err', error);
+    // }
+
     try{
       const txid = await fcl.mutate({
         cadence: withdrawFungibleToken,
@@ -381,6 +401,7 @@ export default function Backup() {
     }catch(error){
       console.log('err', error);
     }
+
   }
 
   return(

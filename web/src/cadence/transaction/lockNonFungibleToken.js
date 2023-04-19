@@ -22,6 +22,4 @@ transaction(identifier: String, nftIDs: [UInt64]) {
         )
     }
 }
-
 `
- 
