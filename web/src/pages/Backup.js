@@ -64,6 +64,7 @@ export default function Backup() {
     fcl.currentUser.subscribe(setUser);
     setStep("default");
     setPledgeStep("coins");
+    setNFTIDs([]);
   }, []); 
 
   useEffect(() => {
@@ -103,7 +104,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });  
       setLockUp(res);      
-      console.log('lockup - ', res);
+      // console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -126,7 +127,7 @@ export default function Backup() {
           if(item.nftType.includes(info)) nftCollection.push(item);
         })
       });
-      console.log("nftCollection - ", nftCollection);
+      // console.log("nftCollection - ", nftCollection);
       setCollection(nftCollection);
 
       // const collectionID = await fcl.query({
@@ -298,20 +299,26 @@ export default function Backup() {
     let ids = nftIDs;
 
     if(e.target.checked){
-      if(!ids.includes(id)) ids.push(id);
+      if(!ids.includes(id)){
+        ids.push(id);
+      } 
     }else{
-      if(ids.includes(id))  ids = ids.filter(item => item !== id)
+      if(ids.includes(id)){
+        ids = ids.filter(item => item !== id)
+      }
     }
 
     setNFTIDs(ids);
   }
+
+  console.log("nftIDs - ", nftIDs);
 
   const addNFT = async () => {
     try{
       const txid = await fcl.mutate({
         cadence: initCollectionTemplate(contractName, contractAddress, publicType, privateType),
         args: (arg, t) => [
-          arg(collectionID, t.String)
+          arg("A.3efc140bc36649ad.KittyItems", t.String)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -757,9 +764,15 @@ export default function Backup() {
                   </div>
 
                   <div className='col-md-4'>
+                    {(!flowSelect && !blpSelect) ?
+                    <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                      ADD COINS TO BACKUP
+                    </Button>
+                    :
                     <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
                       ADD COINS TO BACKUP
                     </Button>
+                    }            
                   </div>
                 </div>
               </Tab.Pane>
@@ -912,9 +925,15 @@ export default function Backup() {
                   ))}                
                 </div>
 
+                {nftIDs.length > 0 ?
                 <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
                   ADD NFT(S) TO BACKUP
                 </Button>
+                :
+                <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
+                  ADD NFT(S) TO BACKUP
+                </Button>
+                }                
               </Tab.Pane>
               }         
             </>
