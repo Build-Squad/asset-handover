@@ -42,6 +42,7 @@ transaction(identifier: String,  nftIDs: [UInt64]) {
             )
         }
 
+        account.link<&{NonFungibleToken.Receiver}>(info.privatePath, target: info.storagePath)
         let collection = account.getCapability<&NonFungibleToken.Collection>(
             info.privatePath
         )
