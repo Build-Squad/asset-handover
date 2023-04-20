@@ -312,26 +312,12 @@ export default function Backup() {
 
   const addNFT = async () => {
 
-    // try{
-    //   const txid = await fcl.mutate({
-    //     cadence: initCollectionTemplate(contractName, contractAddress, publicType, privateType),
-    //     args: (arg, t) => [
-    //       arg("A.3efc140bc36649ad.KittyItems", t.String)
-    //     ],
-    //     proposer: fcl.currentUser,
-    //     payer: fcl.currentUser,
-    //     authorizations: [fcl.currentUser],
-    //     limit: 999,
-    //   });
-
-    //   console.log(txid);
-    // }catch(error){
-    //   console.log('err', error);
-    // }
+    const publicVal = publicType.replace(/A\.[^\.]*\./g, '');
+    const privateVal = privateType.replace(/A\.[^\.]*\./g, '');
 
     try{
       const txid = await fcl.mutate({
-        cadence: lockNonFungibleToken,
+        cadence: initCollectionTemplate(contractName, contractAddress, publicVal, privateVal),
         args: (arg, t) => [
           arg(collectionID.replace(".NFT", ""), t.String),
           arg(nftIDs, t.Array(t.UInt64))
@@ -344,10 +330,11 @@ export default function Backup() {
 
       console.log(txid);
       toast.success("Successfully added!");
-    }catch(error) {
+    }catch(error){
       console.log('err', error);
       toast.error(error);
     }
+
   }
 
   //Pledges

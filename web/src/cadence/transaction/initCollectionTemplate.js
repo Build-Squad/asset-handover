@@ -24,22 +24,22 @@ transaction(identifier: String,  nftIDs: [UInt64]) {
         if !receiverRef.check() && collectionExist == nil {
             let collection <- ${contractName}.createEmptyCollection()
             account.save<@NonFungibleToken.Collection>(<- collection, to: info.storagePath)
-            account.link<&KittyItems.Collection{KittyItems.KittyItemsCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}>(
+            account.link<&${publicType}>(
                 info.publicPath,
                 target: info.storagePath
             )
-            account.link<&KittyItems.Collection{KittyItems.KittyItemsCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Provider,MetadataViews.ResolverCollection}>(
+            account.link<&${privateType}>(
                 info.privatePath,
                 target: info.storagePath
             )
         } else {
             account.unlink(info.publicPath)
             account.unlink(info.privatePath)
-            account.link<&KittyItems.Collection{KittyItems.KittyItemsCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}>(
+            account.link<&${publicType}>(
                 info.publicPath,
                 target: info.storagePath
             )
-            account.link<&KittyItems.Collection{KittyItems.KittyItemsCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Provider,MetadataViews.ResolverCollection}>(
+            account.link<&${privateType}>(
                 info.privatePath,
                 target: info.storagePath
             )
