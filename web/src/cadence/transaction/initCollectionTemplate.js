@@ -4,17 +4,19 @@ import NonFungibleToken from 0xNFT
 import MetadataViews from 0xMetadataViews
 import ${contractName} from ${contractAddress}
 
-transaction(identifier: String) {
+transaction(identifier: String,  nftIDs: [UInt64]) {
     prepare(account: AuthAccount) {
         let info = AssetHandover.getNonFungibleTokenInfoMapping()[identifier]
             ?? panic("Non-supported token.")
 
+        let info = AssetHandover.getNonFungibleTokenInfoMapping()[identifier]!
+        let lockUp = account
+            .getCapability(AssetHandover.LockUpPrivatePath)
+            .borrow<&AssetHandover.LockUp{AssetHandover.LockUpPrivate}>()
+            ?? panic("Could not borrow AssetHandover.LockUpPrivate reference.")
+
         let receiverRef = account.getCapability<&{NonFungibleToken.Receiver}>(
             info.publicPath
-        )
-
-        let receiverRefP = account.getCapability<&{NonFungibleToken.Receiver}>(
-            info.privatePath
         )
 
         let collectionExist = account.type(at: info.storagePath)
@@ -42,6 +44,16 @@ transaction(identifier: String) {
                 target: info.storagePath
             )
         }
+
+        let collection = account.getCapability<&NonFungibleToken.Collection>(
+            info.privatePath
+        )
+
+        lockUp.lockNFT(
+            identifier: identifier,
+            collection: collection,
+            nftIDs: nftIDs
+        )
     }
 }
 `
