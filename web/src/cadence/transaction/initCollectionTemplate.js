@@ -6,9 +6,6 @@ import ${contractName} from ${contractAddress}
 
 transaction(identifier: String,  nftIDs: [UInt64]) {
     prepare(account: AuthAccount) {
-        let info = AssetHandover.getNonFungibleTokenInfoMapping()[identifier]
-            ?? panic("Non-supported token.")
-
         let info = AssetHandover.getNonFungibleTokenInfoMapping()[identifier]!
         let lockUp = account
             .getCapability(AssetHandover.LockUpPrivatePath)
