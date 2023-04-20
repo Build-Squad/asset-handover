@@ -2,7 +2,7 @@ export const initCollectionTemplate = (contractName, contractAddress, publicType
 import AssetHandover from 0xAssetHandover
 import NonFungibleToken from 0xNFT
 import MetadataViews from 0xMetadataViews
-import KittyItems from 0x3efc140bc36649ad
+import ${contractName} from ${contractAddress}
 
 transaction(identifier: String) {
     prepare(account: AuthAccount) {
@@ -20,7 +20,7 @@ transaction(identifier: String) {
         let collectionExist = account.type(at: info.storagePath)
 
         if !receiverRef.check() && collectionExist == nil {
-            let collection <- KittyItems.createEmptyCollection()
+            let collection <- ${contractName}.createEmptyCollection()
             account.save<@NonFungibleToken.Collection>(<- collection, to: info.storagePath)
             account.link<&KittyItems.Collection{KittyItems.KittyItemsCollectionPublic,NonFungibleToken.CollectionPublic,NonFungibleToken.Receiver,MetadataViews.ResolverCollection}>(
                 info.publicPath,

@@ -127,7 +127,7 @@ export default function Backup() {
           if(item.nftType.includes(info)) nftCollection.push(item);
         })
       });
-      // console.log("nftCollection - ", nftCollection);
+      console.log("nftCollection - ", nftCollection);
       setCollection(nftCollection);
 
       // const collectionID = await fcl.query({
@@ -288,8 +288,7 @@ export default function Backup() {
     setContractName(item.contractName);
     setContractAddress(item.contractAddress);
     setPublicType(item.publicLinkedType.typeID);
-    // setPrivateType(item.privateLinkedType.typeID);
-    setPrivateType(item.privateLinkedType.type.typeID);
+    setPrivateType(item.privateLinkedType.typeID);
     setCollectionID(item.nftType);
 
     setStep("nfts");
@@ -311,9 +310,7 @@ export default function Backup() {
     setNFTIDs(ids);
   }
 
-
   const addNFT = async () => {
-
 
     // try{
     //   const txid = await fcl.mutate({
@@ -332,25 +329,25 @@ export default function Backup() {
     //   console.log('err', error);
     // }
 
-    // try{
-    //   const txid = await fcl.mutate({
-    //     cadence: lockNonFungibleToken,
-    //     args: (arg, t) => [
-    //       arg("A.fd3d8fe2c8056370.MonsterMaker", t.String),
-    //       arg(nftIDs, t.Array(t.UInt64))
-    //     ],
-    //     proposer: fcl.currentUser,
-    //     payer: fcl.currentUser,
-    //     authorizations: [fcl.currentUser],
-    //     limit: 999,
-    //   });
+    try{
+      const txid = await fcl.mutate({
+        cadence: lockNonFungibleToken,
+        args: (arg, t) => [
+          arg(collectionID.replace(".NFT", ""), t.String),
+          arg(nftIDs, t.Array(t.UInt64))
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
 
-    //   console.log(txid);
-    //   toast.success("Successfully added!");
-    // }catch(error) {
-    //   console.log('err', error);
-    //   toast.error(error);
-    // }
+      console.log(txid);
+      toast.success("Successfully added!");
+    }catch(error) {
+      console.log('err', error);
+      toast.error(error);
+    }
   }
 
   //Pledges
