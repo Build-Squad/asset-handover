@@ -296,7 +296,7 @@ export default function Backup() {
   }
 
   const selectNFT = (e, id) => {
-    let ids = nftIDs;
+    let ids = [...nftIDs];
 
     if(e.target.checked){
       if(!ids.includes(id)){
@@ -311,25 +311,26 @@ export default function Backup() {
     setNFTIDs(ids);
   }
 
-  console.log("nftIDs - ", nftIDs);
 
   const addNFT = async () => {
-    try{
-      const txid = await fcl.mutate({
-        cadence: initCollectionTemplate(contractName, contractAddress, publicType, privateType),
-        args: (arg, t) => [
-          arg("A.3efc140bc36649ad.KittyItems", t.String)
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
 
-      console.log(txid);
-    }catch(error){
-      console.log('err', error);
-    }
+
+    // try{
+    //   const txid = await fcl.mutate({
+    //     cadence: initCollectionTemplate(contractName, contractAddress, publicType, privateType),
+    //     args: (arg, t) => [
+    //       arg("A.3efc140bc36649ad.KittyItems", t.String)
+    //     ],
+    //     proposer: fcl.currentUser,
+    //     payer: fcl.currentUser,
+    //     authorizations: [fcl.currentUser],
+    //     limit: 999,
+    //   });
+
+    //   console.log(txid);
+    // }catch(error){
+    //   console.log('err', error);
+    // }
 
     // try{
     //   const txid = await fcl.mutate({
@@ -912,7 +913,7 @@ export default function Backup() {
                         <div className='col-9'>
                           <div className='d-flex justify-content-between'>
                             <Card.Title>{item.name}</Card.Title>
-                            <Form.Check type="checkbox" onClick={(e) => selectNFT(e, item.id)}/>
+                            <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)}/>
                           </div> 
                           
                           <p className='font-14 mb-0'>
