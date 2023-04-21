@@ -104,7 +104,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });  
       setLockUp(res);      
-      // console.log('lockup - ', res);
+      console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -924,6 +924,7 @@ export default function Backup() {
             </>
 
             {/* Pledge */}
+            <>
             {pledgeStep === "default" &&
               <Tab.Pane eventKey="second">
                 <div className='row'>
@@ -1534,7 +1535,9 @@ export default function Backup() {
                 </div>
               </div>
             </Tab.Pane>
-            }            
+            }
+            </>
+                        
           </Tab.Content>
         </div>        
       </div>

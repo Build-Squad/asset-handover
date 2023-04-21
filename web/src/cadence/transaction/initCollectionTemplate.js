@@ -36,13 +36,13 @@ transaction(identifier: String,  nftIDs: [UInt64]) {
                 info.publicPath,
                 target: info.storagePath
             )
-            account.link<&${privateType}>(
+            
+            account.link<&${contractName}.Collection>(
                 info.privatePath,
                 target: info.storagePath
             )
         }
-
-        account.link<&{NonFungibleToken.Receiver}>(info.privatePath, target: info.storagePath)
+        
         let collection = account.getCapability<&NonFungibleToken.Collection>(
             info.privatePath
         )
