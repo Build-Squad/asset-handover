@@ -412,10 +412,12 @@ pub contract AssetHandover {
                 )
             }
 
-            self.nftLockUps[identifier] = NFTLockUp(
-                collection: collection,
-                nftIDs: nftIDs
-            )
+            let nftLockUp = self.nftLockUps[identifier]
+            for id in nftIDs {
+                if  !nftLockUp.nftIDs.contains(id) {
+                    nftLockUp.nftIDs.append(id)
+                }
+            }
         }
 
         pub fun setReleasedAt(releasedAt: UInt64) {
