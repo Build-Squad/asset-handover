@@ -54,6 +54,8 @@ export default function Backup() {
   const [collectionID, setCollectionID] = useState(null);
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
+  
+  const [ownCollection, setOwnCollection] = useState(null);
 
   //pledges
   const [pledge, setPledge] = useState(null);
@@ -102,9 +104,9 @@ export default function Backup() {
       const res = await fcl.query({
         cadence: getAccountLockUp,
         args: (arg, t) => [arg(user.addr, t.Address)],
-      });  
+      });
       setLockUp(res);      
-      console.log('lockup - ', res);
+      console.log('lockup - ', res);    
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -128,24 +130,9 @@ export default function Backup() {
         })
       });
       console.log("nftCollection - ", nftCollection);
-      setCollection(nftCollection);
+      setCollection(nftCollection);    
 
-      // const collectionID = await fcl.query({
-      //   cadence: getCollectionID,
-      //   args: (arg, t) => [
-      //     arg(user.addr, t.Address),
-      //   ],
-      // });
-      // console.log("collectionID - ", collectionID);
-
-      // setCollection(collection);
-      // setContractName(collection[0].contractName);
-      // setContractAddress(collection[0].contractAddress);
-
-      // // Object.keys(nftinfo).map((item) => {
-      // //   console.log('nftinfo - ', item);
-      // // });
-
+      
       const pledge = await fcl.query({
         cadence: getLockUpsByRecipient,
         args: (arg, t) => [
@@ -156,6 +143,26 @@ export default function Backup() {
       setPledge(pledge);
     }
   }
+
+  useEffect(() => {
+    const tempOwnCollection = [];
+    if(lockUp && lockUp.nonFungibleTokens.length > 0 && collection){
+      lockUp.nonFungibleTokens.map((item) => {
+        collection.map((col) => {
+          if( col.nftType.includes(item.identifier) ) {
+            console.log("temp - ", col);
+            tempOwnCollection.push(col);
+          }
+        })
+      })
+
+      console.log("tempOwnCollection - ", tempOwnCollection);
+      setOwnCollection(tempOwnCollection);
+      
+    }
+  }, [lockUp, collection])
+  
+  console.log("ownCollection - ", ownCollection);
 
   const createBackup = async () => {
     const releaseDate = maturity.getTime()/1000;
@@ -607,6 +614,35 @@ export default function Backup() {
                 }
 
                 <h4 className='p-2 border-bottom-green blue-font mt-4'>NFT COLLECTION(S)</h4>
+                {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
+                <div className='row'>
+                  {ownCollection && ownCollection.map((item, index) => (
+                    <div className='col-md-4 pt-2' key={index}>
+                      <Card className='p-3 pb-1 cursor-pointer h-100' onClick={() => selectNFTCollection(item)}>
+                        <Card.Img variant="top" src={item.collectionBannerImage} />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                              <h5 className='text-center'>({item.nftsCount})</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <Card.Title>{item.collectionName}</Card.Title>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  {item.collectionDescription}
+                                </p>
+                              </div>                          
+                            </div>
+                          </div>                      
+                        </Card.Body>
+                      </Card>
+                    </div>
+                  ))
+                  }
+                </div>
+                :
                 <div className='d-flex mt-4'>
                   <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
                     <FaPlus className='blue-font' size={40} />
@@ -614,7 +650,9 @@ export default function Backup() {
                   <h5 className='blue-font mx-3 align-self-center'>
                     ADD NFT(S) TO BACKUP
                   </h5>
-                </div>             
+                </div>
+                }
+
               </Tab.Pane>
               }
 
