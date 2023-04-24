@@ -60,16 +60,22 @@ export default function Backup() {
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
   const [editBlpAmount, setEditBlpAmount] = useState("");
+  const [flowBalance, setFlowBalance] = useState(0);
+  const [blpBalance, setBlpBalance] = useState(0);
 
   //pledges
   const [pledge, setPledge] = useState(null);
   const [pledgeItem, setPledgeItem] = useState(null);
+  const [holder, setHolder] = useState(null);
   const [flowWithdraw, setFlowWithdraw] = useState("");
+  const [blpWithdraw, setBlpWithdraw] = useState("");
+  const [pledgeCollection, setPledgeCollection] = useState(null);
+  const [pledgeNFT, setPledgeNFT] = useState(null);
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
     setStep("default");
-    setPledgeStep("coins");
+    setPledgeStep("default");
     setNFTIDs([]);
   }, []); 
 
@@ -99,6 +105,14 @@ export default function Backup() {
       
       setOwnCollection(tempOwnCollection);      
     }
+
+    if(lockUp && lockUp.fungibleTokens.length > 0){
+      lockUp.fungibleTokens.map((item) => {
+        if(item.identifier === "A.7e60df042a9c0868.FlowToken" && item.balance > 0) setFlowBalance(item.balance);
+        if(item.identifier === "A.5d649d473cc7fa83.BlpToken" && item.balance > 0) setBlpBalance(item.balance);
+      })
+    }
+
   }, [lockUp, collection])
 
   const logout = () => {
@@ -125,13 +139,13 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
       setLockUp(res);      
-      console.log('lockup - ', res);    
+      console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
       });
       setFT(ftinfo);
-      console.log("ftinfo - ", ftinfo);
+      // console.log("ftinfo - ", ftinfo);
 
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
@@ -148,7 +162,7 @@ export default function Backup() {
           if(item.nftType.includes(info)) nftCollection.push(item);
         })
       });
-      console.log("nftCollection - ", nftCollection);
+      // console.log("nftCollection - ", nftCollection);
       setCollection(nftCollection);    
 
       
@@ -167,7 +181,6 @@ export default function Backup() {
     const releaseDate = maturity.getTime()/1000;
 
     console.log('release - ', releaseDate);
-
 
     try{
       const txid = await fcl.mutate({
@@ -410,13 +423,11 @@ export default function Backup() {
   }
 
   const removeFlow = async () => {
-    console.log(blpID);
-
     try{
       const txid = await fcl.mutate({
         cadence: lockFungibleTokens,
         args: (arg, t) => [
-          arg({"A.5d649d473cc7fa83.BlpToken": 250.0},  t.Dictionary({ key: t.String, value: t.UFix64 })),
+          arg([{key: blpID, value: blpBalance}], t.Dictionary({key: t.String, value: t.Optional(t.UFix64)}))
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -453,9 +464,38 @@ export default function Backup() {
   }
 
   //Pledges
-  const clickPledge = (item) => {
+  const clickPledge = async (item) => {
     setPledgeItem(item);
+    console.log("pledge - ", item);
     setPledgeStep("item");
+    setHolder(item.holder);
+
+    const pledgeCollection = await fcl.query({
+      cadence: getCollectionsForAccount,
+      args: (arg, t) => [arg(item.holder, t.Address)]
+    });
+    // console.log("pledgeCollection - ", pledgeCollection);
+    const nftinfo = await fcl.query({
+      cadence: getNonFungibleTokenInfoMapping
+    });
+    const nftCollection = [];
+    Object.keys(nftinfo).map((info) => {
+      pledgeCollection.map((item) => {
+        if(item.nftType.includes(info)) nftCollection.push(item);
+      })
+    });
+    console.log("nftCollection - ", nftCollection);
+    setPledgeCollection(nftCollection);
+  }
+
+  const widthdrawCoins = () => {
+    const currentDate = parseInt(Date.now()/1000);
+
+    if(currentDate <= pledgeItem.releasedAt){
+      toast.error("The assets are still in lock-up period");
+    }else{
+      setPledgeStep("coins");
+    }
   }
 
   const withdrawFT = async (identifier, holder) => {
@@ -509,6 +549,21 @@ export default function Backup() {
       console.log('err', error);
     }
 
+  }
+
+  const withdrawNFTCollection = async (item) => {
+    const nft = await fcl.query({
+      cadence: getNFTsForAccountCollection,
+      args: (arg, t) => [
+        arg(holder, t.Address),
+        arg(item.collectionIdentifier, t.String)
+      ],
+    });
+    
+    setPledgeNFT(nft);
+    console.log('nft - ', nft);
+
+    setPledgeStep("nfts");
   }
 
   return(
@@ -1161,7 +1216,7 @@ export default function Backup() {
                   </div>
 
                   <div className='col-md-6'>
-                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editFT()}>
+                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
                       SAVE CHANGES TO NFT COLLECTION(S)
                     </Button>
                   </div>
@@ -1173,38 +1228,38 @@ export default function Backup() {
             {/* Pledge */}
             <>
             {pledgeStep === "default" &&
-              <Tab.Pane eventKey="second">
-                <div className='row'>
-                  {pledge && pledge.map((item, index) =>(           
-                    <div className='col-xl-3 col-lg-5' key={index}>
-                      <Card className="text-center cursor-pointer" onClick={() => clickPledge(item)}>
-                        <Card.Img className='item-img' variant="top" src="pleages.png" />
-                        <Card.Body className='p-0'>
-                          <Card.Title className="blue-font">{item.name}</Card.Title>
-                          <p className='text-grey mb-0'>
-                            {item.holder}
-                          </p>
-                          <p className='font-14 mb-0 blue-font'>Created on</p>
-                          <p className='mb-1 blue-font'>
-                          {convertDate(Math.floor(item.createdAt*1000))}
-                          </p>
+            <Tab.Pane eventKey="second">
+              <div className='row'>
+                {pledge && pledge.map((item, index) =>(           
+                  <div className='col-xl-3 col-lg-5' key={index}>
+                    <Card className="text-center cursor-pointer" onClick={() => clickPledge(item)}>
+                      <Card.Img className='item-img' variant="top" src="pleages.png" />
+                      <Card.Body className='p-0'>
+                        <Card.Title className="blue-font">{item.name}</Card.Title>
+                        <p className='text-grey mb-0'>
+                          {item.holder}
+                        </p>
+                        <p className='font-14 mb-0 blue-font'>Created on</p>
+                        <p className='mb-1 blue-font'>
+                        {convertDate(Math.floor(item.createdAt*1000))}
+                        </p>
 
-                          <p className='red-font font-14 mb-0'>Maturity Date</p>
-                          <p className='red-font'>
-                          {convertDate(Math.floor(item.releasedAt*1000))}
-                          </p>
-                        </Card.Body>
-                      </Card>
-                    </div>                  
-                  ))}
-                </div>
+                        <p className='red-font font-14 mb-0'>Maturity Date</p>
+                        <p className='red-font'>
+                        {convertDate(Math.floor(item.releasedAt*1000))}
+                        </p>
+                      </Card.Body>
+                    </Card>
+                  </div>                  
+                ))}
+              </div>
 
-                {pledge && pledge.length === 0 &&
-                <div className='center-pad text-center'>
-                  <h1>There's no pledges</h1>
-                </div>
-                }              
-              </Tab.Pane>
+              {pledge && pledge.length === 0 &&
+              <div className='center-pad text-center'>
+                <h1>There's no pledges</h1>
+              </div>
+              }              
+            </Tab.Pane>
             }
 
             {pledgeStep === "item" &&
@@ -1226,14 +1281,14 @@ export default function Backup() {
 
                 <div className='col-md-6 text-webkit-right'>
                   <p className='font-bold maturity-date blue-bg border-none'>
-                    MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt))}
+                    MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt*1000))}
                   </p>                  
                 </div>
               </div>
 
               <h4 className='p-2 border-bottom-green blue-font'>
                 COIN(S)
-                <Button className='mx-3' variant="danger" size="sm" onClick={() => setPledgeStep("coins")}>
+                <Button className='mx-3' variant="danger" size="sm" onClick={() => widthdrawCoins()}>
                   WITHDRAW
                 </Button>
               </h4>
@@ -1251,7 +1306,7 @@ export default function Backup() {
                     {item.identifier.includes("BlpToken") &&
                       <div className='col-md-1' key={index}>
                         <img src="coin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>(0)</p>
+                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
                       </div>
                     }
                     </>
@@ -1270,31 +1325,38 @@ export default function Backup() {
                 NFT COLLECTION(S)
                 <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button>
               </h4>
+              {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
               <div className='row'>
-                <div className='col-md-3 pt-2'>
-                  <Card className='p-2 pb-1 cursor-pointer' onClick={() => setPledgeStep("nftcollection")}>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
+                {pledgeCollection && pledgeCollection.map((item, index) => 
+                  <div className='col-md-3 pt-2' key={index}>
+                    <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => withdrawNFTCollection(item)}>
+                      <Card.Img variant="top" src={item.collectionBannerImage} />
+                      <Card.Body className='pb-0'>
+                        <div className='row'>
+                          <div className='col-3 p-0'>
+                            <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                            <h5 className='text-center'>({item.nftsCount})</h5>
+                          </div>
 
-                        <div className='col-9'>
-                          <p className='font-bold font-15 mb-0'>Lorem ipsum dolor</p>
-                          <div className='d-flex'>
-                            <p className='text-grey font-12 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-                          </div>                          
-                        </div>
-                      </div>                      
-                    </Card.Body>
-                  </Card>
-                </div>
+                          <div className='col-9'>
+                            <p className='font-bold'>{item.contractName}</p>
+                            <div className='d-flex'>
+                              <p className='text-grey font-14 mb-0'>
+                                {item.collectionDescription}
+                              </p>
+                            </div>                          
+                          </div>
+                        </div>                      
+                      </Card.Body>
+                    </Card>
+                  </div>
+                )}
               </div>
+              :
+              <h5 className='blue-font mx-3 align-self-center'>
+                NO NFT(S)
+              </h5>
+              }              
             </Tab.Pane>
             }
 
@@ -1347,7 +1409,7 @@ export default function Backup() {
     
                           <div className='col-md-3'>
                             <img src="coin.png" width="100%" height="auto" />
-                            <h5 className='text-center'>(0)</h5>
+                            <h5 className='text-center'>({parseInt(item.balance)})</h5>
                           </div>
     
                           <div className='col-md-9'>
@@ -1356,7 +1418,8 @@ export default function Backup() {
                             
                             <div className='row'>
                               <div className='col-9 pr-0'>
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                                value={blpWithdraw} onChange={(e) => setBlpWithdraw(e.target.value)} />
                               </div>
     
                               <div className='col-3'>
@@ -1552,234 +1615,32 @@ export default function Backup() {
               </div>
 
               <div className='row p-3'>
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
+                {pledgeNFT.length > 0 && pledgeNFT.map((item, index) => (
+                  <div className='col-md-4' key={index}>
+                    <div className='row grey-border p-2 me-2 mt-2'>
+                      <div className='col-3 p-1'>
+                        {item.thumbnail.includes("ipfs") ?
+                        <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")} 
+                          width="100%" height="auto" />
+                        :
+                        <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
+                        }                          
+                      </div>
 
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
+                      <div className='col-9'>
+                        <div className='d-flex justify-content-between'>
+                          <Card.Title>{item.name}</Card.Title>
+                          <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)}/>
+                        </div> 
+                        
+                        <p className='font-14 mb-0'>
+                          {item.description}
+                        </p>
+                        <p className='text-grey mb-0'>#{item.id}</p>                       
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className='row p-3'>
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className='row p-3'>
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
-
-                <div className='col-md-4'>
-                  <div className='row grey-border p-2 me-2 mt-2'>
-                    <div className='col-3 p-1'>
-                      <img className='green-border' src="nft.png" width="100%" height="auto" />
-                    </div>
-
-                    <div className='col-9'>
-                      <div className='row'>
-                        <div className='col-9'>
-                          <Card.Title>NFT NAME</Card.Title>
-                        </div>
-                        <div className='col-3'>
-                          <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
-                        </div>
-                      </div>                     
-                      
-                      <p className='font-14 mb-0'>
-                        Lorem ipsum dolor Lorem <br/>
-                        Lorem ipsum dolor Lorem
-                      </p>
-                      <p className='text-grey mb-0'>#567</p>                       
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </Tab.Pane>
             }
