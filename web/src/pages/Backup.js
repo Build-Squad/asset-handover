@@ -13,6 +13,7 @@ import { destroyLockup } from '../cadence/transaction/destroyLockup';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
+import { lockFungibleTokens } from '../cadence/transaction/lockFungibleTokens';
 import { setLockUpBalance } from '../cadence/transaction/setLockUpBalance';
 import { getNonFungibleTokenInfoMapping } from '../cadence/script/getNonFungibleTokenInfoMapping';
 import { getCollectionID } from '../cadence/script/getCollectionID';
@@ -42,6 +43,7 @@ export default function Backup() {
   const [flowID, setFlowID] = useState(null);
   const [blpID, setBLPID] = useState(null);
   const [flowAmount, setFlowAmount] = useState("");
+  const [blpAmount, setBlpAmount] = useState("");
 
   const [flowSelect, setFlowSelect] = useState(false);
   const [blpSelect, setBLPSelect] = useState(false);
@@ -56,6 +58,8 @@ export default function Backup() {
   const [nftIDs, setNFTIDs] = useState([]);
   
   const [ownCollection, setOwnCollection] = useState(null);
+  const [editFlowAmount, setEditFlowAmount] = useState("");
+  const [editBlpAmount, setEditBlpAmount] = useState("");
 
   //pledges
   const [pledge, setPledge] = useState(null);
@@ -81,6 +85,21 @@ export default function Backup() {
       });
     }    
   }, [ft]);
+
+  useEffect(() => {
+    const tempOwnCollection = [];
+    if(lockUp && lockUp.nonFungibleTokens.length > 0 && collection){
+      lockUp.nonFungibleTokens.map((item) => {
+        collection.map((col) => {
+          if( col.nftType.includes(item.identifier) ) {
+            tempOwnCollection.push(col);
+          }
+        })
+      })
+      
+      setOwnCollection(tempOwnCollection);      
+    }
+  }, [lockUp, collection])
 
   const logout = () => {
     fcl.unauthenticate();
@@ -112,7 +131,7 @@ export default function Backup() {
         cadence: getFungibleTokenInfoMapping
       });
       setFT(ftinfo);
-      // console.log("ftinfo - ", ftinfo);
+      console.log("ftinfo - ", ftinfo);
 
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
@@ -142,27 +161,7 @@ export default function Backup() {
       // console.log('pledge - ', pledge);
       setPledge(pledge);
     }
-  }
-
-  useEffect(() => {
-    const tempOwnCollection = [];
-    if(lockUp && lockUp.nonFungibleTokens.length > 0 && collection){
-      lockUp.nonFungibleTokens.map((item) => {
-        collection.map((col) => {
-          if( col.nftType.includes(item.identifier) ) {
-            console.log("temp - ", col);
-            tempOwnCollection.push(col);
-          }
-        })
-      })
-
-      console.log("tempOwnCollection - ", tempOwnCollection);
-      setOwnCollection(tempOwnCollection);
-      
-    }
-  }, [lockUp, collection])
-  
-  console.log("ownCollection - ", ownCollection);
+  }  
 
   const createBackup = async () => {
     const releaseDate = maturity.getTime()/1000;
@@ -278,6 +277,26 @@ export default function Backup() {
       }catch(error) {
         console.log('err', error);
       }
+
+      if(blpAmount !== ""){
+        try{
+          const txid = await fcl.mutate({
+            cadence: setLockUpBalance,
+            args: (arg, t) => [
+              arg(blpID, t.String),
+              arg(blpAmount+".0", t.UFix64)
+            ],
+            proposer: fcl.currentUser,
+            payer: fcl.currentUser,
+            authorizations: [fcl.currentUser],
+            limit: 999,
+          });
+    
+          console.log(txid);
+        }catch(error) {
+          console.log('err', error);
+        }
+      }
     }
   }
 
@@ -342,6 +361,95 @@ export default function Backup() {
       toast.error(error);
     }
 
+  }
+
+  const editFT = async () => {
+    if(editFlowAmount !== ""){
+      try{
+        const txid = await fcl.mutate({
+          cadence: setLockUpBalance,
+          args: (arg, t) => [
+            arg(flowID, t.String),
+            arg(editFlowAmount+".0", t.UFix64)
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        toast.success("Successfully edited!");
+      }catch(error) {
+        console.log('err', error);
+        toast.error(error);
+      }
+    }
+
+    if(editBlpAmount !== ""){
+      try{
+        const txid = await fcl.mutate({
+          cadence: setLockUpBalance,
+          args: (arg, t) => [
+            arg(blpID, t.String),
+            arg(editBlpAmount+".0", t.UFix64)
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        toast.success("Successfully edited!");
+      }catch(error) {
+        console.log('err', error);
+        toast.error(error);
+      }
+    }
+  }
+
+  const removeFlow = async () => {
+    console.log(blpID);
+
+    try{
+      const txid = await fcl.mutate({
+        cadence: lockFungibleTokens,
+        args: (arg, t) => [
+          arg({"A.5d649d473cc7fa83.BlpToken": 250.0},  t.Dictionary({ key: t.String, value: t.UFix64 })),
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+      toast.success("Successfully removed!");
+    }catch(error) {
+      console.log('err', error);
+      toast.error(error);
+    }
+  }
+
+  const editNFTCollection = async (item) => {
+    const nft = await fcl.query({
+      cadence: getNFTsForAccountCollection,
+      args: (arg, t) => [
+        arg(user.addr, t.Address),
+        arg(item.collectionIdentifier, t.String)
+      ],
+    });
+    
+    setNFT(nft);
+    console.log('nft - ', nft);
+    setContractName(item.contractName);
+    setContractAddress(item.contractAddress);
+    setPublicType(item.publicLinkedType.typeID);
+    setPrivateType(item.privateLinkedType.typeID);
+    setCollectionID(item.nftType);
+
+    setStep("removenfts");
   }
 
   //Pledges
@@ -595,13 +703,18 @@ export default function Backup() {
                     {item.identifier.includes("BlpToken") &&
                       <div className='col-md-1' key={index}>
                         <img src="coin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>(0)</p>
+                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
                       </div>
                     }
                     </>
                     )       
                   )}
-                </div>
+                  <div className='col-md-1 pt-2'>
+                    <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("coins")}>
+                      <FaPlus className='blue-font' size={40} />
+                    </div>
+                  </div>
+                </div>                
                 :
                 <div className='d-flex mt-4'>
                   <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
@@ -617,8 +730,8 @@ export default function Backup() {
                 {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
                 <div className='row'>
                   {ownCollection && ownCollection.map((item, index) => (
-                    <div className='col-md-4 pt-2' key={index}>
-                      <Card className='p-3 pb-1 cursor-pointer h-100' onClick={() => selectNFTCollection(item)}>
+                    <div className='col-md-3 pt-2' key={index}>
+                      <Card className='p-3 pb-1 h-100'>
                         <Card.Img variant="top" src={item.collectionBannerImage} />
                         <Card.Body className='pb-0'>
                           <div className='row'>
@@ -628,7 +741,7 @@ export default function Backup() {
                             </div>
 
                             <div className='col-9'>
-                              <Card.Title>{item.collectionName}</Card.Title>
+                              <p className='font-bold'>{item.contractName}</p>
                               <div className='d-flex'>
                                 <p className='text-grey font-14 mb-0'>
                                   {item.collectionDescription}
@@ -639,8 +752,15 @@ export default function Backup() {
                         </Card.Body>
                       </Card>
                     </div>
-                  ))
-                  }
+                  ))}
+
+                  <div className='col-md-3 pt-2'>
+                    <div className='center-pad'>
+                      <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("nftcollection")}>
+                        <FaPlus className='blue-font' size={40} />
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 :
                 <div className='d-flex mt-4'>
@@ -705,7 +825,7 @@ export default function Backup() {
                     {item.identifier.includes("BlpToken") &&
                       <div className='col-md-1' key={index}>
                         <img src="coin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>(0)</p>
+                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
                       </div>
                     }
                     </>
@@ -714,11 +834,8 @@ export default function Backup() {
                 </div>
                 :
                 <div className='d-flex mt-4'>
-                  <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
-                    <FaPlus className='blue-font' size={40} />
-                  </div>
                   <h5 className='blue-font mx-3 align-self-center'>
-                    ADD COIN(S) TO BACKUP
+                    No COIN(S)
                   </h5>
                 </div>
                 }     
@@ -727,14 +844,40 @@ export default function Backup() {
                   NFT COLLECTION(S)
                   <Button className='mx-3' variant="danger" size="sm">Edit</Button>
                 </h4>
+                {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
+                <div className='row'>
+                  {ownCollection && ownCollection.map((item, index) => (
+                    <div className='col-md-3 pt-2' key={index}>
+                      <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => editNFTCollection(item)}>
+                        <Card.Img variant="top" src={item.collectionBannerImage} />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                              <h5 className='text-center'>({item.nftsCount})</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <p className='font-bold'>{item.contractName}</p>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  {item.collectionDescription}
+                                </p>
+                              </div>                          
+                            </div>
+                          </div>                      
+                        </Card.Body>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+                :
                 <div className='d-flex mt-4'>
-                  <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
-                    <FaPlus className='blue-font' size={40} />
-                  </div>
                   <h5 className='blue-font mx-3 align-self-center'>
-                    ADD NFT(S) TO BACKUP
+                    NO NFT(S)
                   </h5>
-                </div>             
+                </div>
+                }             
               </Tab.Pane>
               }
 
@@ -768,7 +911,8 @@ export default function Backup() {
                             <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
                             value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
                             :
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' />
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                            value={blpAmount} onChange={(e) => setBlpAmount(e.target.value)} />
                             }                          
                           </div>
                         </div>
@@ -820,25 +964,34 @@ export default function Backup() {
                             <h5 className='text-center'>({parseInt(item.balance)})</h5>
                             :
                             <h5 className='text-center'>(0)</h5>
-                            }
-
-                            
+                            }                            
                           </div>
 
                           <div className='col-md-9'>
                             <div className='d-flex justify-content-between'>
                               {item.identifier.includes("FlowToken") ?
-                              <h5 className='blue-font mb-0'>FLOW</h5>
+                              <>
+                                <h5 className='blue-font mb-0'>FLOW</h5>
+                                <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px" 
+                                onClick={() => removeFlow()} />
+                              </>                              
                               :
-                              <h5 className='blue-font mb-0'>BLP</h5>
-                              }
-                              
-                              <img src="remove-button.png" alt="" width="20px" height="20px" />
+                              <>
+                                <h5 className='blue-font mb-0'>BLP</h5>
+                                <img src="remove-button.png" alt="" width="20px" height="20px" />
+                              </>                              
+                              }                             
                             </div>
                             
                             <p className='text-grey mb-1'>{item.identifier}</p>
+
+                            {item.identifier.includes("FlowToken")  ?
                             <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
-                            onChange={(e) => setFlowAmount(e.target.value)} />                                                    
+                            value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
+                            :
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                            value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
+                            }                                                                                
                           </div>
                         </div>
                       </div>
@@ -861,7 +1014,7 @@ export default function Backup() {
                   </div>
 
                   <div className='col-md-4'>
-                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
+                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editFT()}>
                       SAVE CHANGES TO COIN(S)
                     </Button>
                   </div>
@@ -958,7 +1111,63 @@ export default function Backup() {
                 </Button>
                 }                
               </Tab.Pane>
-              }         
+              }   
+
+              {step === "removenfts" && 
+              <Tab.Pane eventKey="first">
+                <div className='row pt-2 mx-2 border-bottom-green'>
+                  <div className='col-md-4'>
+                    <h4 className='blue-font'>EDIT NFT(S)</h4>
+                  </div>
+                  <div className='col-md-4 text-end'>
+                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                  </div>                
+                </div>
+
+                <div className='row p-3'>
+                  {nft.length > 0 && nft.map((item, index) => (
+                    <div className='col-md-4' key={index}>
+                      <div className='row grey-border p-2 me-2 mt-2'>
+                        <div className='col-3 p-1'>
+                          {item.thumbnail.includes("ipfs") ?
+                          <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")} width="100%" height="auto" />
+                          :
+                          <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
+                          }                          
+                        </div>
+
+                        <div className='col-9'>
+                          <div className='d-flex justify-content-between'>
+                            <Card.Title>{item.name}</Card.Title>
+                            <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)}/>
+                          </div> 
+                          
+                          <p className='font-14 mb-0'>
+                            {item.description}
+                          </p>
+                          <p className='text-grey mb-0'>#{item.id}</p>                       
+                        </div>
+                      </div>
+                    </div>
+                  ))}                
+                </div>
+
+                <div className='row p-3 pt-0'>
+                  <div className='col-md-6 px-0'>
+                    <div className='d-flex mt-4'>
+                      <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
+                      <h5>= Remove from the NFT Collection</h5>
+                    </div>
+                  </div>
+
+                  <div className='col-md-6'>
+                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editFT()}>
+                      SAVE CHANGES TO NFT COLLECTION(S)
+                    </Button>
+                  </div>
+                </div>                
+              </Tab.Pane>
+              }      
             </>
 
             {/* Pledge */}
