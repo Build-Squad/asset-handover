@@ -21,6 +21,7 @@ import { getCollectionsForAccount } from '../cadence/script/getCollectionsForAcc
 import { getNFTsForAccountCollection } from '../cadence/script/getNFTsForAccountCollection';
 import { lockNonFungibleToken } from '../cadence/transaction/lockNonFungibleToken';
 import { initCollectionTemplate } from '../cadence/transaction/initCollectionTemplate';
+import { setLockUpNFTIDs } from '../cadence/transaction/setLockUpNFTIDs';
 
 import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { withdrawFungibleToken } from '../cadence/transaction/withdrawFungibleToken';
@@ -62,6 +63,7 @@ export default function Backup() {
   const [editBlpAmount, setEditBlpAmount] = useState("");
   const [flowBalance, setFlowBalance] = useState(0);
   const [blpBalance, setBlpBalance] = useState(0);
+  const [editNFTIDs, setEditNFTIDs] = useState([]);
 
   //pledges
   const [pledge, setPledge] = useState(null);
@@ -74,7 +76,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("default");
+    setStep("removenfts");
     setPledgeStep("default");
     setNFTIDs([]);
   }, []); 
@@ -444,6 +446,8 @@ export default function Backup() {
   }
 
   const editNFTCollection = async (item) => {
+    console.log("collection - ", item);
+
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
       args: (arg, t) => [
@@ -452,15 +456,59 @@ export default function Backup() {
       ],
     });
     
-    setNFT(nft);
-    console.log('nft - ', nft);
-    setContractName(item.contractName);
-    setContractAddress(item.contractAddress);
-    setPublicType(item.publicLinkedType.typeID);
-    setPrivateType(item.privateLinkedType.typeID);
+    var ownNFTIDs = [];
+    lockUp.nonFungibleTokens.map((token) => {
+      if(item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
+    });
+
+    var ownNFT = [];
+    nft.map((nftItem) => {
+      if(ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem); 
+    });
+
+    setNFT(ownNFT);
+    console.log('ownnft - ', ownNFT);
     setCollectionID(item.nftType);
 
     setStep("removenfts");
+  }
+
+  const selectEditNFT = (e, id) => {
+    let ids = [...editNFTIDs];
+
+    if(e.target.checked){
+      if(!ids.includes(id)){
+        ids.push(id);
+      } 
+    }else{
+      if(ids.includes(id)){
+        ids = ids.filter(item => item !== id)
+      }
+    }
+
+    setEditNFTIDs(ids);
+  }
+
+  const editNFT = async () => {
+    try{
+      const txid = await fcl.mutate({
+        cadence: setLockUpNFTIDs,
+        args: (arg, t) => [
+          arg(collectionID.replace(".NFT", ""), t.String),
+          arg(editNFTIDs, t.Array(t.UInt64))
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+      toast.success("Successfully edited!");
+    }catch(error) {
+      console.log('err', error);
+      toast.error(error);
+    }
   }
 
   //Pledges
@@ -1171,10 +1219,10 @@ export default function Backup() {
               {step === "removenfts" && 
               <Tab.Pane eventKey="first">
                 <div className='row pt-2 mx-2 border-bottom-green'>
-                  <div className='col-md-4'>
+                  <div className='col-md-6'>
                     <h4 className='blue-font'>EDIT NFT(S)</h4>
                   </div>
-                  <div className='col-md-4 text-end'>
+                  <div className='col-md-6 text-end'>
                     <h4 className='blue-font'>NFT COLLECTION(S)</h4>
                   </div>                
                 </div>
@@ -1194,7 +1242,7 @@ export default function Backup() {
                         <div className='col-9'>
                           <div className='d-flex justify-content-between'>
                             <Card.Title>{item.name}</Card.Title>
-                            <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)}/>
+                            <Form.Check type="checkbox" onChange={(e) => selectEditNFT(e, item.id)}/>
                           </div> 
                           
                           <p className='font-14 mb-0'>
@@ -1210,8 +1258,7 @@ export default function Backup() {
                 <div className='row p-3 pt-0'>
                   <div className='col-md-6 px-0'>
                     <div className='d-flex mt-4'>
-                      <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
-                      <h5>= Remove from the NFT Collection</h5>
+                      <h5>Please select NFTs to save</h5>
                     </div>
                   </div>
 

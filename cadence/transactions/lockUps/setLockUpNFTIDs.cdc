@@ -9,3 +9,4 @@ transaction(identifier: String, nftIDs: [UInt64]) {
         lockUpRef.setNFTIDs(identifier: identifier, nftIDs: nftIDs)
     }
 }
+ 
