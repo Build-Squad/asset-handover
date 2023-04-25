@@ -76,7 +76,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("removenfts");
+    setStep("removecoins");
     setPledgeStep("default");
     setNFTIDs([]);
   }, []); 
@@ -430,6 +430,27 @@ export default function Backup() {
         cadence: lockFungibleTokens,
         args: (arg, t) => [
           arg([{key: blpID, value: blpBalance}], t.Dictionary({key: t.String, value: t.Optional(t.UFix64)}))
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+      toast.success("Successfully removed!");
+    }catch(error) {
+      console.log('err', error);
+      toast.error(error);
+    }
+  }
+
+  const removeBlp = async () => {
+    try{
+      const txid = await fcl.mutate({
+        cadence: lockFungibleTokens,
+        args: (arg, t) => [
+          arg([{key: flowID, value: flowBalance}], t.Dictionary({key: t.String, value: t.Optional(t.UFix64)}))
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -1081,7 +1102,8 @@ export default function Backup() {
                               :
                               <>
                                 <h5 className='blue-font mb-0'>BLP</h5>
-                                <img src="remove-button.png" alt="" width="20px" height="20px" />
+                                <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px" 
+                                onClick={() => removeBlp()} />
                               </>                              
                               }                             
                             </div>
