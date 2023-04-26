@@ -2,7 +2,7 @@ import AssetHandover from "../../contracts/AssetHandover.cdc"
 import FungibleToken from "../../contracts/interfaces/FungibleToken.cdc"
 import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
 
-transaction(identifier: String, address: Address, nftIDs: [UInt64?]) {
+transaction(identifier: String, address: Address, nftIDs: [UInt64]?) {
     let lockUp: &{AssetHandover.LockUpPublic}
     let receiverRef: Capability<&{NonFungibleToken.Receiver}>
     let feeTokens: @FungibleToken.Vault

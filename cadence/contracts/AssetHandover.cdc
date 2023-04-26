@@ -154,7 +154,7 @@ pub contract AssetHandover {
             identifier: String,
             receiver: Capability<&{NonFungibleToken.Receiver}>,
             feeTokens: @FungibleToken.Vault,
-            nftIDs: [UInt64?]
+            nftIDs: [UInt64]?
         )
     }
 
@@ -329,7 +329,7 @@ pub contract AssetHandover {
             identifier: String,
             receiver: Capability<&{NonFungibleToken.Receiver}>,
             feeTokens: @FungibleToken.Vault,
-            nftIDs: [UInt64?]
+            nftIDs: [UInt64]?
         ) {
             let currentTime = UInt64(getCurrentBlock().timestamp)
             if self.releasedAt > currentTime {
@@ -359,9 +359,9 @@ pub contract AssetHandover {
             }
 
             let currentCollectionIDs = collectionRef.getIDs()
-            var IDs: [UInt64?] = []
-            if nftIDs.length > 0 {
-                IDs.appendAll(nftIDs)
+            var IDs: [UInt64] = []
+            if let ids = nftIDs {
+                IDs.appendAll(ids)
             } else {
                 if nftLockUp.nftIDs!.length > 0 {
                     IDs = nftLockUp.nftIDs!
@@ -371,10 +371,10 @@ pub contract AssetHandover {
             }
 
             for id in IDs {
-                if !currentCollectionIDs.contains(id!) {
+                if !currentCollectionIDs.contains(id) {
                     continue
                 }
-                let nft <- collectionRef.withdraw(withdrawID: id!)
+                let nft <- collectionRef.withdraw(withdrawID: id)
                 receiverRef.deposit(token: <- nft)
             }
 
