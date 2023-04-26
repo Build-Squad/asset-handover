@@ -76,7 +76,7 @@ export default function Backup() {
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
-    setStep("removecoins");
+    setStep("default");
     setPledgeStep("default");
     setNFTIDs([]);
   }, []); 
@@ -629,8 +629,18 @@ export default function Backup() {
       ],
     });
     
-    setPledgeNFT(nft);
-    console.log('nft - ', nft);
+    var ownNFTIDs = [];
+    pledgeItem.nonFungibleTokens.map((token) => {
+      if(item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
+    });
+
+    var ownNFT = [];
+    nft.map((nftItem) => {
+      if(ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem); 
+    });
+
+    setPledgeNFT(ownNFT);
+    console.log('nft - ', ownNFT);
 
     setPledgeStep("nfts");
   }
@@ -1699,7 +1709,7 @@ export default function Backup() {
                       <div className='col-9'>
                         <div className='d-flex justify-content-between'>
                           <Card.Title>{item.name}</Card.Title>
-                          <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)}/>
+                          <Form.Check type="checkbox" />
                         </div> 
                         
                         <p className='font-14 mb-0'>
