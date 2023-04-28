@@ -388,13 +388,13 @@ Likewise, the `holder` account can specify which NFTs will be put for handover.
 
 ```bash
 # With this transaction, we specify the tokens from which NFT smart contract we want to handover.
-flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $DOMAINS_IDENTIFIER --network=emulator --signer=holder
+flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $DOMAINS_IDENTIFIER nil --network=emulator --signer=holder
 
 # Let's view the updated public info of the AssetHandover.LockUp resource.
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
 
 # => Output:
-Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31,  releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31,  releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [0])])
 ```
 
 ### 9. Recipient account withdraws the NFTs from the LockUp
@@ -406,7 +406,7 @@ With the `AssetHandover.LockUp` resource in place, let's see how the `recipient`
 flow transactions send ./cadence/transactions/flow/transferFlowTokens.cdc $RECIPIENT_ADDRESS 1000.0 --network=emulator --signer=emulator-account
 
 # Viewing the AssetHandover.LockUp public info, the recipient can specify which NFTs to withdraw.
-flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS --network=emulator --signer=recipient
+flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS nil --network=emulator --signer=recipient
 
 # => Output: It turns out that the recipient account cannot hold NFTs from the Domains smart contract, without a Domains.Collection resource in the account storage.
 error: panic("You do not own such an NFT Collection.")
@@ -415,7 +415,7 @@ error: panic("You do not own such an NFT Collection.")
 node cadence/transactions/lockUps/initCollection.js $DOMAINS_IDENTIFIER recipient
 
 # Second attempt at withdrawing the Domains NFTs
-flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS --network=emulator --signer=recipient
+flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS nil --network=emulator --signer=recipient
 
 # => Output: The value of  the `releasedAt` field is a Unix timestamp which points to a future date, hence we cannot withdraw yet.
 error: panic: The assets are still in lock-up period!
@@ -424,7 +424,7 @@ error: panic: The assets are still in lock-up period!
 flow transactions send ./cadence/transactions/lockUps/setLockUpReleasedAt.cdc 1663224523 --network=emulator --signer=holder
 
 # Recipient attempts to withdraw the NFTs again.
-flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS --network=emulator --signer=recipient
+flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $DOMAINS_IDENTIFIER $HOLDER_ADDRESS nil --network=emulator --signer=recipient
 
 # We check the Domains.Collection of the recipient, and we see the only NFT that was previously owned by the holder.
 flow scripts execute ./cadence/scripts/domains/getAccountCollection.cdc $RECIPIENT_ADDRESS --network=emulator
@@ -729,7 +729,7 @@ export EXAMPLE_NFT_IDENTIFIER=A.f8d6e0586b0a20c7.ExampleNFT
 
 ```bash
 # We specify that tokens of the ExampleNFT Collection, will also be handed over.
-flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER --network=emulator --signer=holder
+flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER nil --network=emulator --signer=holder
 
 # Let's view the updated public info of the AssetHandover.LockUp resource
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
@@ -766,8 +766,11 @@ flow scripts execute ./cadence/scripts/exampleNFT/getNFTids.cdc $HOLDER_ADDRESS 
 # Output: =>
 Result: [0]
 
+# Let's add the newly minted NFT to the lock-up
+flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER '[0]' --network=emulator --signer=holder
+
 # Recipient account can now withdraw ExampleNFT tokens from holder account.
-flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER $HOLDER_ADDRESS --network=emulator --signer=recipient
+flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER $HOLDER_ADDRESS nil --network=emulator --signer=recipient
 
 # => Output: The recipient account is not set up to receive such NFTs.
 error: panic: You do not own such an NFT Collection.
@@ -776,7 +779,7 @@ error: panic: You do not own such an NFT Collection.
 node cadence/transactions/lockUps/initCollection.js $EXAMPLE_NFT_IDENTIFIER recipient
 
 # Recipient attempts again to withdraw ExampleNFT tokens.
-flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER $HOLDER_ADDRESS --network=emulator --signer=recipient
+flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER $HOLDER_ADDRESS nil --network=emulator --signer=recipient
 
 # The withdrwawl should have been successful.
 flow scripts execute ./cadence/scripts/exampleNFT/getNFTids.cdc $RECIPIENT_ADDRESS --network=emulator
