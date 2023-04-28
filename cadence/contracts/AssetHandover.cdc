@@ -153,7 +153,8 @@ pub contract AssetHandover {
         pub fun withdrawNFT(
             identifier: String,
             receiver: Capability<&{NonFungibleToken.Receiver}>,
-            feeTokens: @FungibleToken.Vault
+            feeTokens: @FungibleToken.Vault,
+            nftIDs: [UInt64]?
         )
     }
 
@@ -327,7 +328,8 @@ pub contract AssetHandover {
         pub fun withdrawNFT(
             identifier: String,
             receiver: Capability<&{NonFungibleToken.Receiver}>,
-            feeTokens: @FungibleToken.Vault
+            feeTokens: @FungibleToken.Vault,
+            nftIDs: [UInt64]?
         ) {
             let currentTime = UInt64(getCurrentBlock().timestamp)
             if self.releasedAt > currentTime {
@@ -356,24 +358,28 @@ pub contract AssetHandover {
                 )
             }
 
-            var nftIDs: [UInt64] = []
             let currentCollectionIDs = collectionRef.getIDs()
+            var IDs: [UInt64] = []
+            var remainingNFTIDs: [UInt64] = nftLockUp.nftIDs!
 
-            if nftLockUp.nftIDs!.length > 0 {
-                nftIDs = nftLockUp.nftIDs!
+            if let ids = nftIDs {
+                IDs.appendAll(ids)
             } else {
-                nftIDs = currentCollectionIDs
+                IDs = nftLockUp.nftIDs!
             }
 
-            for id in nftIDs {
+            for id in IDs {
                 if !currentCollectionIDs.contains(id) {
                     continue
                 }
-                let nft <- collectionRef.withdraw(withdrawID: id)
-                receiverRef.deposit(token: <- nft)
+                if let index = remainingNFTIDs.firstIndex(of: id) {
+                    let nft <- collectionRef.withdraw(withdrawID: id)
+                    receiverRef.deposit(token: <- nft)
+                    remainingNFTIDs.remove(at: index)
+                }
             }
 
-            self.nftLockUps[identifier]!.updateNFTIDs(nftIDs: [])
+            self.nftLockUps[identifier]!.updateNFTIDs(nftIDs: remainingNFTIDs)
             admin.deposit(feeTokens: <- feeTokens)
         }
 
@@ -405,15 +411,19 @@ pub contract AssetHandover {
             collection: Capability<&NonFungibleToken.Collection>,
             nftIDs: [UInt64]?
         ) {
-            if nftIDs != nil && nftIDs!.length > 0 {
+            var IDs: [UInt64] = []
+            if let ids = nftIDs {
                 self.checkNFTExistence(
                     collection: collection,
                     nftIDs: nftIDs!
                 )
+                IDs.appendAll(ids)
+            } else {
+                IDs.appendAll(collection.borrow()!.getIDs())
             }
 
             if let nftLockUp = self.nftLockUps[identifier] {
-                for id in nftIDs! {
+                for id in IDs {
                     if  !nftLockUp.nftIDs!.contains(id) {
                         nftLockUp.nftIDs!.append(id)
                     }
@@ -422,7 +432,7 @@ pub contract AssetHandover {
             } else {
                 self.nftLockUps[identifier] = NFTLockUp(
                     collection: collection,
-                    nftIDs: nftIDs
+                    nftIDs: IDs
                 )
             }
         }

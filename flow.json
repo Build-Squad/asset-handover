@@ -46,6 +46,8 @@
     "FungibleTokenMetadataViews": "./cadence/contracts/utility/FungibleTokenMetadataViews.cdc",
     "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
     "Domains": "./cadence/contracts/nfts/Domains.cdc",
+    "MonsterMaker": "./cadence/contracts/nfts/MonsterMaker.cdc",
+    "KittyItems": "./cadence/contracts/nfts/KittyItems.cdc",
     "AssetHandover": "./cadence/contracts/AssetHandover.cdc"
   },
   "networks": {
@@ -78,6 +80,8 @@
         "FungibleTokenSwitchboard",
         "BlpToken",
         "Domains",
+        "MonsterMaker",
+        "KittyItems",
         "AssetHandover"
       ]
     }
