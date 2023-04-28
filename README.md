@@ -388,13 +388,13 @@ Likewise, the `holder` account can specify which NFTs will be put for handover.
 
 ```bash
 # With this transaction, we specify the tokens from which NFT smart contract we want to handover.
-flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $DOMAINS_IDENTIFIER --network=emulator --signer=holder
+flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $DOMAINS_IDENTIFIER nil --network=emulator --signer=holder
 
 # Let's view the updated public info of the AssetHandover.LockUp resource.
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
 
 # => Output:
-Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31,  releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [])])
+Result: A.01cf0e2f2f715450.AssetHandover.LockUpInfo(holder: 0x179b6b1cb6755e31,  releasedAt: 1700034523, createdAt: 1681678028, name: "first backup", description: "Its going to be used for all of my assets", recipient: 0xf3fcd2c1a78f5eee, fungibleTokens: [A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.0ae53cb6e3f42a79.FlowToken", balance: 450.00000000), A.01cf0e2f2f715450.AssetHandover.FTLockUpInfo(identifier: "A.01cf0e2f2f715450.BlpToken", balance: nil)], nonFungibleTokens: [A.01cf0e2f2f715450.AssetHandover.NFTLockUpInfo(identifier: "A.01cf0e2f2f715450.Domains", nftIDs: [0])])
 ```
 
 ### 9. Recipient account withdraws the NFTs from the LockUp
@@ -729,7 +729,7 @@ export EXAMPLE_NFT_IDENTIFIER=A.f8d6e0586b0a20c7.ExampleNFT
 
 ```bash
 # We specify that tokens of the ExampleNFT Collection, will also be handed over.
-flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER --network=emulator --signer=holder
+flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER nil --network=emulator --signer=holder
 
 # Let's view the updated public info of the AssetHandover.LockUp resource
 flow scripts execute ./cadence/scripts/lockUps/getAccountLockUp.cdc $HOLDER_ADDRESS --network=emulator
@@ -765,6 +765,9 @@ flow scripts execute ./cadence/scripts/exampleNFT/getNFTids.cdc $HOLDER_ADDRESS 
 
 # Output: =>
 Result: [0]
+
+# Let's add the newly minted NFT to the lock-up
+flow transactions send ./cadence/transactions/lockUps/lockNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER '[0]' --network=emulator --signer=holder
 
 # Recipient account can now withdraw ExampleNFT tokens from holder account.
 flow transactions send ./cadence/transactions/lockUps/withdrawNonFungibleToken.cdc $EXAMPLE_NFT_IDENTIFIER $HOLDER_ADDRESS nil --network=emulator --signer=recipient
