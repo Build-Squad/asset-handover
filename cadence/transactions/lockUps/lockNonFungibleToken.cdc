@@ -1,7 +1,7 @@
 import AssetHandover from "../../contracts/AssetHandover.cdc"
 import NonFungibleToken from "../../contracts/interfaces/NonFungibleToken.cdc"
 
-transaction(identifier: String) {
+transaction(identifier: String, nftIDs: [UInt64]?) {
     prepare(account: AuthAccount) {
         let info = AssetHandover.getNonFungibleTokenInfoMapping()[identifier]!
         let lockUp = account
@@ -17,7 +17,7 @@ transaction(identifier: String) {
         lockUp.lockNFT(
             identifier: identifier,
             collection: collection,
-            nftIDs: []
+            nftIDs: nftIDs
         )
     }
 }
