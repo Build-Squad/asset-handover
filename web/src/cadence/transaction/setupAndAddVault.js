@@ -5,15 +5,18 @@ import AssetHandover from 0xAssetHandover
 import ${contractName} from ${contractAddress}
 
 transaction(identifier: String) {
-        let vaultCapabilty: Capability<&{FungibleToken.Receiver}>
-        var switchboard = account.borrow<&FungibleTokenSwitchboard.Switchboard>(
-            from: FungibleTokenSwitchboard.StoragePath
-        )
+      let vaultCapabilty: Capability<&{FungibleToken.Receiver}>
+      var switchboardRef:  &FungibleTokenSwitchboard.Switchboard?
+
     prepare(account: AuthAccount) {
         let info = AssetHandover.getFungibleTokenInfoMapping()[identifier]
             ?? panic("Non-supported token.")
 
-        if switchboard == nil {
+        self.switchboardRef = account.borrow<&FungibleTokenSwitchboard.Switchboard>(
+            from: FungibleTokenSwitchboard.StoragePath
+        )
+
+        if self.switchboardRef == nil {
             account.save(
                 <- FungibleTokenSwitchboard.createSwitchboard(),
                 to: FungibleTokenSwitchboard.StoragePath
@@ -27,7 +30,7 @@ transaction(identifier: String) {
                 FungibleTokenSwitchboard.PublicPath,
                 target: FungibleTokenSwitchboard.StoragePath
             )
-            switchboard = account.borrow<&FungibleTokenSwitchboard.Switchboard>(
+            self.switchboardRef = account.borrow<&FungibleTokenSwitchboard.Switchboard>(
                 from: FungibleTokenSwitchboard.StoragePath
             )
         }
@@ -51,7 +54,7 @@ transaction(identifier: String) {
     }
 
     execute {
-        switchboard.addNewVault(capability: self.vaultCapabilty)
+        self.switchboardRef!.addNewVault(capability: self.vaultCapabilty)
     }
 }
 `
