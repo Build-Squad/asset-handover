@@ -1,8 +1,8 @@
-export const setupAndAddVault = `
+export const setupAndAddVault = (contractName, contractAddress) => `
 import FungibleTokenSwitchboard from 0xFT
 import FungibleToken from 0xFT
 import AssetHandover from 0xAssetHandover
-import CONTRACT_NAME from 0xCONTRACT_ADDRESS
+import ${contractName} from ${contractAddress}
 
 transaction(identifier: String) {
         let vaultCapabilty: Capability<&{FungibleToken.Receiver}>
@@ -37,13 +37,13 @@ transaction(identifier: String) {
         )
 
         if !self.vaultCapabilty.check() {
-            let vault <- CONTRACT_NAME.createEmptyVault() as! @FungibleToken.Vault
+            let vault <- ${contractName}.createEmptyVault() as! @FungibleToken.Vault
             account.save<@FungibleToken.Vault>(<- vault, to: info.storagePath)
-            account.link<&CONTRACT_NAME.Vault{FungibleToken.Receiver}>(
+            account.link<&${contractName}.Vault{FungibleToken.Receiver}>(
                 info.receiverPath,
                 target: info.storagePath
             )
-            account.link<&CONTRACT_NAME.Vault{FungibleToken.Balance}>(
+            account.link<&${contractName}.Vault{FungibleToken.Balance}>(
                 info.balancePath,
                 target: info.storagePath
             )
@@ -51,7 +51,7 @@ transaction(identifier: String) {
     }
 
     execute {
-        self.switchboardRef.addNewVault(capability: self.vaultCapabilty)
+        switchboard.addNewVault(capability: self.vaultCapabilty)
     }
 }
 `
