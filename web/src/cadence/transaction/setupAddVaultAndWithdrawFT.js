@@ -5,10 +5,18 @@ import AssetHandover from 0xAssetHandover
 import ${contractName} from ${contractAddress}
 
 transaction(identifier: String) {
-      let vaultCapabilty: Capability<&{FungibleToken.Receiver}>
-      var switchboardRef:  &FungibleTokenSwitchboard.Switchboard?
+    let lockUp: &{AssetHandover.LockUpPublic}
+    let vaultCapabilty: Capability<&{FungibleToken.Receiver}>
+    var switchboardRef:  &FungibleTokenSwitchboard.Switchboard?
+    let feeTokens: @FungibleToken.Vault
+    let receiverRef: Capability<&{FungibleToken.Receiver}>
 
     prepare(account: AuthAccount) {
+        self.lockUp = getAccount(address)
+            .getCapability(AssetHandover.LockUpPublicPath)
+            .borrow<&{AssetHandover.LockUpPublic}>()
+            ?? panic("Could not borrow AssetHandover.LockUpPublic reference.")
+
         let info = AssetHandover.getFungibleTokenInfoMapping()[identifier]
             ?? panic("Non-supported token.")
 
@@ -51,10 +59,31 @@ transaction(identifier: String) {
                 target: info.storagePath
             )
         }
+
+        self.receiverRef = account.getCapability<&FungibleTokenSwitchboard.Switchboard{FungibleToken.Receiver}>(
+            FungibleTokenSwitchboard.ReceiverPublicPath
+        )
+
+        if !self.receiverRef.check() {
+            panic("Could not borrow FungibleTokenSwitchboard.Switchboard reference.")
+        }
+
+        let vault = account.borrow<&FungibleToken.Vault>(
+        from: /storage/flowTokenVault
+        ) ?? panic("Could not borrow FungibleToken.Vault reference.")
+        self.feeTokens <- vault.withdraw(
+            amount: AssetHandover.getWithdrawFees()
+        )
     }
 
     execute {
         self.switchboardRef!.addNewVault(capability: self.vaultCapabilty)
+        self.lockUp.withdrawFT(
+            identifier: identifier,
+            amount: amount,
+            receiver: self.receiverRef,
+            feeTokens: <- self.feeTokens
+        )
     }
 }
 `
