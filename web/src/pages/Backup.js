@@ -27,7 +27,7 @@ import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { withdrawFungibleToken } from '../cadence/transaction/withdrawFungibleToken';
 import { setupAccount } from '../cadence/transaction/setupAccount';
 import { addVaultCapability } from '../cadence/transaction/addVaultCapability';
-import { setupAndAddVault } from '../cadence/transaction/setupAndAddVault';
+import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVaultAndWithdrawFT';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -571,9 +571,11 @@ export default function Backup() {
   const withdrawFT = async (identifier, holder) => {
     try{
       const txid = await fcl.mutate({
-        cadence: setupAndAddVault("BlpToken", "0xAssetHandover"),
+        cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
         args: (arg, t) => [
-          arg(identifier, t.String)
+          arg(identifier, t.String),
+          arg(holder, t.Address),
+          arg(flowWithdraw + ".0", t.UFix64)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,

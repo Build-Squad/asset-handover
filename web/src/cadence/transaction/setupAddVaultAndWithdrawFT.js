@@ -1,15 +1,16 @@
-export const setupAndAddVault = (contractName, contractAddress) => `
+export const setupAddVaultAndWithdrawFT = (contractName, contractAddress) => `
 import FungibleTokenSwitchboard from 0xFT
 import FungibleToken from 0xFT
 import AssetHandover from 0xAssetHandover
 import ${contractName} from ${contractAddress}
 
-transaction(identifier: String) {
+transaction(identifier: String, address: Address, amount: UFix64) {
     let lockUp: &{AssetHandover.LockUpPublic}
     let vaultCapabilty: Capability<&{FungibleToken.Receiver}>
     var switchboardRef:  &FungibleTokenSwitchboard.Switchboard?
     let feeTokens: @FungibleToken.Vault
     let receiverRef: Capability<&{FungibleToken.Receiver}>
+    var wasSetup: Bool
 
     prepare(account: AuthAccount) {
         self.lockUp = getAccount(address)
@@ -24,7 +25,9 @@ transaction(identifier: String) {
             from: FungibleTokenSwitchboard.StoragePath
         )
 
+        self.wasSetup = true
         if self.switchboardRef == nil {
+            self.wasSetup = false
             account.save(
                 <- FungibleTokenSwitchboard.createSwitchboard(),
                 to: FungibleTokenSwitchboard.StoragePath
@@ -77,7 +80,10 @@ transaction(identifier: String) {
     }
 
     execute {
-        self.switchboardRef!.addNewVault(capability: self.vaultCapabilty)
+        if (!self.wasSetup) {
+            self.switchboardRef!.addNewVault(capability: self.vaultCapabilty)
+        }
+        
         self.lockUp.withdrawFT(
             identifier: identifier,
             amount: amount,
