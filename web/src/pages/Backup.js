@@ -28,6 +28,7 @@ import { withdrawFungibleToken } from '../cadence/transaction/withdrawFungibleTo
 import { setupAccount } from '../cadence/transaction/setupAccount';
 import { addVaultCapability } from '../cadence/transaction/addVaultCapability';
 import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVaultAndWithdrawFT';
+import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFungibleToken';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -74,6 +75,7 @@ export default function Backup() {
   const [blpWithdraw, setBlpWithdraw] = useState("");
   const [pledgeCollection, setPledgeCollection] = useState(null);
   const [pledgeNFT, setPledgeNFT] = useState(null);
+  const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
 
   useEffect(() => { 
     fcl.currentUser.subscribe(setUser);
@@ -242,7 +244,8 @@ export default function Backup() {
         const txid = await fcl.mutate({
           cadence: lockFungibleToken,
           args: (arg, t) => [
-            arg(flowID, t.String)
+            arg(flowID, t.String),
+            arg(flowAmount+".0", t.UFix64)
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -253,26 +256,6 @@ export default function Backup() {
         console.log(txid);
       }catch(error) {
         console.log('err', error);
-      }
-
-      if(flowAmount !== ""){
-        try{
-          const txid = await fcl.mutate({
-            cadence: setLockUpBalance,
-            args: (arg, t) => [
-              arg(flowID, t.String),
-              arg(flowAmount+".0", t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-    
-          console.log(txid);
-        }catch(error) {
-          console.log('err', error);
-        }
       }
     }
 
@@ -281,7 +264,8 @@ export default function Backup() {
         const txid = await fcl.mutate({
           cadence: lockFungibleToken,
           args: (arg, t) => [
-            arg(blpID, t.String)
+            arg(blpID, t.String),
+            arg(blpAmount+".0", t.UFix64)
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -292,26 +276,6 @@ export default function Backup() {
         console.log(txid);
       }catch(error) {
         console.log('err', error);
-      }
-
-      if(blpAmount !== ""){
-        try{
-          const txid = await fcl.mutate({
-            cadence: setLockUpBalance,
-            args: (arg, t) => [
-              arg(blpID, t.String),
-              arg(blpAmount+".0", t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-    
-          console.log(txid);
-        }catch(error) {
-          console.log('err', error);
-        }
       }
     }
   }
@@ -568,7 +532,7 @@ export default function Backup() {
     }
   }
 
-  const withdrawFT = async (identifier, holder) => {
+  const withdrawFlow = async (identifier, holder) => {
     try{
       const txid = await fcl.mutate({
         cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
@@ -583,30 +547,33 @@ export default function Backup() {
         limit: 999,
       });
 
+      toast.success("Successfully withdrawed!");
       console.log(txid);
     }catch(error){
       toast.error(error);
     }
+  }
 
-    // try{
-    //   const txid = await fcl.mutate({
-    //     cadence: withdrawFungibleToken,
-    //     args: (arg, t) => [
-    //       arg(identifier, t.String),
-    //       arg(holder, t.Address),
-    //       arg(flowWithdraw + ".0", t.UFix64)
-    //     ],
-    //     proposer: fcl.currentUser,
-    //     payer: fcl.currentUser,
-    //     authorizations: [fcl.currentUser],
-    //     limit: 999,
-    //   });
+  const withdrawBlp = async (identifier, holder) => {
+    try{
+      const txid = await fcl.mutate({
+        cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
+        args: (arg, t) => [
+          arg(identifier, t.String),
+          arg(holder, t.Address),
+          arg(blpWithdraw + ".0", t.UFix64)
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
 
-    //   console.log(txid);
-    // }catch(error){
-    //   console.log('err', error);
-    // }
-
+      toast.success("Successfully withdrawed!");
+      console.log(txid);
+    }catch(error){
+      toast.error(error);
+    }
   }
 
   const withdrawNFTCollection = async (item) => {
@@ -631,7 +598,48 @@ export default function Backup() {
     setPledgeNFT(ownNFT);
     console.log('nft - ', ownNFT);
 
+    setCollectionID(item.nftType);
+
     setPledgeStep("nfts");
+  }
+
+  const selectWithdrawNFT = (e, id) => {
+    let ids = [...withdrawNFTIDs];
+
+    if(e.target.checked){
+      if(!ids.includes(id)){
+        ids.push(id);
+      } 
+    }else{
+      if(ids.includes(id)){
+        ids = ids.filter(item => item !== id)
+      }
+    }
+
+    setWithdrawNFTIDs(ids);
+  }
+
+  const withdrawNFT = async () => {
+    try{
+      const txid = await fcl.mutate({
+        cadence: withdrawNonFungibleToken,
+        args: (arg, t) => [
+          arg(collectionID.replace(".NFT", ""), t.String),
+          arg(holder, t.Address),
+          arg(withdrawNFTIDs, t.Array(t.UInt64))
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+      toast.success("Successfully withdrawed!");
+    }catch(error) {
+      console.log('err', error);
+      toast.error(error);
+    }
   }
 
   return(
@@ -1460,7 +1468,7 @@ export default function Backup() {
     
                               <div className='col-3'>
                                 <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto" 
-                                  onClick={() => withdrawFT(item.identifier, pledgeItem.holder)} />
+                                  onClick={() => withdrawFlow(item.identifier, pledgeItem.holder)} />
                               </div>
                             </div>                        
                           </div>
@@ -1491,7 +1499,8 @@ export default function Backup() {
                               </div>
     
                               <div className='col-3'>
-                                <img className='withdraw-img p-1' src="withdraw-icon.png" width="100%" height="auto" />
+                                <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto" 
+                                  onClick={() => withdrawBlp(item.identifier, pledgeItem.holder)} />
                               </div>
                             </div>                        
                           </div>
@@ -1698,7 +1707,7 @@ export default function Backup() {
                       <div className='col-9'>
                         <div className='d-flex justify-content-between'>
                           <Card.Title>{item.name}</Card.Title>
-                          <Form.Check type="checkbox" />
+                          <Form.Check type="checkbox" onChange={(e) => selectWithdrawNFT(e, item.id)} />
                         </div> 
                         
                         <p className='font-14 mb-0'>
@@ -1719,7 +1728,7 @@ export default function Backup() {
                 </div>
 
                 <div className='col-md-6'>
-                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
+                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
                     WITHDRAW NFT(S)
                   </Button>
                 </div>
