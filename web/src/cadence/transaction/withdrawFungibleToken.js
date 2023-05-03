@@ -25,12 +25,12 @@ transaction(identifier: String, address: Address, amount: UFix64) {
           panic("Could not borrow FungibleTokenSwitchboard.Switchboard reference.")
       }
 
-      let vault = account.borrow<&FungibleToken.Vault>(
-          from: /storage/flowTokenVault
+      let flowVault = account.borrow<&FungibleToken.Vault>(
+        from: /storage/flowTokenVault
       ) ?? panic("Could not borrow FungibleToken.Vault reference.")
-
-      self.feeTokens <- vault.withdraw(
-          amount: AssetHandover.getWithdrawFees()
+      
+      self.feeTokens <- flowVault.withdraw(
+        amount: AssetHandover.getWithdrawFees()
       )
   }
 
