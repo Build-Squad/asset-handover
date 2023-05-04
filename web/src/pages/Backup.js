@@ -256,6 +256,7 @@ export default function Backup() {
   }  
 
   const createBackup = async () => {
+
     const releaseDate = maturity.getTime()/1000;
     setTxProgress(true);
     setTxType("createLockup");
@@ -264,7 +265,7 @@ export default function Backup() {
       const txid = await fcl.mutate({
         cadence: createLockUp,
         args: (arg, t) => [
-          arg(releaseDate, t.UInt64),
+          arg(parseInt(releaseDate), t.UInt64),
           arg(recipient, t.Address),
           arg(backupName, t.String),
           arg(description, t.String)
