@@ -27,7 +27,7 @@ import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFung
 
 
 export default function Backup() {
-  const [user, setUser] = useState({ loggedIn: null });
+  const [user, setUser] = useState({ loggedIn: null, addr: '' });
   const [step, setStep] = useState("default");
   const [pledgeStep, setPledgeStep] = useState("default");
   const navigate = useNavigate();
@@ -59,7 +59,7 @@ export default function Backup() {
   const [collectionID, setCollectionID] = useState(null);
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
-  
+
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
   const [editBlpAmount, setEditBlpAmount] = useState("");
@@ -77,13 +77,13 @@ export default function Backup() {
   const [pledgeNFT, setPledgeNFT] = useState(null);
   const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
 
-  useEffect(() => { 
+  useEffect(() => {
     fcl.currentUser.subscribe(setUser);
     setStep("default");
     setPledgeStep("default");
     setNFTIDs([]);
     setTxStatus(null);
-  }, []); 
+  }, []);
 
   useEffect(() => {
     getBackup();
@@ -98,7 +98,7 @@ export default function Backup() {
         if(key.includes("FlowToken")) setFlowID(key);
         if(key.includes("BlpToken")) setBLPID(key);
       });
-    }    
+    }
   }, [ft]);
 
   useEffect(() => {
@@ -111,8 +111,8 @@ export default function Backup() {
           }
         })
       })
-      
-      setOwnCollection(tempOwnCollection);      
+
+      setOwnCollection(tempOwnCollection);
     }
 
     if(lockUp && lockUp.fungibleTokens.length > 0){
@@ -216,7 +216,7 @@ export default function Backup() {
         cadence: getAccountLockUp,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
-      setLockUp(res);      
+      setLockUp(res);
       console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
@@ -241,9 +241,9 @@ export default function Backup() {
         })
       });
       // console.log("nftCollection - ", nftCollection);
-      setCollection(nftCollection);    
+      setCollection(nftCollection);
 
-      
+
       const pledge = await fcl.query({
         cadence: getLockUpsByRecipient,
         args: (arg, t) => [
@@ -253,19 +253,19 @@ export default function Backup() {
       // console.log('pledge - ', pledge);
       setPledge(pledge);
     }
-  }  
+  }
 
   const createBackup = async () => {
-
-    const releaseDate = maturity.getTime()/1000;
+    const releaseDate = maturity.getTime() / 1000;
     setTxProgress(true);
     setTxType("createLockup");
+    let releasePeriod = (releaseDate*1000).toString()
 
     try{
       const txid = await fcl.mutate({
         cadence: createLockUp,
         args: (arg, t) => [
-          arg(parseInt(releaseDate), t.UInt64),
+          arg(releasePeriod, t.UInt64),
           arg(recipient, t.Address),
           arg(backupName, t.String),
           arg(description, t.String)
@@ -328,7 +328,7 @@ export default function Backup() {
           authorizations: [fcl.currentUser],
           limit: 999,
         });
-  
+
         console.log(txid);
         setTxId(txid);
       }catch(error) {
@@ -350,7 +350,7 @@ export default function Backup() {
           authorizations: [fcl.currentUser],
           limit: 999,
         });
-  
+
         console.log(txid);
       }catch(error) {
         console.log('err', error);
@@ -366,7 +366,7 @@ export default function Backup() {
         arg(item.collectionIdentifier, t.String)
       ],
     });
-    
+
     setNFT(nft);
     console.log('nft - ', nft);
     setContractName(item.contractName);
@@ -384,7 +384,7 @@ export default function Backup() {
     if(e.target.checked){
       if(!ids.includes(id)){
         ids.push(id);
-      } 
+      }
     }else{
       if(ids.includes(id)){
         ids = ids.filter(item => item !== id)
@@ -435,7 +435,7 @@ export default function Backup() {
           authorizations: [fcl.currentUser],
           limit: 999,
         });
-  
+
         console.log(txid);
         toast.success("Successfully edited!");
       }catch(error) {
@@ -457,7 +457,7 @@ export default function Backup() {
           authorizations: [fcl.currentUser],
           limit: 999,
         });
-  
+
         console.log(txid);
         toast.success("Successfully edited!");
       }catch(error) {
@@ -525,7 +525,7 @@ export default function Backup() {
         arg(item.collectionIdentifier, t.String)
       ],
     });
-    
+
     var ownNFTIDs = [];
     lockUp.nonFungibleTokens.map((token) => {
       if(item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
@@ -533,7 +533,7 @@ export default function Backup() {
 
     var ownNFT = [];
     nft.map((nftItem) => {
-      if(ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem); 
+      if(ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem);
     });
 
     setNFT(ownNFT);
@@ -549,7 +549,7 @@ export default function Backup() {
     if(e.target.checked){
       if(!ids.includes(id)){
         ids.push(id);
-      } 
+      }
     }else{
       if(ids.includes(id)){
         ids = ids.filter(item => item !== id)
@@ -676,7 +676,7 @@ export default function Backup() {
         arg(item.collectionIdentifier, t.String)
       ],
     });
-    
+
     var ownNFTIDs = [];
     pledgeItem.nonFungibleTokens.map((token) => {
       if(item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
@@ -684,7 +684,7 @@ export default function Backup() {
 
     var ownNFT = [];
     nft.map((nftItem) => {
-      if(ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem); 
+      if(ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem);
     });
 
     setPledgeNFT(ownNFT);
@@ -701,7 +701,7 @@ export default function Backup() {
     if(e.target.checked){
       if(!ids.includes(id)){
         ids.push(id);
-      } 
+      }
     }else{
       if(ids.includes(id)){
         ids = ids.filter(item => item !== id)
@@ -744,24 +744,24 @@ export default function Backup() {
                 <img src="safe.png" width="80%" height="80%" />
                 <h5 className='mt-3 blue-font'>BACKUPS</h5>
               </Nav.Link>
-            </Nav.Item>        
+            </Nav.Item>
 
             <Nav.Item className="type">
               <Nav.Link eventKey="second" className="text-center" onClick={() => setPledgeStep("default")}>
                 <img src="pleages.png" width="80%" height="80%" />
                 <h5 className='mt-3 blue-font'>PLEDGES</h5>
               </Nav.Link>
-            </Nav.Item>      
+            </Nav.Item>
 
             <Nav.Item className="type" onClick={() => logout()}>
               <Nav.Link eventKey="third" className="text-center">
                 <p className='text-grey mb-0'>
                   {user.addr}
-                </p>                
+                </p>
                 <img className='mt-1' src="wallet1.png" width="50%" height="50%" />
                 <h5 className="mt-3 blue-font">DISCONNECT <br/> WALLET</h5>
               </Nav.Link>
-            </Nav.Item>           
+            </Nav.Item>
           </Nav>
         </div>
 
@@ -770,12 +770,12 @@ export default function Backup() {
             <>
               {step === "default" &&
               <Tab.Pane eventKey="first">
-                {lockUp ? 
+                {lockUp ?
                 <div className='center-pad'>
                   <div className='row justify-content-center'>
                     <div className='col-xl-3 col-lg-5'>
                       <Card className="text-center" >
-                        <Card.Img className='item-img cursor-pointer' variant="top" src="safe.png" 
+                        <Card.Img className='item-img cursor-pointer' variant="top" src="safe.png"
                           onClick={() => setStep("detail")} />
                         <Card.Body>
                           <Card.Title className="blue-font">
@@ -809,7 +809,7 @@ export default function Backup() {
                   </div>
                 </div>
                 :
-                <div className='center-pad'>              
+                <div className='center-pad'>
                   <div className='row justify-content-center'>
                     <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
                       <FaPlus className='blue-font mt-5 me-2' size={60} />
@@ -817,7 +817,7 @@ export default function Backup() {
                     </div>
                   </div>
                 </div>
-                }         
+                }
               </Tab.Pane>
               }
 
@@ -840,7 +840,7 @@ export default function Backup() {
                     </h5>
                     <div className='d-flex justify-content-center'>
                       <img src="page-3-banner.png" width="80%" height="auto" />
-                    </div>                  
+                    </div>
                   </div>
 
                   <div className='col-md-6'>
@@ -849,7 +849,7 @@ export default function Backup() {
                         <Form.Label>
                           Backup Name <span className='text-danger'>*</span>
                         </Form.Label>
-                        <Form.Control type="text" value={backupName} 
+                        <Form.Control type="text" value={backupName}
                           onChange={(e) => setBackupName(e.target.value)} />
                       </Form.Group>
 
@@ -870,7 +870,7 @@ export default function Backup() {
 
                       <Form.Group className="mb-3">
                         <Form.Label>Description</Form.Label>
-                        <Form.Control as="textarea" rows={3} value={description} 
+                        <Form.Control as="textarea" rows={3} value={description}
                         onChange={(e) => setDescription(e.target.value)} />
                       </Form.Group>
 
@@ -883,9 +883,9 @@ export default function Backup() {
                       :
                       <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
                         CREATE BACKUP
-                      </Button>                                            
+                      </Button>
                       }
-                      
+
                     </Form>
                   </div>
                 </div>
@@ -916,10 +916,10 @@ export default function Backup() {
 
                     <p className='font-bold maturity-date blue-bg border-none'>
                       MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
-                    </p>                  
+                    </p>
                   </div>
                 </div>
-                
+
                 <h4 className='p-2 border-bottom-green blue-font mt-4'>COIN(S)</h4>
                 {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
                 <div className='row'>
@@ -939,14 +939,14 @@ export default function Backup() {
                       </div>
                     }
                     </>
-                    )       
+                    )
                   )}
                   <div className='col-md-1 pt-2'>
                     <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("coins")}>
                       <FaPlus className='blue-font' size={40} />
                     </div>
                   </div>
-                </div>                
+                </div>
                 :
                 <div className='d-flex mt-4'>
                   <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
@@ -978,9 +978,9 @@ export default function Backup() {
                                 <p className='text-grey font-14 mb-0'>
                                   {item.collectionDescription}
                                 </p>
-                              </div>                          
+                              </div>
                             </div>
-                          </div>                      
+                          </div>
                         </Card.Body>
                       </Card>
                     </div>
@@ -1032,13 +1032,13 @@ export default function Backup() {
 
                     <p className='font-bold maturity-date blue-bg border-none'>
                       MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
-                    </p>                  
+                    </p>
                   </div>
                 </div>
-                
+
                 <h4 className='p-2 border-bottom-green blue-font mt-4'>
                   COIN(S)
-                  <Button className='mx-3' variant="danger" size="sm" 
+                  <Button className='mx-3' variant="danger" size="sm"
                   onClick={() => setStep("removecoins")}>
                     Edit
                   </Button>
@@ -1061,7 +1061,7 @@ export default function Backup() {
                       </div>
                     }
                     </>
-                    )       
+                    )
                   )}
                 </div>
                 :
@@ -1070,7 +1070,7 @@ export default function Backup() {
                     No COIN(S)
                   </h5>
                 </div>
-                }     
+                }
 
                 <h4 className='p-2 border-bottom-green blue-font mt-4'>
                   NFT COLLECTION(S)
@@ -1095,9 +1095,9 @@ export default function Backup() {
                                 <p className='text-grey font-14 mb-0'>
                                   {item.collectionDescription}
                                 </p>
-                              </div>                          
+                              </div>
                             </div>
-                          </div>                      
+                          </div>
                         </Card.Body>
                       </Card>
                     </div>
@@ -1109,7 +1109,7 @@ export default function Backup() {
                     NO NFT(S)
                   </h5>
                 </div>
-                }             
+                }
               </Tab.Pane>
               }
 
@@ -1117,7 +1117,7 @@ export default function Backup() {
               <Tab.Pane eventKey="first">
                 <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
                 <div className='row p-3'>
-                {ft !== null && 
+                {ft !== null &&
                   Object.keys(ft).map((key, index) => (
                     <div className='col-md-4' key={index} >
                       <div className='grey-border p-2'>
@@ -1128,7 +1128,7 @@ export default function Backup() {
                             :
                               <img src="coin.png" width="100%" height="auto" />
                             }
-                            
+
                             <h5 className='text-center'>(0)</h5>
                           </div>
 
@@ -1137,15 +1137,15 @@ export default function Backup() {
                               <h5 className='blue-font mb-0'>{ft[key].name}</h5>
                               <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)}/>
                             </div>
-                            
+
                             <p className='text-grey mb-1'>{key}</p>
                             {ft[key].name === "FLOW" ?
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                             value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
                             :
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                             value={blpAmount} onChange={(e) => setBlpAmount(e.target.value)} />
-                            }                          
+                            }
                           </div>
                         </div>
                       </div>
@@ -1171,7 +1171,7 @@ export default function Backup() {
                     <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
                       ADD COINS TO BACKUP
                     </Button>
-                    }            
+                    }
                   </div>
                 </div>
               </Tab.Pane>
@@ -1180,7 +1180,7 @@ export default function Backup() {
               <Tab.Pane eventKey="first">
                 <h4 className='blue-font p-2 border-bottom-green'>EDIT COIN(S)</h4>
                 <div className='row p-3'>
-                {lockUp !== null && 
+                {lockUp !== null &&
                   lockUp.fungibleTokens.map((item, index) => (
                     <div className='col-md-4' key={index} >
                       <div className='grey-border p-2'>
@@ -1191,12 +1191,12 @@ export default function Backup() {
                             :
                               <img src="coin.png" width="100%" height="auto" />
                             }
-                            
+
                             {item.balance ?
                             <h5 className='text-center'>({parseInt(item.balance)})</h5>
                             :
                             <h5 className='text-center'>(0)</h5>
-                            }                            
+                            }
                           </div>
 
                           <div className='col-md-9'>
@@ -1204,16 +1204,16 @@ export default function Backup() {
                               {item.identifier.includes("FlowToken") ?
                               <>
                                 <h5 className='blue-font mb-0'>FLOW</h5>
-                                
+
                                 {txProgress && txType === "removeFlow" ?
                                 <Spinner animation="border" role="status">
                                   <span className="visually-hidden">Loading...</span>
                                 </Spinner>
                                 :
-                                <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px" 
+                                <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
                                 onClick={() => removeFlow()} />
-                                }                                
-                              </>                              
+                                }
+                              </>
                               :
                               <>
                                 <h5 className='blue-font mb-0'>BLP</h5>
@@ -1222,22 +1222,22 @@ export default function Backup() {
                                   <span className="visually-hidden">Loading...</span>
                                 </Spinner>
                                 :
-                                <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px" 
+                                <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
                                 onClick={() => removeBlp()} />
                                 }
-                              </>                              
-                              }                             
+                              </>
+                              }
                             </div>
-                            
+
                             <p className='text-grey mb-1'>{item.identifier}</p>
 
                             {item.identifier.includes("FlowToken")  ?
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                             value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
                             :
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                             value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
-                            }                                                                                
+                            }
                           </div>
                         </div>
                       </div>
@@ -1290,12 +1290,12 @@ export default function Backup() {
                                 <p className='text-grey font-14 mb-0'>
                                   {item.collectionDescription}
                                 </p>
-                              </div>                          
+                              </div>
                             </div>
-                          </div>                      
+                          </div>
                         </Card.Body>
                       </Card>
-                    </div>         
+                    </div>
                   ))}
                 </div>
 
@@ -1305,7 +1305,7 @@ export default function Backup() {
               </Tab.Pane>
               }
 
-              {step === "nfts" && 
+              {step === "nfts" &&
               <Tab.Pane eventKey="first">
                 <div className='row pt-2 mx-2 border-bottom-green'>
                   <div className='col-md-4'>
@@ -1316,7 +1316,7 @@ export default function Backup() {
                   </div>
                   <div className='col-md-4 text-end'>
                     <h4 className='blue-font'>NFT COLLECTION(S)</h4>
-                  </div>                
+                  </div>
                 </div>
 
                 <div className='row p-3'>
@@ -1328,23 +1328,23 @@ export default function Backup() {
                           <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")} width="100%" height="auto" />
                           :
                           <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
-                          }                          
+                          }
                         </div>
 
                         <div className='col-9'>
                           <div className='d-flex justify-content-between'>
                             <Card.Title>{item.name}</Card.Title>
                             <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)}/>
-                          </div> 
-                          
+                          </div>
+
                           <p className='font-14 mb-0'>
                             {item.description}
                           </p>
-                          <p className='text-grey mb-0'>#{item.id}</p>                       
+                          <p className='text-grey mb-0'>#{item.id}</p>
                         </div>
                       </div>
                     </div>
-                  ))}                
+                  ))}
                 </div>
 
                 {nftIDs.length > 0 ?
@@ -1355,10 +1355,10 @@ export default function Backup() {
                 <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
                   ADD NFT(S) TO BACKUP
                 </Button>
-                }                
+                }
               </Tab.Pane>
               }
-              {step === "removenfts" && 
+              {step === "removenfts" &&
               <Tab.Pane eventKey="first">
                 <div className='row pt-2 mx-2 border-bottom-green'>
                   <div className='col-md-6'>
@@ -1366,7 +1366,7 @@ export default function Backup() {
                   </div>
                   <div className='col-md-6 text-end'>
                     <h4 className='blue-font'>NFT COLLECTION(S)</h4>
-                  </div>                
+                  </div>
                 </div>
 
                 <div className='row p-3'>
@@ -1378,23 +1378,23 @@ export default function Backup() {
                           <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")} width="100%" height="auto" />
                           :
                           <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
-                          }                          
+                          }
                         </div>
 
                         <div className='col-9'>
                           <div className='d-flex justify-content-between'>
                             <Card.Title>{item.name}</Card.Title>
                             <Form.Check type="checkbox" onChange={(e) => selectEditNFT(e, item.id)}/>
-                          </div> 
-                          
+                          </div>
+
                           <p className='font-14 mb-0'>
                             {item.description}
                           </p>
-                          <p className='text-grey mb-0'>#{item.id}</p>                       
+                          <p className='text-grey mb-0'>#{item.id}</p>
                         </div>
                       </div>
                     </div>
-                  ))}                
+                  ))}
                 </div>
 
                 <div className='row p-3 pt-0'>
@@ -1409,9 +1409,9 @@ export default function Backup() {
                       SAVE CHANGES TO NFT COLLECTION(S)
                     </Button>
                   </div>
-                </div>                
+                </div>
               </Tab.Pane>
-              }      
+              }
             </>
 
             {/* Pledge */}
@@ -1419,7 +1419,7 @@ export default function Backup() {
             {pledgeStep === "default" &&
             <Tab.Pane eventKey="second">
               <div className='row'>
-                {pledge && pledge.map((item, index) =>(           
+                {pledge && pledge.map((item, index) =>(
                   <div className='col-xl-3 col-lg-5' key={index}>
                     <Card className="text-center cursor-pointer" onClick={() => clickPledge(item)}>
                       <Card.Img className='item-img' variant="top" src="pleages.png" />
@@ -1439,7 +1439,7 @@ export default function Backup() {
                         </p>
                       </Card.Body>
                     </Card>
-                  </div>                  
+                  </div>
                 ))}
               </div>
 
@@ -1447,7 +1447,7 @@ export default function Backup() {
               <div className='center-pad text-center'>
                 <h1>There's no pledges</h1>
               </div>
-              }              
+              }
             </Tab.Pane>
             }
 
@@ -1471,7 +1471,7 @@ export default function Backup() {
                 <div className='col-md-6 text-webkit-right'>
                   <p className='font-bold maturity-date blue-bg border-none'>
                     MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt*1000))}
-                  </p>                  
+                  </p>
                 </div>
               </div>
 
@@ -1499,7 +1499,7 @@ export default function Backup() {
                       </div>
                     }
                     </>
-                    )       
+                    )
                   )}
                 </div>
                 :
@@ -1516,7 +1516,7 @@ export default function Backup() {
               </h4>
               {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
               <div className='row'>
-                {pledgeCollection && pledgeCollection.map((item, index) => 
+                {pledgeCollection && pledgeCollection.map((item, index) =>
                   <div className='col-md-3 pt-2' key={index}>
                     <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => withdrawNFTCollection(item)}>
                       <Card.Img variant="top" src={item.collectionBannerImage} />
@@ -1533,9 +1533,9 @@ export default function Backup() {
                               <p className='text-grey font-14 mb-0'>
                                 {item.collectionDescription}
                               </p>
-                            </div>                          
+                            </div>
                           </div>
-                        </div>                      
+                        </div>
                       </Card.Body>
                     </Card>
                   </div>
@@ -1545,7 +1545,7 @@ export default function Backup() {
               <h5 className='blue-font mx-3 align-self-center'>
                 NO NFT(S)
               </h5>
-              }              
+              }
             </Tab.Pane>
             }
 
@@ -1556,42 +1556,42 @@ export default function Backup() {
               </h4>
 
               {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 &&
-              <div className='row p-3'>      
+              <div className='row p-3'>
                 {pledgeItem.fungibleTokens.map((item, index) => (
                   <>
                   {item.identifier.includes("FlowToken") &&
                     <div className='col-md-4' key={index}>
                       <div className='grey-border p-2'>
-                        <div className='row'>          
-    
+                        <div className='row'>
+
                           <div className='col-md-3'>
                             <img src="flowcoin.png" width="100%" height="auto" />
                             <h5 className='text-center'>({parseInt(item.balance)})</h5>
                           </div>
-    
+
                           <div className='col-md-9'>
                             <h5 className='blue-font mb-0'>FLOW</h5>
                             <p className='text-grey mb-1'>{pledgeItem.holder}</p>
-                            
+
                             <div className='row'>
                               <div className='col-9 pr-0'>
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                                   value={flowWithdraw} onChange={(e) => setFlowWithdraw(e.target.value)} />
                               </div>
-    
+
                               <div className='col-3'>
                                 {txProgress && txType === "withdrawFlow" ?
                                   <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>
                                   </Spinner>
                                 :
-                                <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto" 
+                                <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
                                   onClick={() => withdrawFlow(item.identifier, pledgeItem.holder)} />
-                                }                                
+                                }
                               </div>
-                            </div>                        
+                            </div>
                           </div>
-    
+
                         </div>
                       </div>
                     </div>
@@ -1600,43 +1600,43 @@ export default function Backup() {
                   {item.identifier.includes("BlpToken") &&
                     <div className='col-md-4' key={index}>
                       <div className='grey-border p-2'>
-                        <div className='row'>          
-    
+                        <div className='row'>
+
                           <div className='col-md-3'>
                             <img src="coin.png" width="100%" height="auto" />
                             <h5 className='text-center'>({parseInt(item.balance)})</h5>
                           </div>
-    
+
                           <div className='col-md-9'>
                             <h5 className='blue-font mb-0'>BLP</h5>
                             <p className='text-grey mb-1'>{pledgeItem.holder}</p>
-                            
+
                             <div className='row'>
                               <div className='col-9 pr-0'>
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' 
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                                 value={blpWithdraw} onChange={(e) => setBlpWithdraw(e.target.value)} />
                               </div>
-    
+
                               <div className='col-3'>
                                 {txProgress && txType === "withdrawBlp" ?
                                   <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>
                                   </Spinner>
                                 :
-                                <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto" 
+                                <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
                                   onClick={() => withdrawBlp(item.identifier, pledgeItem.holder)} />
                                 }
                               </div>
-                            </div>                        
+                            </div>
                           </div>
-    
+
                         </div>
                       </div>
                     </div>
-                  } 
+                  }
                   </>
                 )
-                )}                
+                )}
               </div>
               }
             </Tab.Pane>
@@ -1666,9 +1666,9 @@ export default function Backup() {
                               Lorem ipsum dolor Lorem <br/>
                               Lorem ipsum dolor Lorem
                             </p>
-                          </div>                          
+                          </div>
                         </div>
-                      </div>                      
+                      </div>
                     </Card.Body>
                   </Card>
                 </div>
@@ -1690,10 +1690,10 @@ export default function Backup() {
                               Lorem ipsum dolor Lorem <br/>
                               Lorem ipsum dolor Lorem
                             </p>
-                          </div>                          
+                          </div>
                         </div>
                       </div>
-                      
+
                     </Card.Body>
                   </Card>
                 </div>
@@ -1715,10 +1715,10 @@ export default function Backup() {
                               Lorem ipsum dolor Lorem <br/>
                               Lorem ipsum dolor Lorem
                             </p>
-                          </div>                          
+                          </div>
                         </div>
                       </div>
-                      
+
                     </Card.Body>
                   </Card>
                 </div>
@@ -1742,10 +1742,10 @@ export default function Backup() {
                               Lorem ipsum dolor Lorem <br/>
                               Lorem ipsum dolor Lorem
                             </p>
-                          </div>                          
+                          </div>
                         </div>
                       </div>
-                      
+
                     </Card.Body>
                   </Card>
                 </div>
@@ -1767,10 +1767,10 @@ export default function Backup() {
                               Lorem ipsum dolor Lorem <br/>
                               Lorem ipsum dolor Lorem
                             </p>
-                          </div>                          
+                          </div>
                         </div>
                       </div>
-                      
+
                     </Card.Body>
                   </Card>
                 </div>
@@ -1792,10 +1792,10 @@ export default function Backup() {
                               Lorem ipsum dolor Lorem <br/>
                               Lorem ipsum dolor Lorem
                             </p>
-                          </div>                          
+                          </div>
                         </div>
                       </div>
-                      
+
                     </Card.Body>
                   </Card>
                 </div>
@@ -1813,7 +1813,7 @@ export default function Backup() {
                 </div>
                 <div className='col-md-6 text-end'>
                   <h4 className='blue-font'>NFT COLLECTION(S)</h4>
-                </div>                
+                </div>
               </div>
 
               <div className='row p-3'>
@@ -1822,23 +1822,23 @@ export default function Backup() {
                     <div className='row grey-border p-2 me-2 mt-2'>
                       <div className='col-3 p-1'>
                         {item.thumbnail.includes("ipfs") ?
-                        <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")} 
+                        <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")}
                           width="100%" height="auto" />
                         :
                         <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
-                        }                          
+                        }
                       </div>
 
                       <div className='col-9'>
                         <div className='d-flex justify-content-between'>
                           <Card.Title>{item.name}</Card.Title>
                           <Form.Check type="checkbox" onChange={(e) => selectWithdrawNFT(e, item.id)} />
-                        </div> 
-                        
+                        </div>
+
                         <p className='font-14 mb-0'>
                           {item.description}
                         </p>
-                        <p className='text-grey mb-0'>#{item.id}</p>                       
+                        <p className='text-grey mb-0'>#{item.id}</p>
                       </div>
                     </div>
                   </div>
@@ -1861,9 +1861,9 @@ export default function Backup() {
             </Tab.Pane>
             }
             </>
-                        
+
           </Tab.Content>
-        </div>        
+        </div>
       </div>
 
       <ToastContainer hideProgressBar />
