@@ -793,7 +793,7 @@ export default function Backup() {
                             Maturity Date
                           </p>
                           <p className='red-font'>
-                            {convertDate(Math.floor(lockUp.releasedAt*1000))}
+                            {convertDate(Math.floor(lockUp.releasedAt))}
                           </p>
 
                           <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
