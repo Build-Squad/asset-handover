@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as fcl from "@onflow/fcl";
-import { Tab, Nav, Card, Button, Form, Badge } from "react-bootstrap";
+import { Tab, Nav, Card, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { FaPlus } from 'react-icons/fa';
 import DatePicker from "react-datepicker";
@@ -30,12 +30,18 @@ import { addVaultCapability } from '../cadence/transaction/addVaultCapability';
 import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVaultAndWithdrawFT';
 import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFungibleToken';
 
+
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null });
   const [step, setStep] = useState("default");
   const [pledgeStep, setPledgeStep] = useState("default");
   const navigate = useNavigate();
+  const [txId, setTxId] = useState('');
+  const [txStatus, setTxStatus] = useState(null);
+  const [txType, setTxType] = useState(null);
+  const [txProgress, setTxProgress] = useState(false);
 
+  //lockups
   const [backupName, setBackupName] = useState('');
   const [recipient, setRecipient] = useState('0x8527e930b7b21dae');
   const [maturity, setMaturity] = useState(new Date());
@@ -47,7 +53,6 @@ export default function Backup() {
   const [blpID, setBLPID] = useState(null);
   const [flowAmount, setFlowAmount] = useState("");
   const [blpAmount, setBlpAmount] = useState("");
-
   const [flowSelect, setFlowSelect] = useState(false);
   const [blpSelect, setBLPSelect] = useState(false);
 
@@ -82,11 +87,15 @@ export default function Backup() {
     setStep("default");
     setPledgeStep("default");
     setNFTIDs([]);
+    setTxStatus(null);
   }, []); 
 
   useEffect(() => {
     getBackup();
-  }, [user]);
+    if(txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === ""){
+      getBackup();
+    }
+  }, [user, txStatus]);
 
   useEffect(() => {
     if(ft !== null){
@@ -119,6 +128,75 @@ export default function Backup() {
     }
 
   }, [lockUp, collection])
+
+  useEffect(() => {
+    if (txId) {
+      fcl.tx(txId).subscribe(setTxStatus);
+    }
+  }, [txId]);
+
+  // console.log("txStatus - ", txStatus);
+
+  useEffect(() => {
+
+    if (txStatus && txType === "createLockup"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Lockup is successfully created!");
+        setTxProgress(false);
+        setTxStatus(null);
+        setStep("default");
+      }
+    }
+    else if (txStatus && txType === "withdrawFlow"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Flow token is successfully withdrawed!");
+        setTxProgress(false);
+        setTxStatus(null);
+      }
+    }
+    else if (txStatus && txType === "removeFlow"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Flow token is successfully removed!");
+        setTxProgress(false);
+        setTxStatus(null);
+      }
+    }
+    else if (txStatus && txType === "removeBlp"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Blp token is successfully removed!");
+        setTxProgress(false);
+        setTxStatus(null);
+      }
+    }
+    else if(txStatus && txType === "withdrawBlp"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Blp token is successfully withdrawed!");
+        setTxProgress(false);
+        setTxStatus(null);
+      }
+    }
+
+  }, [txStatus, txType]);
 
   const logout = () => {
     fcl.unauthenticate();
@@ -184,8 +262,8 @@ export default function Backup() {
 
   const createBackup = async () => {
     const releaseDate = maturity.getTime()/1000;
-
-    console.log('release - ', releaseDate);
+    setTxProgress(true);
+    setTxType("createLockup");
 
     try{
       const txid = await fcl.mutate({
@@ -203,10 +281,9 @@ export default function Backup() {
       });
 
       console.log(txid);
-      toast.success("Successfully created!");
-      setStep("default");
+      setTxId(txid);
     }catch(error) {
-      console.log('err', error);
+      setTxProgress(false);
       toast.error(error);
     }
   }
@@ -239,6 +316,9 @@ export default function Backup() {
   }
 
   const addFT = async () => {
+    setTxProgress(true);
+    setTxType("addFT");
+
     if(flowSelect){
       try{
         const txid = await fcl.mutate({
@@ -254,8 +334,10 @@ export default function Backup() {
         });
   
         console.log(txid);
+        setTxId(txid);
       }catch(error) {
-        console.log('err', error);
+        setTxProgress(false);
+        toast.error(error);
       }
     }
 
@@ -390,6 +472,9 @@ export default function Backup() {
   }
 
   const removeFlow = async () => {
+    setTxProgress(true);
+    setTxType("removeFlow");
+
     try{
       const txid = await fcl.mutate({
         cadence: lockFungibleTokens,
@@ -403,14 +488,17 @@ export default function Backup() {
       });
 
       console.log(txid);
-      toast.success("Successfully removed!");
+      setTxId(txid);
     }catch(error) {
-      console.log('err', error);
       toast.error(error);
+      setTxProgress(false);
     }
   }
 
   const removeBlp = async () => {
+    setTxProgress(true);
+    setTxType("removeBlp");
+
     try{
       const txid = await fcl.mutate({
         cadence: lockFungibleTokens,
@@ -424,10 +512,10 @@ export default function Backup() {
       });
 
       console.log(txid);
-      toast.success("Successfully removed!");
+      setTxId(txid);
     }catch(error) {
-      console.log('err', error);
       toast.error(error);
+      setTxProgress(false);
     }
   }
 
@@ -533,6 +621,9 @@ export default function Backup() {
   }
 
   const withdrawFlow = async (identifier, holder) => {
+    setTxProgress(true);
+    setTxType("withdrawFlow");
+
     try{
       const txid = await fcl.mutate({
         cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
@@ -547,14 +638,18 @@ export default function Backup() {
         limit: 999,
       });
 
-      toast.success("Successfully withdrawed!");
       console.log(txid);
+      setTxId(txid);
     }catch(error){
       toast.error(error);
+      setTxProgress(false);
     }
   }
 
   const withdrawBlp = async (identifier, holder) => {
+    setTxProgress(true);
+    setTxType("withdrawBlp");
+
     try{
       const txid = await fcl.mutate({
         cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
@@ -569,10 +664,11 @@ export default function Backup() {
         limit: 999,
       });
 
-      toast.success("Successfully withdrawed!");
       console.log(txid);
+      setTxId(txid);
     }catch(error){
       toast.error(error);
+      setTxProgress(false);
     }
   }
 
@@ -782,9 +878,18 @@ export default function Backup() {
                         onChange={(e) => setDescription(e.target.value)} />
                       </Form.Group>
 
+                      {txProgress && txType === "createLockup" ?
+                      <Button className='blue-bg border-radius-none mt-5' disabled>
+                        <Spinner animation="border" role="status">
+                          <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                      </Button>
+                      :
                       <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
                         CREATE BACKUP
-                      </Button>
+                      </Button>                                            
+                      }
+                      
                     </Form>
                   </div>
                 </div>
@@ -1103,14 +1208,27 @@ export default function Backup() {
                               {item.identifier.includes("FlowToken") ?
                               <>
                                 <h5 className='blue-font mb-0'>FLOW</h5>
+                                
+                                {txProgress && txType === "removeFlow" ?
+                                <Spinner animation="border" role="status">
+                                  <span className="visually-hidden">Loading...</span>
+                                </Spinner>
+                                :
                                 <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px" 
                                 onClick={() => removeFlow()} />
+                                }                                
                               </>                              
                               :
                               <>
                                 <h5 className='blue-font mb-0'>BLP</h5>
+                                {txProgress && txType === "removeBlp" ?
+                                <Spinner animation="border" role="status">
+                                  <span className="visually-hidden">Loading...</span>
+                                </Spinner>
+                                :
                                 <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px" 
                                 onClick={() => removeBlp()} />
+                                }
                               </>                              
                               }                             
                             </div>
@@ -1243,8 +1361,7 @@ export default function Backup() {
                 </Button>
                 }                
               </Tab.Pane>
-              }   
-
+              }
               {step === "removenfts" && 
               <Tab.Pane eventKey="first">
                 <div className='row pt-2 mx-2 border-bottom-green'>
@@ -1467,8 +1584,14 @@ export default function Backup() {
                               </div>
     
                               <div className='col-3'>
+                                {txProgress && txType === "withdrawFlow" ?
+                                  <Spinner animation="border" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                  </Spinner>
+                                :
                                 <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto" 
                                   onClick={() => withdrawFlow(item.identifier, pledgeItem.holder)} />
+                                }                                
                               </div>
                             </div>                        
                           </div>
@@ -1499,8 +1622,14 @@ export default function Backup() {
                               </div>
     
                               <div className='col-3'>
+                                {txProgress && txType === "withdrawBlp" ?
+                                  <Spinner animation="border" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                  </Spinner>
+                                :
                                 <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto" 
                                   onClick={() => withdrawBlp(item.identifier, pledgeItem.holder)} />
+                                }
                               </div>
                             </div>                        
                           </div>
@@ -1741,7 +1870,7 @@ export default function Backup() {
         </div>        
       </div>
 
-      <ToastContainer />
+      <ToastContainer hideProgressBar />
     </Tab.Container>
   )
 }
