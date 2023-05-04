@@ -1,11 +1,16 @@
 import { config } from "@onflow/fcl";
-import * as fcl from "@onflow/fcl"
-import {send as httpSend} from "@onflow/transport-http"
 
 // testnet
 config({
-  "accessNode.api": "https://access-testnet.onflow.org",
-  "challenge.handshake": "https://flow-wallet-testnet.blocto.app/authn",
+  "accessNode.api": "https://rest-testnet.onflow.org",
+  "flow.network": "testnet",
+  "discovery.wallet.method": "HTTP/POST",
+  "discovery.wallet": "https://flow-wallet-testnet.blocto.app/api/flow/authn",
+  // Lilico and Flipper and the rest work only with RPC, if we want to enable them
+  // we have to use the following:
+    // "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn",
+  // "discovery.authn.endpoint": "https://fcl-discovery.onflow.org/api/testnet/authn",
+  // "discovery.authn.include": ["0x82ec283f88a62e65", "0x9d2e44203cb13051"], // Service account address
   'app.detail.title': "Asset Handover",
 	'app.detail.icon': "",
   "0xAssetHandover": "0x5d649d473cc7fa83",
