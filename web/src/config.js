@@ -15,5 +15,4 @@ config({
   "0xMetadataViews": "0x631e88ae7f1d7c20",
   "0xNFTCatalog": "0x324c34e1c517e4db",
   "0xNFTRetrieval": "0x324c34e1c517e4db",
-  "0xNonFungibleToken": "0x631e88ae7f1d7c20"
 })
