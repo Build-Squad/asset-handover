@@ -146,15 +146,27 @@ export default function Backup() {
         setStep("default");
       }
     }
-    else if (txStatus && txType === "withdrawFlow"){
+    else if (txStatus && txType === "destoryLockup"){
       if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
       }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Flow token is successfully withdrawed!");
+        toast.success("Lockup is successfully destoryed!");
         setTxProgress(false);
         setTxStatus(null);
+      }
+    }
+    else if (txStatus && txType === "addFT"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Fungible Token is successfully added!");
+        setTxProgress(false);
+        setTxStatus(null);
+        setStep("detail");
       }
     }
     else if (txStatus && txType === "removeFlow"){
@@ -175,6 +187,17 @@ export default function Backup() {
         setTxStatus(null);
       }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("Blp token is successfully removed!");
+        setTxProgress(false);
+        setTxStatus(null);
+      }
+    }
+    else if (txStatus && txType === "withdrawFlow"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Flow token is successfully withdrawed!");
         setTxProgress(false);
         setTxStatus(null);
       }
@@ -284,6 +307,9 @@ export default function Backup() {
   }
 
   const destoryBackup = async () => {
+    setTxProgress(true);
+    setTxType("destoryLockup");
+
     try{
       const txid = await fcl.mutate({
         cadence: destroyLockup,
@@ -294,10 +320,10 @@ export default function Backup() {
       });
 
       console.log(txid);
-      toast.success("Successfully destroyed!");
+      setTxId(txid);
       setStep("default");
     }catch(error) {
-      console.log('err', error);
+      setTxProgress(false);
       toast.error(error);
     }
   }
@@ -351,8 +377,10 @@ export default function Backup() {
         });
 
         console.log(txid);
+        setTxId(txid);
       }catch(error) {
-        console.log('err', error);
+        setTxProgress(false);
+        toast.error(error);
       }
     }
   }
@@ -799,9 +827,18 @@ export default function Backup() {
                           <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
                             Edit
                           </Button>
+                          {txProgress && txType === "destoryLockup" ?
+                          <Button variant="danger" size="sm" className='red-bg' disabled>
+                            <Spinner animation="border" role="status" size="sm">
+                              <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                          </Button>
+                          :
                           <Button variant="danger" size="sm" className='red-bg' onClick={() => destoryBackup()}>
                             Remove
                           </Button>
+                          }
+                          
                         </Card.Body>
                       </Card>
                     </div>
@@ -1167,9 +1204,19 @@ export default function Backup() {
                       ADD COINS TO BACKUP
                     </Button>
                     :
+                    <>
+                    {txProgress && txType === "addFT" ?
+                    <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                      <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </Spinner>
+                    </Button>
+                    :
                     <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
                       ADD COINS TO BACKUP
                     </Button>
+                    }
+                    </>                    
                     }
                   </div>
                 </div>
