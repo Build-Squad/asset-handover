@@ -258,3 +258,7 @@ input::placeholder {
   display: grid;
   align-items: center;
 }
+
+.mt-10{
+  margin-top: 10px!important;
+}

@@ -989,11 +989,6 @@ export default function Backup() {
 
               {step === "detail" &&
               <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-end mb-2'>
-                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
-                   onClick={() => setStep("default")} />
-                </div>
-
                 <div className='row p-3 mb-3'>
                   <div className='col-md-6'>
                     <div className='row'>
@@ -1020,9 +1015,18 @@ export default function Backup() {
                   </div>
                 </div>
 
-                <h4 className='p-2 border-bottom-green blue-font mt-4'>COIN(S)</h4>
+                <div className='d-flex justify-content-between border-bottom-green'>
+                  <h4 className='p-2 blue-font mb-0'>
+                    COIN(S)
+                  </h4>
+
+                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
+                   onClick={() => setStep("default")} />
+                </div>
+
+                
                 {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                <div className='row'>
+                <div className='row mt-2'>
                   {lockUp.fungibleTokens.map((item, index) => (
                     <>
                     {item.identifier.includes("FlowToken") &&
@@ -1110,11 +1114,6 @@ export default function Backup() {
 
               {step === "edit" &&
               <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-end mb-2'>
-                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
-                   onClick={() => setStep("default")} />
-                </div>
-
                 <div className='row p-3 mb-3'>
                   <div className='col-md-6'>
                     <div className='row'>
@@ -1141,15 +1140,21 @@ export default function Backup() {
                   </div>
                 </div>
 
-                <h4 className='p-2 border-bottom-green blue-font mt-4'>
-                  COIN(S)
-                  <Button className='mx-3' variant="danger" size="sm"
-                  onClick={() => setStep("removecoins")}>
-                    Edit
-                  </Button>
-                </h4>
+                <div className='d-flex justify-content-between border-bottom-green'>
+                  <h4 className='p-2 blue-font m-0'>
+                    COIN(S)
+                    <Button className='mx-3' variant="danger" size="sm"
+                    onClick={() => setStep("removecoins")}>
+                      Edit
+                    </Button>
+                  </h4>
+
+                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
+                   onClick={() => setStep("default")} />
+                </div>
+                
                 {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                <div className='row'>
+                <div className='row mt-2'>
                   {lockUp.fungibleTokens.map((item, index) => (
                     <>
                     {item.identifier.includes("FlowToken") &&
@@ -1220,12 +1225,15 @@ export default function Backup() {
 
               {step === "coins" &&
               <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-end mb-2'>
-                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                <div className='d-flex justify-content-between border-bottom-green'>
+                  <h4 className='blue-font p-2 mb-0'>
+                    COIN(S)
+                  </h4>
+
+                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
                    onClick={() => setStep("detail")} />
                 </div>
-
-                <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
+                
                 <div className='row p-3'>
                 {ft !== null &&
                   Object.keys(ft).map((key, index) => (
@@ -1298,12 +1306,12 @@ export default function Backup() {
               }
               {step === "removecoins" &&
               <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-end mb-2'>
-                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                <div className='d-flex justify-content-between border-bottom-green'>
+                  <h4 className='blue-font p-2 mb-0'>EDIT COIN(S)</h4>
+                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
                    onClick={() => setStep("edit")} />
                 </div>
-
-                <h4 className='blue-font p-2 border-bottom-green'>EDIT COIN(S)</h4>
+                
                 <div className='row p-3'>
                 {lockUp !== null &&
                   lockUp.fungibleTokens.map((item, index) => (
@@ -1402,15 +1410,15 @@ export default function Backup() {
               }
 
               {step === "nftcollection" &&
-              <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-end mb-2'>
-                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+              <Tab.Pane eventKey="first">                
+                <div className='d-flex justify-content-between border-bottom-green'>
+                  <h4 className='blue-font p-2 mb-0'>
+                    SELECT NFT COLLECTION(S)
+                  </h4>
+
+                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
                    onClick={() => setStep("detail")} />
-                </div>
-                
-                <h4 className='blue-font p-2 border-bottom-green'>
-                  SELECT NFT COLLECTION(S)
-                </h4>
+                </div>                
 
                 <div className='row'>
                   {collection && collection.map((item, index) => (
@@ -1447,11 +1455,6 @@ export default function Backup() {
 
               {step === "nfts" &&
               <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-end mb-2'>
-                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
-                   onClick={() => setStep("nftcollection")} />
-                </div>
-
                 <div className='row pt-2 mx-2 border-bottom-green'>
                   <div className='col-md-4'>
                     <h4 className='blue-font'>SELECT NFT(S)</h4>
@@ -1460,7 +1463,12 @@ export default function Backup() {
                     <Form.Check type="checkbox" label="Select All NFTs" />
                   </div>
                   <div className='col-md-4 text-end'>
-                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                    <div className='d-flex justify-content-between'>
+                      <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+
+                      <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24} 
+                      onClick={() => setStep("nftcollection")} />
+                    </div>                    
                   </div>
                 </div>
 
@@ -1515,17 +1523,17 @@ export default function Backup() {
               }
               {step === "removenfts" &&
               <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-end mb-2'>
-                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
-                   onClick={() => setStep("edit")} />
-                </div>
-
                 <div className='row pt-2 mx-2 border-bottom-green'>
                   <div className='col-md-6'>
                     <h4 className='blue-font'>EDIT NFT(S)</h4>
                   </div>
                   <div className='col-md-6 text-end'>
-                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                    <div className='d-flex justify-content-between'>
+                      <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+
+                      <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24} 
+                      onClick={() => setStep("edit")} />
+                    </div>                    
                   </div>
                 </div>
 
@@ -1621,11 +1629,6 @@ export default function Backup() {
 
             {pledgeStep === "item" &&
             <Tab.Pane eventKey="second">
-              <div className='d-flex justify-content-end mb-2'>
-                <FaArrowLeft className='blue-font cursor-pointer' size={24} 
-                  onClick={() => setPledgeStep("default")} />
-              </div>
-
               <div className='row p-3 mb-3'>
                 <div className='col-md-6'>
                   <div className='row'>
@@ -1648,14 +1651,21 @@ export default function Backup() {
                 </div>
               </div>
 
-              <h4 className='p-2 border-bottom-green blue-font'>
-                COIN(S)
-                <Button className='mx-3' variant="danger" size="sm" onClick={() => widthdrawCoins()}>
-                  WITHDRAW
-                </Button>
-              </h4>
+              <div className='d-flex justify-content-between border-bottom-green'>
+                <h4 className='p-2 blue-font mb-0'>
+                  COIN(S)
+                  <Button className='mx-3' variant="danger" size="sm" onClick={() => widthdrawCoins()}>
+                    WITHDRAW
+                  </Button>
+                </h4>
+
+                <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
+                  onClick={() => setPledgeStep("default")} />
+              </div>
+
+              
               {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
-                <div className='row'>
+                <div className='row mt-2'>
                   {pledgeItem.fungibleTokens.map((item, index) => (
                     <>
                     {item.identifier.includes("FlowToken") &&
@@ -1724,14 +1734,14 @@ export default function Backup() {
 
             {pledgeStep === "coins" &&
             <Tab.Pane eventKey="second">
-              <div className='d-flex justify-content-end mb-2'>
-                <FaArrowLeft className='blue-font cursor-pointer' size={24} 
-                  onClick={() => setPledgeStep("item")} />
-              </div>
+              <div className='d-flex justify-content-between border-bottom-green'>
+                <h4 className='p-2 mb-0 blue-font'>
+                  WITHDRAW COIN(S) FROM PLEDGE
+                </h4>
 
-              <h4 className='p-2 border-bottom-green blue-font'>
-                WITHDRAW COIN(S) FROM PLEDGE
-              </h4>
+                <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
+                  onClick={() => setPledgeStep("item")} />
+              </div>              
 
               {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 &&
               <div className='row p-3'>
@@ -1983,11 +1993,6 @@ export default function Backup() {
 
             {pledgeStep === "nfts" &&
             <Tab.Pane eventKey="second">
-              <div className='d-flex justify-content-end mb-2'>
-                <FaArrowLeft className='blue-font cursor-pointer' size={24} 
-                  onClick={() => setPledgeStep("item")} />
-              </div>
-
               <div className='row pt-2 mx-2 border-bottom-green'>
                 <div className='col-md-6'>
                   <h4 className='blue-font'>
@@ -1995,7 +2000,12 @@ export default function Backup() {
                   </h4>
                 </div>
                 <div className='col-md-6 text-end'>
-                  <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                  <div className='d-flex justify-content-between'>
+                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+
+                    <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24} 
+                    onClick={() => setPledgeStep("item")} />
+                  </div>                  
                 </div>
               </div>
 
