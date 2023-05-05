@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as fcl from "@onflow/fcl";
 import { Tab, Nav, Card, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -38,11 +38,12 @@ export default function Backup() {
 
   //lockups
   const [backupName, setBackupName] = useState('');
-  const [recipient, setRecipient] = useState('0x8527e930b7b21dae');
+  const [recipient, setRecipient] = useState('');
   const [maturity, setMaturity] = useState(new Date());
   const [description, setDescription] = useState('');
 
   const [lockUp, setLockUp] = useState(null);
+  const [editLockUp, setEditLockUp] = useState(false);
   const [ft, setFT] = useState(null);
   const [flowID, setFlowID] = useState(null);
   const [blpID, setBLPID] = useState(null);
@@ -87,26 +88,26 @@ export default function Backup() {
 
   useEffect(() => {
     getBackup();
-    if(txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === ""){
+    if (txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
       getBackup();
     }
   }, [user, txStatus]);
 
   useEffect(() => {
-    if(ft !== null){
+    if (ft !== null) {
       Object.keys(ft).map((key) => {
-        if(key.includes("FlowToken")) setFlowID(key);
-        if(key.includes("BlpToken")) setBLPID(key);
+        if (key.includes("FlowToken")) setFlowID(key);
+        if (key.includes("BlpToken")) setBLPID(key);
       });
     }
   }, [ft]);
 
   useEffect(() => {
     const tempOwnCollection = [];
-    if(lockUp && lockUp.nonFungibleTokens.length > 0 && collection){
+    if (lockUp && lockUp.nonFungibleTokens.length > 0 && collection) {
       lockUp.nonFungibleTokens.map((item) => {
         collection.map((col) => {
-          if( col.nftType.includes(item.identifier) ) {
+          if (col.nftType.includes(item.identifier)) {
             tempOwnCollection.push(col);
           }
         })
@@ -115,10 +116,10 @@ export default function Backup() {
       setOwnCollection(tempOwnCollection);
     }
 
-    if(lockUp && lockUp.fungibleTokens.length > 0){
+    if (lockUp && lockUp.fungibleTokens.length > 0) {
       lockUp.fungibleTokens.map((item) => {
-        if(item.identifier === "A.7e60df042a9c0868.FlowToken" && item.balance > 0) setFlowBalance(item.balance);
-        if(item.identifier === "A.5d649d473cc7fa83.BlpToken" && item.balance > 0) setBlpBalance(item.balance);
+        if (item.identifier === "A.7e60df042a9c0868.FlowToken" && item.balance > 0) setFlowBalance(item.balance);
+        if (item.identifier === "A.5d649d473cc7fa83.BlpToken" && item.balance > 0) setBlpBalance(item.balance);
       })
     }
 
@@ -134,93 +135,93 @@ export default function Backup() {
 
   useEffect(() => {
 
-    if (txStatus && txType === "createLockup"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    if (txStatus && txType === "createLockup") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Lockup is successfully created!");
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Lockup is successfully saved!");
         setTxProgress(false);
         setTxStatus(null);
         setStep("default");
       }
     }
-    else if (txStatus && txType === "destoryLockup"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "destoryLockup") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("Lockup is successfully destoryed!");
         setTxProgress(false);
         setTxStatus(null);
       }
     }
-    else if (txStatus && txType === "addFT"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "addFT") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("Fungible Token is successfully added!");
         setTxProgress(false);
         setTxStatus(null);
         setStep("detail");
       }
     }
-    else if (txStatus && txType === "addNFT"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "addNFT") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("NonFungible Token is successfully added!");
         setTxProgress(false);
         setTxStatus(null);
         setStep("detail");
       }
     }
-    else if (txStatus && txType === "editFT"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "editFT") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("Fungible Token is successfully edited!");
         setTxProgress(false);
         setTxStatus(null);
         setStep("detail");
       }
     }
-    else if (txStatus && txType === "removeFlow"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "removeFlow") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("Flow token is successfully removed!");
         setTxProgress(false);
         setTxStatus(null);
       }
     }
-    else if (txStatus && txType === "removeBlp"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "removeBlp") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("Blp token is successfully removed!");
         setTxProgress(false);
         setTxStatus(null);
       }
     }
-    else if (txStatus && txType === "editNFT"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "editNFT") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("NonFungible Token is successfully edited!");
         setTxProgress(false);
         setTxStatus(null);
@@ -228,34 +229,34 @@ export default function Backup() {
       }
     }
 
-    else if (txStatus && txType === "withdrawFlow"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "withdrawFlow") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("Flow token is successfully withdrawed!");
         setTxProgress(false);
         setTxStatus(null);
       }
     }
-    else if(txStatus && txType === "withdrawBlp"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "withdrawBlp") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("Blp token is successfully withdrawed!");
         setTxProgress(false);
         setTxStatus(null);
       }
     }
-    else if(txStatus && txType === "withdrawNFT"){
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+    else if (txStatus && txType === "withdrawNFT") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
-      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("NonFungible Token is successfully withdrawed!");
         setTxProgress(false);
         setTxStatus(null);
@@ -282,14 +283,14 @@ export default function Backup() {
     return formattedDate;
   }
 
-  const getBackup = async() => {
-    if(user.addr){
+  const getBackup = async () => {
+    if (user.addr) {
       const res = await fcl.query({
         cadence: getAccountLockUp,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
       setLockUp(res);
-      // console.log('lockup - ', res);
+      console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -309,7 +310,7 @@ export default function Backup() {
       const nftCollection = [];
       Object.keys(nftinfo).map((info) => {
         collection.map((item) => {
-          if(item.nftType.includes(info)) nftCollection.push(item);
+          if (item.nftType.includes(info)) nftCollection.push(item);
         })
       });
       // console.log("nftCollection - ", nftCollection);
@@ -327,12 +328,24 @@ export default function Backup() {
     }
   }
 
+  const editClick = (e) => {
+    e.stopPropagation();
+    setStep("create");
+    setEditLockUp(true);
+
+    setBackupName(lockUp.name);
+    setRecipient(lockUp.recipient);
+    setDescription(lockUp.description);
+    const dateObject = new Date(parseInt(lockUp.releasedAt));
+    setMaturity(dateObject);
+  }
+
   const createBackup = async () => {
     const releaseDate = maturity.getTime().toString();
     setTxProgress(true);
     setTxType("createLockup");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: createLockUp,
         args: (arg, t) => [
@@ -349,17 +362,18 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-    }catch(error) {
+    } catch (error) {
       setTxProgress(false);
       toast.error(error);
     }
   }
 
-  const destoryBackup = async () => {
+  const destoryBackup = async (e) => {
+    e.stopPropagation();
     setTxProgress(true);
     setTxType("destoryLockup");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: destroyLockup,
         proposer: fcl.currentUser,
@@ -371,16 +385,16 @@ export default function Backup() {
       console.log(txid);
       setTxId(txid);
       setStep("default");
-    }catch(error) {
+    } catch (error) {
       setTxProgress(false);
       toast.error(error);
     }
   }
 
   const selectFT = (e, id) => {
-    if(id === 0){
+    if (id === 0) {
       setFlowSelect(e.target.checked);
-    }else if(id === 1){
+    } else if (id === 1) {
       setBLPSelect(e.target.checked);
     }
   }
@@ -389,13 +403,13 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("addFT");
 
-    if(flowSelect){
-      try{
+    if (flowSelect) {
+      try {
         const txid = await fcl.mutate({
           cadence: lockFungibleToken,
           args: (arg, t) => [
             arg(flowID, t.String),
-            arg(flowAmount+".0", t.UFix64)
+            arg(flowAmount + ".0", t.UFix64)
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -405,19 +419,19 @@ export default function Backup() {
 
         console.log(txid);
         setTxId(txid);
-      }catch(error) {
+      } catch (error) {
         setTxProgress(false);
         toast.error(error);
       }
     }
 
-    if(blpSelect){
-      try{
+    if (blpSelect) {
+      try {
         const txid = await fcl.mutate({
           cadence: lockFungibleToken,
           args: (arg, t) => [
             arg(blpID, t.String),
-            arg(blpAmount+".0", t.UFix64)
+            arg(blpAmount + ".0", t.UFix64)
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -427,7 +441,7 @@ export default function Backup() {
 
         console.log(txid);
         setTxId(txid);
-      }catch(error) {
+      } catch (error) {
         setTxProgress(false);
         toast.error(error);
       }
@@ -457,12 +471,12 @@ export default function Backup() {
   const selectNFT = (e, id) => {
     let ids = [...nftIDs];
 
-    if(e.target.checked){
-      if(!ids.includes(id)){
+    if (e.target.checked) {
+      if (!ids.includes(id)) {
         ids.push(id);
       }
-    }else{
-      if(ids.includes(id)){
+    } else {
+      if (ids.includes(id)) {
         ids = ids.filter(item => item !== id)
       }
     }
@@ -476,7 +490,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("addNFT");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: initCollectionTemplate(contractName, contractAddress, publicVal, privateVal),
         args: (arg, t) => [
@@ -491,7 +505,7 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-    }catch(error){
+    } catch (error) {
       setTxProgress(false);
       toast.error(error);
     }
@@ -502,13 +516,13 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("editFT");
 
-    if(editFlowAmount !== ""){
-      try{
+    if (editFlowAmount !== "") {
+      try {
         const txid = await fcl.mutate({
           cadence: setLockUpBalance,
           args: (arg, t) => [
             arg(flowID, t.String),
-            arg(editFlowAmount+".0", t.UFix64)
+            arg(editFlowAmount + ".0", t.UFix64)
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -518,19 +532,19 @@ export default function Backup() {
 
         console.log(txid);
         setTxId(txid);
-      }catch(error) {
+      } catch (error) {
         setTxProgress(false);
         toast.error(error);
       }
     }
 
-    if(editBlpAmount !== ""){
-      try{
+    if (editBlpAmount !== "") {
+      try {
         const txid = await fcl.mutate({
           cadence: setLockUpBalance,
           args: (arg, t) => [
             arg(blpID, t.String),
-            arg(editBlpAmount+".0", t.UFix64)
+            arg(editBlpAmount + ".0", t.UFix64)
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -540,7 +554,7 @@ export default function Backup() {
 
         console.log(txid);
         setTxId(txid);
-      }catch(error) {
+      } catch (error) {
         setTxProgress(false);
         toast.error(error);
       }
@@ -551,11 +565,11 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("removeFlow");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: lockFungibleTokens,
         args: (arg, t) => [
-          arg([{key: blpID, value: blpBalance}], t.Dictionary({key: t.String, value: t.Optional(t.UFix64)}))
+          arg([{ key: blpID, value: blpBalance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -565,7 +579,7 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-    }catch(error) {
+    } catch (error) {
       toast.error(error);
       setTxProgress(false);
     }
@@ -575,11 +589,11 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("removeBlp");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: lockFungibleTokens,
         args: (arg, t) => [
-          arg([{key: flowID, value: flowBalance}], t.Dictionary({key: t.String, value: t.Optional(t.UFix64)}))
+          arg([{ key: flowID, value: flowBalance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -589,7 +603,7 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-    }catch(error) {
+    } catch (error) {
       toast.error(error);
       setTxProgress(false);
     }
@@ -608,12 +622,12 @@ export default function Backup() {
 
     var ownNFTIDs = [];
     lockUp.nonFungibleTokens.map((token) => {
-      if(item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
+      if (item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
     });
 
     var ownNFT = [];
     nft.map((nftItem) => {
-      if(ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem);
+      if (ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem);
     });
 
     setNFT(ownNFT);
@@ -626,12 +640,12 @@ export default function Backup() {
   const selectEditNFT = (e, id) => {
     let ids = [...editNFTIDs];
 
-    if(e.target.checked){
-      if(!ids.includes(id)){
+    if (e.target.checked) {
+      if (!ids.includes(id)) {
         ids.push(id);
       }
-    }else{
-      if(ids.includes(id)){
+    } else {
+      if (ids.includes(id)) {
         ids = ids.filter(item => item !== id)
       }
     }
@@ -643,7 +657,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("editNFT");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: setLockUpNFTIDs,
         args: (arg, t) => [
@@ -658,7 +672,7 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-    }catch(error) {
+    } catch (error) {
       setTxProgress(false);
       toast.error(error);
     }
@@ -682,7 +696,7 @@ export default function Backup() {
     const nftCollection = [];
     Object.keys(nftinfo).map((info) => {
       pledgeCollection.map((item) => {
-        if(item.nftType.includes(info)) nftCollection.push(item);
+        if (item.nftType.includes(info)) nftCollection.push(item);
       })
     });
     // console.log("nftCollection - ", nftCollection);
@@ -692,9 +706,9 @@ export default function Backup() {
   const widthdrawCoins = () => {
     const currentDate = parseInt(Date.now());
 
-    if(currentDate <= pledgeItem.releasedAt){
+    if (currentDate <= pledgeItem.releasedAt) {
       toast.error("The assets are still in lock-up period");
-    }else{
+    } else {
       setPledgeStep("coins");
     }
   }
@@ -703,7 +717,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("withdrawFlow");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
         args: (arg, t) => [
@@ -719,7 +733,7 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-    }catch(error){
+    } catch (error) {
       toast.error(error);
       setTxProgress(false);
     }
@@ -729,7 +743,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("withdrawBlp");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
         args: (arg, t) => [
@@ -745,7 +759,7 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-    }catch(error){
+    } catch (error) {
       toast.error(error);
       setTxProgress(false);
     }
@@ -762,12 +776,12 @@ export default function Backup() {
 
     var ownNFTIDs = [];
     pledgeItem.nonFungibleTokens.map((token) => {
-      if(item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
+      if (item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
     });
 
     var ownNFT = [];
     nft.map((nftItem) => {
-      if(ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem);
+      if (ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem);
     });
 
     setPledgeNFT(ownNFT);
@@ -781,12 +795,12 @@ export default function Backup() {
   const selectWithdrawNFT = (e, id) => {
     let ids = [...withdrawNFTIDs];
 
-    if(e.target.checked){
-      if(!ids.includes(id)){
+    if (e.target.checked) {
+      if (!ids.includes(id)) {
         ids.push(id);
       }
-    }else{
-      if(ids.includes(id)){
+    } else {
+      if (ids.includes(id)) {
         ids = ids.filter(item => item !== id)
       }
     }
@@ -798,7 +812,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("withdrawNFT");
 
-    try{
+    try {
       const txid = await fcl.mutate({
         cadence: withdrawNonFungibleToken,
         args: (arg, t) => [
@@ -814,13 +828,13 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-    }catch(error) {
+    } catch (error) {
       setTxProgress(false);
       toast.error(error);
     }
   }
 
-  return(
+  return (
     <Tab.Container id="left-tabs-example" defaultActiveKey="first">
       <div className="row mt-5 mb-5">
         <div className='col-xl-2 col-lg-3'>
@@ -845,7 +859,7 @@ export default function Backup() {
                   {user.addr}
                 </p>
                 <img className='mt-1' src="wallet1.png" width="50%" height="50%" />
-                <h5 className="mt-3 blue-font">DISCONNECT <br/> WALLET</h5>
+                <h5 className="mt-3 blue-font">DISCONNECT <br /> WALLET</h5>
               </Nav.Link>
             </Nav.Item>
           </Nav>
@@ -855,1213 +869,1238 @@ export default function Backup() {
           <Tab.Content className='w-100'>
             <>
               {step === "default" &&
-              <Tab.Pane eventKey="first">
-                {lockUp ?
-                <div className='center-pad'>
-                  <div className='row justify-content-center'>
-                    <div className='col-xl-3 col-lg-5'>
-                      <Card className="text-center" >
-                        <Card.Img className='item-img cursor-pointer' variant="top" src="safe.png"
-                          onClick={() => setStep("detail")} />
-                        <Card.Body>
-                          <Card.Title className="blue-font">
-                            {lockUp.name}
-                          </Card.Title>
-                          <p className='text-grey mb-0'>
-                            {lockUp.recipient}
-                          </p>
-                          <p className='font-14 mb-0 blue-font'>
-                            Created on
-                          </p>
-                          <p className='mb-1 blue-font'>
-                            {convertDate(Math.floor(lockUp.createdAt*1000))}
-                          </p>
-                          <p className='red-font font-14 mb-0'>
-                            Maturity Date
-                          </p>
-                          <p className='red-font'>
-                            {convertDate(Math.floor(lockUp.releasedAt))}
-                          </p>
+                <Tab.Pane eventKey="first">
+                  {lockUp ?
+                    <div className='center-pad'>
+                      <div className='row justify-content-center'>
+                        <div className='col-xl-3 col-lg-5'>
+                          <Card className="text-center cursor-pointer" onClick={() => setStep("detail")}>
+                            <Card.Img className='item-img' variant="top" src="safe.png" />
+                            <Card.Body>
+                              <Card.Title className="blue-font">
+                                {lockUp.name}
+                              </Card.Title>
+                              <p className='text-grey mb-0'>
+                                {lockUp.recipient}
+                              </p>
+                              <p className='font-14 mb-0 blue-font'>
+                                Created on
+                              </p>
+                              <p className='mb-1 blue-font'>
+                                {convertDate(Math.floor(lockUp.createdAt * 1000))}
+                              </p>
+                              <p className='red-font font-14 mb-0'>
+                                Maturity Date
+                              </p>
+                              <p className='red-font'>
+                                {convertDate(Math.floor(lockUp.releasedAt))}
+                              </p>
 
-                          <Button variant="dark" size="sm" className='blue-bg me-5' onClick={() => setStep("edit")}>
-                            Edit
-                          </Button>
-                          {txProgress && txType === "destoryLockup" ?
-                          <Button variant="danger" size="sm" className='red-bg' disabled>
-                            <Spinner animation="border" role="status" size="sm">
+                              <Button variant="dark" size="sm" className='blue-bg me-5' onClick={(e) => editClick(e)}>
+                                Edit
+                              </Button>
+
+                              {txProgress && txType === "destoryLockup" ?
+                                <Button variant="danger" size="sm" className='red-bg' disabled>
+                                  <Spinner animation="border" role="status" size="sm">
+                                    <span className="visually-hidden">Loading...</span>
+                                  </Spinner>
+                                </Button>
+                                :
+                                <Button variant="danger" size="sm" className='red-bg' onClick={(e) => destoryBackup(e)}>
+                                  Remove
+                                </Button>
+                              }
+
+                            </Card.Body>
+                          </Card>
+                        </div>
+                      </div>
+                    </div>
+                    :
+                    <div className='center-pad'>
+                      <div className='row justify-content-center'>
+                        <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
+                          <FaPlus className='blue-font mt-5 me-2' size={60} />
+                          <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </Tab.Pane>
+              }
+
+              {step === "create" &&
+                <Tab.Pane eventKey="first">
+                  <div className='row p-3'>
+                    <div className='col-md-6'>
+                      <h4 className='blue-font mb-4'>
+                        CREATE NEW BACKUP
+                      </h4>
+                      <h5 className='mb-5'>
+                        Lorem ipsum dolor sit amet, consectetur
+                        adipiscing elit. Proin luctus ut enim a aliquam. Ut
+                        vel ante non nibh lacinia hendrerit a sed risus.
+                        Sed elit diam, mattis quis porta in, dignissim quis
+                        ex. Morbi ut nulla a nisl sagittis luctus id sed erat.
+                        Class aptent taciti sociosqu ad litora torquent per
+                        conubia nostra, per inceptos himenaeos. Sed
+                        efficitur pulvinar sapien.
+                      </h5>
+                      <div className='d-flex justify-content-center'>
+                        <img src="page-3-banner.png" width="80%" height="auto" />
+                      </div>
+                    </div>
+
+                    <div className='col-md-6'>
+                      <Form>
+                        <Form.Group className="mb-3">
+                          <Form.Label>
+                            Backup Name <span className='text-danger'>*</span>
+                          </Form.Label>
+                          <Form.Control type="text" value={backupName}
+                            onChange={(e) => setBackupName(e.target.value)} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                          <Form.Label>
+                            Recipient's Wallet ID <span className='text-danger'>*</span>
+                          </Form.Label>
+                          <Form.Control type="text" value={recipient}
+                            onChange={(e) => setRecipient(e.target.value)} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                          <Form.Label>
+                            Maturity Date <span className='text-danger'>*</span>
+                          </Form.Label>
+                          <DatePicker className='form-control' selected={maturity} onChange={(date) => setMaturity(date)} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                          <Form.Label>Description</Form.Label>
+                          <Form.Control as="textarea" rows={3} value={description}
+                            onChange={(e) => setDescription(e.target.value)} />
+                        </Form.Group>
+
+                        {txProgress && txType === "createLockup" ?
+                          <Button className='blue-bg border-radius-none mt-5' disabled>
+                            <Spinner animation="border" role="status">
                               <span className="visually-hidden">Loading...</span>
                             </Spinner>
                           </Button>
                           :
-                          <Button variant="danger" size="sm" className='red-bg' onClick={() => destoryBackup()}>
-                            Remove
+                          <>
+                          {editLockUp ?
+                          <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
+                            SAVE CHANGES
+                          </Button>
+                          :
+                          <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
+                            CREATE BACKUP
                           </Button>
                           }
-                          
-                        </Card.Body>
-                      </Card>
+                          </>                          
+                        }
+
+                      </Form>
                     </div>
                   </div>
-                </div>
-                :
-                <div className='center-pad'>
-                  <div className='row justify-content-center'>
-                    <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
-                      <FaPlus className='blue-font mt-5 me-2' size={60} />
-                      <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
-                    </div>
-                  </div>
-                </div>
-                }
-              </Tab.Pane>
-              }
-
-              {step === "create" &&
-              <Tab.Pane eventKey="first">
-                <div className='row p-3'>
-                  <div className='col-md-6'>
-                    <h4 className='blue-font mb-4'>
-                      CREATE NEW BACKUP
-                    </h4>
-                    <h5 className='mb-5'>
-                      Lorem ipsum dolor sit amet, consectetur
-                      adipiscing elit. Proin luctus ut enim a aliquam. Ut
-                      vel ante non nibh lacinia hendrerit a sed risus.
-                      Sed elit diam, mattis quis porta in, dignissim quis
-                      ex. Morbi ut nulla a nisl sagittis luctus id sed erat.
-                      Class aptent taciti sociosqu ad litora torquent per
-                      conubia nostra, per inceptos himenaeos. Sed
-                      efficitur pulvinar sapien.
-                    </h5>
-                    <div className='d-flex justify-content-center'>
-                      <img src="page-3-banner.png" width="80%" height="auto" />
-                    </div>
-                  </div>
-
-                  <div className='col-md-6'>
-                    <Form>
-                      <Form.Group className="mb-3">
-                        <Form.Label>
-                          Backup Name <span className='text-danger'>*</span>
-                        </Form.Label>
-                        <Form.Control type="text" value={backupName}
-                          onChange={(e) => setBackupName(e.target.value)} />
-                      </Form.Group>
-
-                      <Form.Group className="mb-3">
-                        <Form.Label>
-                          Recipient's Wallet ID <span className='text-danger'>*</span>
-                        </Form.Label>
-                        <Form.Control type="text" value={recipient}
-                        onChange={(e) => setRecipient(e.target.value)} />
-                      </Form.Group>
-
-                      <Form.Group className="mb-3">
-                        <Form.Label>
-                          Maturity Date <span className='text-danger'>*</span>
-                        </Form.Label>
-                        <DatePicker className='form-control' selected={maturity} onChange={(date) => setMaturity(date)} />
-                      </Form.Group>
-
-                      <Form.Group className="mb-3">
-                        <Form.Label>Description</Form.Label>
-                        <Form.Control as="textarea" rows={3} value={description}
-                        onChange={(e) => setDescription(e.target.value)} />
-                      </Form.Group>
-
-                      {txProgress && txType === "createLockup" ?
-                      <Button className='blue-bg border-radius-none mt-5' disabled>
-                        <Spinner animation="border" role="status">
-                          <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                      </Button>
-                      :
-                      <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
-                        CREATE BACKUP
-                      </Button>
-                      }
-
-                    </Form>
-                  </div>
-                </div>
-              </Tab.Pane>
+                </Tab.Pane>
               }
 
               {step === "detail" &&
-              <Tab.Pane eventKey="first">
-                <div className='row p-3 mb-3'>
-                  <div className='col-md-6'>
-                    <div className='row'>
-                      <div className='col-md-3 d-flex green-border'>
-                        <img src="safe.png" width="100%" height="auto" />
-                      </div>
+                <Tab.Pane eventKey="first">
+                  <div className='row p-3 mb-3'>
+                    <div className='col-md-6'>
+                      <div className='row'>
+                        <div className='col-md-3 d-flex green-border'>
+                          <img src="safe.png" width="100%" height="auto" />
+                        </div>
 
-                      <div className='col-md-9'>
-                        <h5 className='blue-font'>{lockUp.name}</h5>
-                        <p className='blue-font mb-0'>{lockUp.description}</p>
-                        <p className='text-grey'>{lockUp.recipient}</p>
+                        <div className='col-md-9'>
+                          <h5 className='blue-font'>{lockUp.name}</h5>
+                          <p className='blue-font mb-0'>{lockUp.description}</p>
+                          <p className='text-grey'>{lockUp.recipient}</p>
+                        </div>
                       </div>
+                    </div>
+
+                    <div className='col-md-6 text-webkit-right'>
+                      <p className='font-bold backup-date blue-font'>
+                        BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt * 1000))}
+                      </p>
+
+                      <p className='font-bold maturity-date blue-bg border-none'>
+                        MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
+                      </p>
                     </div>
                   </div>
 
-                  <div className='col-md-6 text-webkit-right'>
-                    <p className='font-bold backup-date blue-font'>
-                      BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt*1000))}
-                    </p>
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='p-2 blue-font mb-0'>
+                      COIN(S)
+                      {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
+                      <Button className='mx-3' variant="danger" size="sm"
+                        onClick={() => setStep("removecoins")}>
+                        Edit
+                      </Button>
+                      :
+                      <></>
+                      }
+                    </h4>                  
 
-                    <p className='font-bold maturity-date blue-bg border-none'>
-                      MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
-                    </p>
+                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
+                      onClick={() => setStep("default")} />
                   </div>
-                </div>
 
-                <div className='d-flex justify-content-between border-bottom-green'>
-                  <h4 className='p-2 blue-font mb-0'>
-                    COIN(S)
-                  </h4>
 
-                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
-                   onClick={() => setStep("default")} />
-                </div>
-
-                
-                {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                <div className='row mt-2'>
-                  {lockUp.fungibleTokens.map((item, index) => (
-                    <>
-                    {item.identifier.includes("FlowToken") &&
-                      <div className='col-md-1' key={index}>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                      </div>
-                    }
-
-                    {item.identifier.includes("BlpToken") &&
-                      <div className='col-md-1' key={index}>
-                        <img src="coin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                      </div>
-                    }
-                    </>
-                    )
-                  )}
-                  <div className='col-md-1 pt-2'>
-                    <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("coins")}>
-                      <FaPlus className='blue-font' size={40} />
-                    </div>
-                  </div>
-                </div>
-                :
-                <div className='d-flex mt-4'>
-                  <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
-                    <FaPlus className='blue-font' size={40} />
-                  </div>
-                  <h5 className='blue-font mx-3 align-self-center'>
-                    ADD COIN(S) TO BACKUP
-                  </h5>
-                </div>
-                }
-
-                <h4 className='p-2 border-bottom-green blue-font mt-4'>NFT COLLECTION(S)</h4>
-                {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
-                <div className='row'>
-                  {ownCollection && ownCollection.map((item, index) => (
-                    <div className='col-md-3 pt-2' key={index}>
-                      <Card className='p-3 pb-1 h-100'>
-                        <Card.Img variant="top" src={item.collectionBannerImage} />
-                        <Card.Body className='pb-0'>
-                          <div className='row'>
-                            <div className='col-3 p-0'>
-                              <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                              <h5 className='text-center'>({item.nftsCount})</h5>
+                  {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
+                    <div className='row mt-2'>
+                      {lockUp.fungibleTokens.map((item, index) => (
+                        <React.Fragment key={index}>
+                          {item.identifier.includes("FlowToken") &&
+                            <div className='col-md-1'>
+                              <img src="flowcoin.png" width="100%" height="auto" />
+                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
                             </div>
+                          }
 
-                            <div className='col-9'>
-                              <p className='font-bold'>{item.contractName}</p>
-                              <div className='d-flex'>
-                                <p className='text-grey font-14 mb-0'>
-                                  {item.collectionDescription}
-                                </p>
-                              </div>
+                          {item.identifier.includes("BlpToken") &&
+                            <div className='col-md-1'>
+                              <img src="coin.png" width="100%" height="auto" />
+                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
                             </div>
-                          </div>
-                        </Card.Body>
-                      </Card>
+                          }
+                        </React.Fragment>
+                      )
+                      )}
+                      <div className='col-md-1 pt-2'>
+                        <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("coins")}>
+                          <FaPlus className='blue-font' size={40} />
+                        </div>
+                      </div>
                     </div>
-                  ))}
-
-                  <div className='col-md-3 pt-2'>
-                    <div className='center-pad'>
-                      <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("nftcollection")}>
+                    :
+                    <div className='d-flex mt-4'>
+                      <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
                         <FaPlus className='blue-font' size={40} />
                       </div>
+                      <h5 className='blue-font mx-3 align-self-center'>
+                        ADD COIN(S) TO BACKUP
+                      </h5>
                     </div>
-                  </div>
-                </div>
-                :
-                <div className='d-flex mt-4'>
-                  <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
-                    <FaPlus className='blue-font' size={40} />
-                  </div>
-                  <h5 className='blue-font mx-3 align-self-center'>
-                    ADD NFT(S) TO BACKUP
-                  </h5>
-                </div>
-                }
+                  }
 
-              </Tab.Pane>
+                  <h4 className='p-2 border-bottom-green blue-font mt-4'>
+                    NFT COLLECTION(S)
+                    {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
+                    <Button className='mx-3' variant="danger" size="sm">
+                      Edit
+                    </Button>
+                    :
+                    <></>
+                    }
+                  </h4>
+                  {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
+                    <div className='row'>
+                      {ownCollection && ownCollection.map((item, index) => (
+                        <div className='col-md-3 pt-2' key={index}>
+                          <Card className='p-3 pb-1 h-100'>
+                            <Card.Img variant="top" src={item.collectionBannerImage} />
+                            <Card.Body className='pb-0'>
+                              <div className='row'>
+                                <div className='col-3 p-0'>
+                                  <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                                  <h5 className='text-center'>({item.nftsCount})</h5>
+                                </div>
+
+                                <div className='col-9'>
+                                  <p className='font-bold'>{item.contractName}</p>
+                                  <div className='d-flex'>
+                                    <p className='text-grey font-14 mb-0'>
+                                      {item.collectionDescription}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        </div>
+                      ))}
+
+                      <div className='col-md-3 pt-2'>
+                        <div className='center-pad'>
+                          <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("nftcollection")}>
+                            <FaPlus className='blue-font' size={40} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    :
+                    <div className='d-flex mt-4'>
+                      <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
+                        <FaPlus className='blue-font' size={40} />
+                      </div>
+                      <h5 className='blue-font mx-3 align-self-center'>
+                        ADD NFT(S) TO BACKUP
+                      </h5>
+                    </div>
+                  }
+
+                </Tab.Pane>
               }
 
               {step === "edit" &&
-              <Tab.Pane eventKey="first">
-                <div className='row p-3 mb-3'>
-                  <div className='col-md-6'>
-                    <div className='row'>
-                      <div className='col-md-3 d-flex green-border'>
-                        <img src="safe.png" width="100%" height="auto" />
-                      </div>
+                <Tab.Pane eventKey="first">
+                  <div className='row p-3 mb-3'>
+                    <div className='col-md-6'>
+                      <div className='row'>
+                        <div className='col-md-3 d-flex green-border'>
+                          <img src="safe.png" width="100%" height="auto" />
+                        </div>
 
-                      <div className='col-md-9'>
-                        <h5 className='blue-font'>{lockUp.name}</h5>
-                        <p className='blue-font mb-0'>{lockUp.description}</p>
-                        <p className='text-grey'>{lockUp.recipient}</p>
+                        <div className='col-md-9'>
+                          <h5 className='blue-font'>{lockUp.name}</h5>
+                          <p className='blue-font mb-0'>{lockUp.description}</p>
+                          <p className='text-grey'>{lockUp.recipient}</p>
+                        </div>
                       </div>
+                    </div>
+
+                    <div className='col-md-6 text-webkit-right'>
+                      <p className='font-bold backup-date blue-font'>
+                        BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
+                      </p>
+
+                      <p className='font-bold maturity-date blue-bg border-none'>
+                        MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
+                      </p>
                     </div>
                   </div>
 
-                  <div className='col-md-6 text-webkit-right'>
-                    <p className='font-bold backup-date blue-font'>
-                      BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
-                    </p>
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='p-2 blue-font m-0'>
+                      COIN(S)
+                      <Button className='mx-3' variant="danger" size="sm"
+                        onClick={() => setStep("removecoins")}>
+                        Edit
+                      </Button>
+                    </h4>
 
-                    <p className='font-bold maturity-date blue-bg border-none'>
-                      MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
-                    </p>
+                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
+                      onClick={() => setStep("default")} />
                   </div>
-                </div>
 
-                <div className='d-flex justify-content-between border-bottom-green'>
-                  <h4 className='p-2 blue-font m-0'>
-                    COIN(S)
-                    <Button className='mx-3' variant="danger" size="sm"
-                    onClick={() => setStep("removecoins")}>
-                      Edit
-                    </Button>
+                  {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
+                    <div className='row mt-2'>
+                      {lockUp.fungibleTokens.map((item, index) => (
+                        <>
+                          {item.identifier.includes("FlowToken") &&
+                            <div className='col-md-1' key={index}>
+                              <img src="flowcoin.png" width="100%" height="auto" />
+                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                            </div>
+                          }
+
+                          {item.identifier.includes("BlpToken") &&
+                            <div className='col-md-1' key={index}>
+                              <img src="coin.png" width="100%" height="auto" />
+                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                            </div>
+                          }
+                        </>
+                      )
+                      )}
+                    </div>
+                    :
+                    <div className='d-flex mt-4'>
+                      <h5 className='blue-font mx-3 align-self-center'>
+                        No COIN(S)
+                      </h5>
+                    </div>
+                  }
+
+                  <h4 className='p-2 border-bottom-green blue-font mt-4'>
+                    NFT COLLECTION(S)
+                    <Button className='mx-3' variant="danger" size="sm">Edit</Button>
                   </h4>
+                  {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
+                    <div className='row'>
+                      {ownCollection && ownCollection.map((item, index) => (
+                        <div className='col-md-3 pt-2' key={index}>
+                          <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => editNFTCollection(item)}>
+                            <Card.Img variant="top" src={item.collectionBannerImage} />
+                            <Card.Body className='pb-0'>
+                              <div className='row'>
+                                <div className='col-3 p-0'>
+                                  <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                                  <h5 className='text-center'>({item.nftsCount})</h5>
+                                </div>
 
-                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
-                   onClick={() => setStep("default")} />
-                </div>
-                
-                {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                <div className='row mt-2'>
-                  {lockUp.fungibleTokens.map((item, index) => (
-                    <>
-                    {item.identifier.includes("FlowToken") &&
-                      <div className='col-md-1' key={index}>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                      </div>
-                    }
-
-                    {item.identifier.includes("BlpToken") &&
-                      <div className='col-md-1' key={index}>
-                        <img src="coin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                      </div>
-                    }
-                    </>
-                    )
-                  )}
-                </div>
-                :
-                <div className='d-flex mt-4'>
-                  <h5 className='blue-font mx-3 align-self-center'>
-                    No COIN(S)
-                  </h5>
-                </div>
-                }
-
-                <h4 className='p-2 border-bottom-green blue-font mt-4'>
-                  NFT COLLECTION(S)
-                  <Button className='mx-3' variant="danger" size="sm">Edit</Button>
-                </h4>
-                {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
-                <div className='row'>
-                  {ownCollection && ownCollection.map((item, index) => (
-                    <div className='col-md-3 pt-2' key={index}>
-                      <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => editNFTCollection(item)}>
-                        <Card.Img variant="top" src={item.collectionBannerImage} />
-                        <Card.Body className='pb-0'>
-                          <div className='row'>
-                            <div className='col-3 p-0'>
-                              <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                              <h5 className='text-center'>({item.nftsCount})</h5>
-                            </div>
-
-                            <div className='col-9'>
-                              <p className='font-bold'>{item.contractName}</p>
-                              <div className='d-flex'>
-                                <p className='text-grey font-14 mb-0'>
-                                  {item.collectionDescription}
-                                </p>
+                                <div className='col-9'>
+                                  <p className='font-bold'>{item.contractName}</p>
+                                  <div className='d-flex'>
+                                    <p className='text-grey font-14 mb-0'>
+                                      {item.collectionDescription}
+                                    </p>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        </Card.Body>
-                      </Card>
+                            </Card.Body>
+                          </Card>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                :
-                <div className='d-flex mt-4'>
-                  <h5 className='blue-font mx-3 align-self-center'>
-                    NO NFT(S)
-                  </h5>
-                </div>
-                }
-              </Tab.Pane>
+                    :
+                    <div className='d-flex mt-4'>
+                      <h5 className='blue-font mx-3 align-self-center'>
+                        NO NFT(S)
+                      </h5>
+                    </div>
+                  }
+                </Tab.Pane>
               }
 
               {step === "coins" &&
-              <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-between border-bottom-green'>
-                  <h4 className='blue-font p-2 mb-0'>
-                    COIN(S)
-                  </h4>
+                <Tab.Pane eventKey="first">
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='blue-font p-2 mb-0'>
+                      COIN(S)
+                    </h4>
 
-                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
-                   onClick={() => setStep("detail")} />
-                </div>
-                
-                <div className='row p-3'>
-                {ft !== null &&
-                  Object.keys(ft).map((key, index) => (
-                    <div className='col-md-4' key={index} >
-                      <div className='grey-border p-2'>
-                        <div className='row'>
-                          <div className='col-md-3'>
-                            { ft[key].name === 'FLOW' ?
-                              <img src="flowcoin.png" width="100%" height="auto" />
-                            :
-                              <img src="coin.png" width="100%" height="auto" />
-                            }
-
-                            <h5 className='text-center'>(0)</h5>
-                          </div>
-
-                          <div className='col-md-9'>
-                            <div className='d-flex justify-content-between'>
-                              <h5 className='blue-font mb-0'>{ft[key].name}</h5>
-                              <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)}/>
-                            </div>
-
-                            <p className='text-grey mb-1'>{key}</p>
-                            {ft[key].name === "FLOW" ?
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                            value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
-                            :
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                            value={blpAmount} onChange={(e) => setBlpAmount(e.target.value)} />
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                }
-                </div>
-
-                <div className='row mt-3 p-3'>
-                  <div className='col-md-8'>
-                    <h5 className='text-danger'>
-                      * If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                      the Coin(s) will goes to recipient.
-                    </h5>
+                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
+                      onClick={() => setStep("detail")} />
                   </div>
 
-                  <div className='col-md-4'>
-                    {(!flowSelect && !blpSelect) ?
-                    <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                      ADD COINS TO BACKUP
-                    </Button>
-                    :
-                    <>
-                    {txProgress && txType === "addFT" ?
-                    <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                      <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </Spinner>
-                    </Button>
-                    :
-                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
-                      ADD COINS TO BACKUP
-                    </Button>
-                    }
-                    </>                    
-                    }
-                  </div>
-                </div>
-              </Tab.Pane>
-              }
-              {step === "removecoins" &&
-              <Tab.Pane eventKey="first">
-                <div className='d-flex justify-content-between border-bottom-green'>
-                  <h4 className='blue-font p-2 mb-0'>EDIT COIN(S)</h4>
-                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
-                   onClick={() => setStep("edit")} />
-                </div>
-                
-                <div className='row p-3'>
-                {lockUp !== null &&
-                  lockUp.fungibleTokens.map((item, index) => (
-                    <div className='col-md-4' key={index} >
-                      <div className='grey-border p-2'>
-                        <div className='row'>
-                          <div className='col-md-3'>
-                            {item.identifier.includes("FlowToken")  ?
-                              <img src="flowcoin.png" width="100%" height="auto" />
-                            :
-                              <img src="coin.png" width="100%" height="auto" />
-                            }
-
-                            {item.balance ?
-                            <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                            :
-                            <h5 className='text-center'>(0)</h5>
-                            }
-                          </div>
-
-                          <div className='col-md-9'>
-                            <div className='d-flex justify-content-between'>
-                              {item.identifier.includes("FlowToken") ?
-                              <>
-                                <h5 className='blue-font mb-0'>FLOW</h5>
-
-                                {txProgress && txType === "removeFlow" ?
-                                <Spinner animation="border" role="status">
-                                  <span className="visually-hidden">Loading...</span>
-                                </Spinner>
-                                :
-                                <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                onClick={() => removeFlow()} />
+                  <div className='row p-3'>
+                    {ft !== null &&
+                      Object.keys(ft).map((key, index) => (
+                        <div className='col-md-4' key={index} >
+                          <div className='grey-border p-2'>
+                            <div className='row'>
+                              <div className='col-md-3'>
+                                {ft[key].name === 'FLOW' ?
+                                  <img src="flowcoin.png" width="100%" height="auto" />
+                                  :
+                                  <img src="coin.png" width="100%" height="auto" />
                                 }
-                              </>
-                              :
-                              <>
-                                <h5 className='blue-font mb-0'>BLP</h5>
-                                {txProgress && txType === "removeBlp" ?
-                                <Spinner animation="border" role="status">
-                                  <span className="visually-hidden">Loading...</span>
-                                </Spinner>
-                                :
-                                <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                onClick={() => removeBlp()} />
+
+                                <h5 className='text-center'>(0)</h5>
+                              </div>
+
+                              <div className='col-md-9'>
+                                <div className='d-flex justify-content-between'>
+                                  <h5 className='blue-font mb-0'>{ft[key].name}</h5>
+                                  <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)} />
+                                </div>
+
+                                <p className='text-grey mb-1'>{key}</p>
+                                {ft[key].name === "FLOW" ?
+                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                    value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
+                                  :
+                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                    value={blpAmount} onChange={(e) => setBlpAmount(e.target.value)} />
                                 }
-                              </>
-                              }
-                            </div>
-
-                            <p className='text-grey mb-1'>{item.identifier}</p>
-
-                            {item.identifier.includes("FlowToken")  ?
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                            value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
-                            :
-                            <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                            value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                }
-                </div>
-
-                <div className='d-flex p-2 mt-5'>
-                  <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
-                  <h5>= Remove from the Coin(s)</h5>
-                </div>
-
-                <div className='row p-3 pt-0'>
-                  <div className='col-md-8'>
-                    <h5 className='text-danger'>
-                      * If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                      the Coin(s) will goes to recipient.
-                    </h5>
-                  </div>
-
-                  <div className='col-md-4'>
-                    {txProgress && txType === "editFT" ?
-                    <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                      <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </Spinner>
-                    </Button>
-                    :
-                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editFT()}>
-                      SAVE CHANGES TO COIN(S)
-                    </Button>
-                    }                    
-                  </div>
-                </div>
-              </Tab.Pane>
-              }
-
-              {step === "nftcollection" &&
-              <Tab.Pane eventKey="first">                
-                <div className='d-flex justify-content-between border-bottom-green'>
-                  <h4 className='blue-font p-2 mb-0'>
-                    SELECT NFT COLLECTION(S)
-                  </h4>
-
-                  <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
-                   onClick={() => setStep("detail")} />
-                </div>                
-
-                <div className='row'>
-                  {collection && collection.map((item, index) => (
-                    <div className='col-md-4 pt-2' key={index}>
-                      <Card className='p-3 pb-1 cursor-pointer' onClick={() => selectNFTCollection(item)}>
-                        <Card.Img variant="top" src={item.collectionBannerImage} />
-                        <Card.Body className='pb-0'>
-                          <div className='row'>
-                            <div className='col-3 p-0'>
-                              <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                              <h5 className='text-center'>({item.nftsCount})</h5>
-                            </div>
-
-                            <div className='col-9'>
-                              <Card.Title>{item.collectionName}</Card.Title>
-                              <div className='d-flex'>
-                                <p className='text-grey font-14 mb-0'>
-                                  {item.collectionDescription}
-                                </p>
                               </div>
                             </div>
                           </div>
-                        </Card.Body>
-                      </Card>
+                        </div>
+                      ))
+                    }
+                  </div>
+
+                  <div className='row mt-3 p-3'>
+                    <div className='col-md-8'>
+                      <h5 className='text-danger'>
+                        * If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                        the Coin(s) will goes to recipient.
+                      </h5>
                     </div>
-                  ))}
-                </div>
 
-                <div className='row'>
+                    <div className='col-md-4'>
+                      {(!flowSelect && !blpSelect) ?
+                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                          ADD COINS TO BACKUP
+                        </Button>
+                        :
+                        <>
+                          {txProgress && txType === "addFT" ?
+                            <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                              <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                              </Spinner>
+                            </Button>
+                            :
+                            <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
+                              ADD COINS TO BACKUP
+                            </Button>
+                          }
+                        </>
+                      }
+                    </div>
+                  </div>
+                </Tab.Pane>
+              }
+              {step === "removecoins" &&
+                <Tab.Pane eventKey="first">
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='blue-font p-2 mb-0'>EDIT COIN(S)</h4>
+                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
+                      onClick={() => setStep("edit")} />
+                  </div>
 
-                </div>
-              </Tab.Pane>
+                  <div className='row p-3'>
+                    {lockUp !== null &&
+                      lockUp.fungibleTokens.map((item, index) => (
+                        <div className='col-md-4' key={index} >
+                          <div className='grey-border p-2'>
+                            <div className='row'>
+                              <div className='col-md-3'>
+                                {item.identifier.includes("FlowToken") ?
+                                  <img src="flowcoin.png" width="100%" height="auto" />
+                                  :
+                                  <img src="coin.png" width="100%" height="auto" />
+                                }
+
+                                {item.balance ?
+                                  <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                  :
+                                  <h5 className='text-center'>(0)</h5>
+                                }
+                              </div>
+
+                              <div className='col-md-9'>
+                                <div className='d-flex justify-content-between'>
+                                  {item.identifier.includes("FlowToken") ?
+                                    <>
+                                      <h5 className='blue-font mb-0'>FLOW</h5>
+
+                                      {txProgress && txType === "removeFlow" ?
+                                        <Spinner animation="border" role="status">
+                                          <span className="visually-hidden">Loading...</span>
+                                        </Spinner>
+                                        :
+                                        <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                          onClick={() => removeFlow()} />
+                                      }
+                                    </>
+                                    :
+                                    <>
+                                      <h5 className='blue-font mb-0'>BLP</h5>
+                                      {txProgress && txType === "removeBlp" ?
+                                        <Spinner animation="border" role="status">
+                                          <span className="visually-hidden">Loading...</span>
+                                        </Spinner>
+                                        :
+                                        <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                          onClick={() => removeBlp()} />
+                                      }
+                                    </>
+                                  }
+                                </div>
+
+                                <p className='text-grey mb-1'>{item.identifier}</p>
+
+                                {item.identifier.includes("FlowToken") ?
+                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                    value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
+                                  :
+                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                    value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
+                                }
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    }
+                  </div>
+
+                  <div className='d-flex p-2 mt-5'>
+                    <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
+                    <h5>= Remove from the Coin(s)</h5>
+                  </div>
+
+                  <div className='row p-3 pt-0'>
+                    <div className='col-md-8'>
+                      <h5 className='text-danger'>
+                        * If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                        the Coin(s) will goes to recipient.
+                      </h5>
+                    </div>
+
+                    <div className='col-md-4'>
+                      {txProgress && txType === "editFT" ?
+                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                          <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </Spinner>
+                        </Button>
+                        :
+                        <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editFT()}>
+                          SAVE CHANGES TO COIN(S)
+                        </Button>
+                      }
+                    </div>
+                  </div>
+                </Tab.Pane>
+              }
+
+              {step === "nftcollection" &&
+                <Tab.Pane eventKey="first">
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='blue-font p-2 mb-0'>
+                      SELECT NFT COLLECTION(S)
+                    </h4>
+
+                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
+                      onClick={() => setStep("detail")} />
+                  </div>
+
+                  <div className='row'>
+                    {collection && collection.map((item, index) => (
+                      <div className='col-md-4 pt-2' key={index}>
+                        <Card className='p-3 pb-1 cursor-pointer' onClick={() => selectNFTCollection(item)}>
+                          <Card.Img variant="top" src={item.collectionBannerImage} />
+                          <Card.Body className='pb-0'>
+                            <div className='row'>
+                              <div className='col-3 p-0'>
+                                <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                                <h5 className='text-center'>({item.nftsCount})</h5>
+                              </div>
+
+                              <div className='col-9'>
+                                <Card.Title>{item.collectionName}</Card.Title>
+                                <div className='d-flex'>
+                                  <p className='text-grey font-14 mb-0'>
+                                    {item.collectionDescription}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className='row'>
+
+                  </div>
+                </Tab.Pane>
               }
 
               {step === "nfts" &&
-              <Tab.Pane eventKey="first">
-                <div className='row pt-2 mx-2 border-bottom-green'>
-                  <div className='col-md-4'>
-                    <h4 className='blue-font'>SELECT NFT(S)</h4>
-                  </div>
-                  <div className='col-md-4 pt-2'>
-                    <Form.Check type="checkbox" label="Select All NFTs" />
-                  </div>
-                  <div className='col-md-4 text-end'>
-                    <div className='d-flex justify-content-between'>
-                      <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                <Tab.Pane eventKey="first">
+                  <div className='row pt-2 mx-2 border-bottom-green'>
+                    <div className='col-md-4'>
+                      <h4 className='blue-font'>SELECT NFT(S)</h4>
+                    </div>
+                    <div className='col-md-4 pt-2'>
+                      <Form.Check type="checkbox" label="Select All NFTs" />
+                    </div>
+                    <div className='col-md-4 text-end'>
+                      <div className='d-flex justify-content-between'>
+                        <h4 className='blue-font'>NFT COLLECTION(S)</h4>
 
-                      <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24} 
-                      onClick={() => setStep("nftcollection")} />
-                    </div>                    
-                  </div>
-                </div>
-
-                <div className='row p-3'>
-                  {nft.length > 0 && nft.map((item, index) => (
-                    <div className='col-md-4' key={index}>
-                      <div className='row grey-border p-2 me-2 mt-2'>
-                        <div className='col-3 p-1'>
-                          {item.thumbnail.includes("ipfs") ?
-                          <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")} width="100%" height="auto" />
-                          :
-                          <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
-                          }
-                        </div>
-
-                        <div className='col-9'>
-                          <div className='d-flex justify-content-between'>
-                            <Card.Title>{item.name}</Card.Title>
-                            <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)}/>
-                          </div>
-
-                          <p className='font-14 mb-0'>
-                            {item.description}
-                          </p>
-                          <p className='text-grey mb-0'>#{item.id}</p>
-                        </div>
+                        <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
+                          onClick={() => setStep("nftcollection")} />
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                {nftIDs.length > 0 ?
-                <>
-                {txProgress && txType === "addNFT" ?
-                <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
-                  <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                </Button>
-                :
-                <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
-                  ADD NFT(S) TO BACKUP
-                </Button>
-                }
-                </>
-                :
-                <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
-                  ADD NFT(S) TO BACKUP
-                </Button>                
-                }
-              </Tab.Pane>
+                  <div className='row p-3'>
+                    {nft.length > 0 && nft.map((item, index) => (
+                      <div className='col-md-4' key={index}>
+                        <div className='row grey-border p-2 me-2 mt-2'>
+                          <div className='col-3 p-1'>
+                            {item.thumbnail.includes("ipfs") ?
+                              <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/", "")} width="100%" height="auto" />
+                              :
+                              <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
+                            }
+                          </div>
+
+                          <div className='col-9'>
+                            <div className='d-flex justify-content-between'>
+                              <Card.Title>{item.name}</Card.Title>
+                              <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)} />
+                            </div>
+
+                            <p className='font-14 mb-0'>
+                              {item.description}
+                            </p>
+                            <p className='text-grey mb-0'>#{item.id}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {nftIDs.length > 0 ?
+                    <>
+                      {txProgress && txType === "addNFT" ?
+                        <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
+                          <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </Spinner>
+                        </Button>
+                        :
+                        <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
+                          ADD NFT(S) TO BACKUP
+                        </Button>
+                      }
+                    </>
+                    :
+                    <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
+                      ADD NFT(S) TO BACKUP
+                    </Button>
+                  }
+                </Tab.Pane>
               }
               {step === "removenfts" &&
-              <Tab.Pane eventKey="first">
-                <div className='row pt-2 mx-2 border-bottom-green'>
-                  <div className='col-md-6'>
-                    <h4 className='blue-font'>EDIT NFT(S)</h4>
-                  </div>
-                  <div className='col-md-6 text-end'>
-                    <div className='d-flex justify-content-between'>
-                      <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                <Tab.Pane eventKey="first">
+                  <div className='row pt-2 mx-2 border-bottom-green'>
+                    <div className='col-md-6'>
+                      <h4 className='blue-font'>EDIT NFT(S)</h4>
+                    </div>
+                    <div className='col-md-6 text-end'>
+                      <div className='d-flex justify-content-between'>
+                        <h4 className='blue-font'>NFT COLLECTION(S)</h4>
 
-                      <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24} 
-                      onClick={() => setStep("edit")} />
-                    </div>                    
-                  </div>
-                </div>
-
-                <div className='row p-3'>
-                  {nft.length > 0 && nft.map((item, index) => (
-                    <div className='col-md-4' key={index}>
-                      <div className='row grey-border p-2 me-2 mt-2'>
-                        <div className='col-3 p-1'>
-                          {item.thumbnail.includes("ipfs") ?
-                          <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")} width="100%" height="auto" />
-                          :
-                          <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
-                          }
-                        </div>
-
-                        <div className='col-9'>
-                          <div className='d-flex justify-content-between'>
-                            <Card.Title>{item.name}</Card.Title>
-                            <Form.Check type="checkbox" onChange={(e) => selectEditNFT(e, item.id)}/>
-                          </div>
-
-                          <p className='font-14 mb-0'>
-                            {item.description}
-                          </p>
-                          <p className='text-grey mb-0'>#{item.id}</p>
-                        </div>
+                        <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
+                          onClick={() => setStep("edit")} />
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                <div className='row p-3 pt-0'>
-                  <div className='col-md-6 px-0'>
-                    <div className='d-flex mt-4'>
-                      <h5>Please select NFTs to save</h5>
+                  <div className='row p-3'>
+                    {nft.length > 0 && nft.map((item, index) => (
+                      <div className='col-md-4' key={index}>
+                        <div className='row grey-border p-2 me-2 mt-2'>
+                          <div className='col-3 p-1'>
+                            {item.thumbnail.includes("ipfs") ?
+                              <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/", "")} width="100%" height="auto" />
+                              :
+                              <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
+                            }
+                          </div>
+
+                          <div className='col-9'>
+                            <div className='d-flex justify-content-between'>
+                              <Card.Title>{item.name}</Card.Title>
+                              <Form.Check type="checkbox" onChange={(e) => selectEditNFT(e, item.id)} />
+                            </div>
+
+                            <p className='font-14 mb-0'>
+                              {item.description}
+                            </p>
+                            <p className='text-grey mb-0'>#{item.id}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className='row p-3 pt-0'>
+                    <div className='col-md-6 px-0'>
+                      <div className='d-flex mt-4'>
+                        <h5>Please select NFTs to save</h5>
+                      </div>
+                    </div>
+
+                    <div className='col-md-6'>
+                      {txProgress && txType === "editNFT" ?
+                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                          <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </Spinner>
+                        </Button>
+                        :
+                        <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
+                          SAVE CHANGES TO NFT COLLECTION(S)
+                        </Button>
+                      }
                     </div>
                   </div>
-
-                  <div className='col-md-6'>
-                  {txProgress && txType === "editNFT" ?
-                  <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                    <Spinner animation="border" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                  </Button>
-                  :
-                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
-                    SAVE CHANGES TO NFT COLLECTION(S)
-                  </Button>
-                  }                    
-                  </div>
-                </div>
-              </Tab.Pane>
+                </Tab.Pane>
               }
             </>
 
             {/* Pledge */}
             <>
-            {pledgeStep === "default" &&
-            <Tab.Pane eventKey="second">
-              <div className='row'>
-                {pledge && pledge.map((item, index) =>(
-                  <div className='col-xl-3 col-lg-5' key={index}>
-                    <Card className="text-center cursor-pointer" onClick={() => clickPledge(item)}>
-                      <Card.Img className='item-img' variant="top" src="pleages.png" />
-                      <Card.Body className='p-0'>
-                        <Card.Title className="blue-font">{item.name}</Card.Title>
-                        <p className='text-grey mb-0'>
-                          {item.holder}
-                        </p>
-                        <p className='font-14 mb-0 blue-font'>Created on</p>
-                        <p className='mb-1 blue-font'>
-                        {convertDate(Math.floor(item.createdAt*1000))}
-                        </p>
-
-                        <p className='red-font font-14 mb-0'>Maturity Date</p>
-                        <p className='red-font'>
-                        {convertDate(Math.floor(item.releasedAt))}
-                        </p>
-                      </Card.Body>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-
-              {pledge && pledge.length === 0 &&
-              <div className='center-pad text-center'>
-                <h1>There's no pledges</h1>
-              </div>
-              }
-            </Tab.Pane>
-            }
-
-            {pledgeStep === "item" &&
-            <Tab.Pane eventKey="second">
-              <div className='row p-3 mb-3'>
-                <div className='col-md-6'>
+              {pledgeStep === "default" &&
+                <Tab.Pane eventKey="second">
                   <div className='row'>
-                    <div className='col-md-3 d-flex green-border'>
-                      <img src="pleages.png" width="100%" height="auto" />
-                    </div>
+                    {pledge && pledge.map((item, index) => (
+                      <div className='col-xl-3 col-lg-5' key={index}>
+                        <Card className="text-center cursor-pointer" onClick={() => clickPledge(item)}>
+                          <Card.Img className='item-img' variant="top" src="pleages.png" />
+                          <Card.Body className='p-0'>
+                            <Card.Title className="blue-font">{item.name}</Card.Title>
+                            <p className='text-grey mb-0'>
+                              {item.holder}
+                            </p>
+                            <p className='font-14 mb-0 blue-font'>Created on</p>
+                            <p className='mb-1 blue-font'>
+                              {convertDate(Math.floor(item.createdAt * 1000))}
+                            </p>
 
-                    <div className='col-md-9'>
-                      <h5 className='blue-font'>{pledgeItem.name}</h5>
-                      <p className='blue-font mb-0'>{pledgeItem.description}</p>
-                      <p className='text-grey'>{pledgeItem.holder}</p>
-                    </div>
+                            <p className='red-font font-14 mb-0'>Maturity Date</p>
+                            <p className='red-font'>
+                              {convertDate(Math.floor(item.releasedAt))}
+                            </p>
+                          </Card.Body>
+                        </Card>
+                      </div>
+                    ))}
                   </div>
-                </div>
 
-                <div className='col-md-6 text-webkit-right'>
-                  <p className='font-bold maturity-date blue-bg border-none'>
-                    MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt))}
-                  </p>
-                </div>
-              </div>
-
-              <div className='d-flex justify-content-between border-bottom-green'>
-                <h4 className='p-2 blue-font mb-0'>
-                  COIN(S)
-                  <Button className='mx-3' variant="danger" size="sm" onClick={() => widthdrawCoins()}>
-                    WITHDRAW
-                  </Button>
-                </h4>
-
-                <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
-                  onClick={() => setPledgeStep("default")} />
-              </div>
-
-              
-              {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
-                <div className='row mt-2'>
-                  {pledgeItem.fungibleTokens.map((item, index) => (
-                    <>
-                    {item.identifier.includes("FlowToken") &&
-                      <div className='col-md-1' key={index}>
-                        <img src="flowcoin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                      </div>
-                    }
-
-                    {item.identifier.includes("BlpToken") &&
-                      <div className='col-md-1' key={index}>
-                        <img src="coin.png" width="100%" height="auto" />
-                        <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                      </div>
-                    }
-                    </>
-                    )
-                  )}
-                </div>
-                :
-                <div className='d-flex mt-4 mb-5'>
-                  <h5 className='blue-font mx-3 align-self-center'>
-                    NO COIN(S)
-                  </h5>
-                </div>
+                  {pledge && pledge.length === 0 &&
+                    <div className='center-pad text-center'>
+                      <h1>There's no pledges</h1>
+                    </div>
+                  }
+                </Tab.Pane>
               }
 
-              <h4 className='p-2 border-bottom-green blue-font'>
-                NFT COLLECTION(S)
-                <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button>
-              </h4>
-              {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
-              <div className='row'>
-                {pledgeCollection && pledgeCollection.map((item, index) =>
-                  <div className='col-md-3 pt-2' key={index}>
-                    <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => withdrawNFTCollection(item)}>
-                      <Card.Img variant="top" src={item.collectionBannerImage} />
-                      <Card.Body className='pb-0'>
-                        <div className='row'>
-                          <div className='col-3 p-0'>
-                            <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                            <h5 className='text-center'>({item.nftsCount})</h5>
+              {pledgeStep === "item" &&
+                <Tab.Pane eventKey="second">
+                  <div className='row p-3 mb-3'>
+                    <div className='col-md-6'>
+                      <div className='row'>
+                        <div className='col-md-3 d-flex green-border'>
+                          <img src="pleages.png" width="100%" height="auto" />
+                        </div>
+
+                        <div className='col-md-9'>
+                          <h5 className='blue-font'>{pledgeItem.name}</h5>
+                          <p className='blue-font mb-0'>{pledgeItem.description}</p>
+                          <p className='text-grey'>{pledgeItem.holder}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='col-md-6 text-webkit-right'>
+                      <p className='font-bold maturity-date blue-bg border-none'>
+                        MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt))}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='p-2 blue-font mb-0'>
+                      COIN(S)
+                      <Button className='mx-3' variant="danger" size="sm" onClick={() => widthdrawCoins()}>
+                        WITHDRAW
+                      </Button>
+                    </h4>
+
+                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
+                      onClick={() => setPledgeStep("default")} />
+                  </div>
+
+
+                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
+                    <div className='row mt-2'>
+                      {pledgeItem.fungibleTokens.map((item, index) => (
+                        <>
+                          {item.identifier.includes("FlowToken") &&
+                            <div className='col-md-1' key={index}>
+                              <img src="flowcoin.png" width="100%" height="auto" />
+                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                            </div>
+                          }
+
+                          {item.identifier.includes("BlpToken") &&
+                            <div className='col-md-1' key={index}>
+                              <img src="coin.png" width="100%" height="auto" />
+                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                            </div>
+                          }
+                        </>
+                      )
+                      )}
+                    </div>
+                    :
+                    <div className='d-flex mt-4 mb-5'>
+                      <h5 className='blue-font mx-3 align-self-center'>
+                        NO COIN(S)
+                      </h5>
+                    </div>
+                  }
+
+                  <h4 className='p-2 border-bottom-green blue-font'>
+                    NFT COLLECTION(S)
+                    <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button>
+                  </h4>
+                  {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
+                    <div className='row'>
+                      {pledgeCollection && pledgeCollection.map((item, index) =>
+                        <div className='col-md-3 pt-2' key={index}>
+                          <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => withdrawNFTCollection(item)}>
+                            <Card.Img variant="top" src={item.collectionBannerImage} />
+                            <Card.Body className='pb-0'>
+                              <div className='row'>
+                                <div className='col-3 p-0'>
+                                  <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                                  <h5 className='text-center'>({item.nftsCount})</h5>
+                                </div>
+
+                                <div className='col-9'>
+                                  <p className='font-bold'>{item.contractName}</p>
+                                  <div className='d-flex'>
+                                    <p className='text-grey font-14 mb-0'>
+                                      {item.collectionDescription}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        </div>
+                      )}
+                    </div>
+                    :
+                    <h5 className='blue-font mx-3 align-self-center'>
+                      NO NFT(S)
+                    </h5>
+                  }
+                </Tab.Pane>
+              }
+
+              {pledgeStep === "coins" &&
+                <Tab.Pane eventKey="second">
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='p-2 mb-0 blue-font'>
+                      WITHDRAW COIN(S) FROM PLEDGE
+                    </h4>
+
+                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
+                      onClick={() => setPledgeStep("item")} />
+                  </div>
+
+                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 &&
+                    <div className='row p-3'>
+                      {pledgeItem.fungibleTokens.map((item, index) => (
+                        <>
+                          {item.identifier.includes("FlowToken") &&
+                            <div className='col-md-4' key={index}>
+                              <div className='grey-border p-2'>
+                                <div className='row'>
+
+                                  <div className='col-md-3'>
+                                    <img src="flowcoin.png" width="100%" height="auto" />
+                                    <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                  </div>
+
+                                  <div className='col-md-9'>
+                                    <h5 className='blue-font mb-0'>FLOW</h5>
+                                    <p className='text-grey mb-1'>{pledgeItem.holder}</p>
+
+                                    <div className='row'>
+                                      <div className='col-9 pr-0'>
+                                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                          value={flowWithdraw} onChange={(e) => setFlowWithdraw(e.target.value)} />
+                                      </div>
+
+                                      <div className='col-3'>
+                                        {txProgress && txType === "withdrawFlow" ?
+                                          <Spinner animation="border" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                          </Spinner>
+                                          :
+                                          <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
+                                            onClick={() => withdrawFlow(item.identifier, pledgeItem.holder)} />
+                                        }
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                </div>
+                              </div>
+                            </div>
+                          }
+
+                          {item.identifier.includes("BlpToken") &&
+                            <div className='col-md-4' key={index}>
+                              <div className='grey-border p-2'>
+                                <div className='row'>
+
+                                  <div className='col-md-3'>
+                                    <img src="coin.png" width="100%" height="auto" />
+                                    <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                  </div>
+
+                                  <div className='col-md-9'>
+                                    <h5 className='blue-font mb-0'>BLP</h5>
+                                    <p className='text-grey mb-1'>{pledgeItem.holder}</p>
+
+                                    <div className='row'>
+                                      <div className='col-9 pr-0'>
+                                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                          value={blpWithdraw} onChange={(e) => setBlpWithdraw(e.target.value)} />
+                                      </div>
+
+                                      <div className='col-3'>
+                                        {txProgress && txType === "withdrawBlp" ?
+                                          <Spinner animation="border" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                          </Spinner>
+                                          :
+                                          <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
+                                            onClick={() => withdrawBlp(item.identifier, pledgeItem.holder)} />
+                                        }
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                </div>
+                              </div>
+                            </div>
+                          }
+                        </>
+                      )
+                      )}
+                    </div>
+                  }
+                </Tab.Pane>
+              }
+
+              {pledgeStep === "nftcollection" &&
+                <Tab.Pane eventKey="second">
+                  <h4 className='p-2 border-bottom-green blue-font'>
+                    SELECT NFT COLLECTION TO WITHDRAW NFT(S)
+                  </h4>
+
+                  <div className='row'>
+                    <div className='col-md-4 pt-2'>
+                      <Card className='p-3 pb-1 cursor-pointer' onClick={() => setPledgeStep("nfts")}>
+                        <Card.Img variant="top" src="nfts.png" />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                              <h5 className='text-center'>(7)</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <Card.Title>Lorem ipsum dolor</Card.Title>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  Lorem ipsum dolor Lorem <br />
+                                  Lorem ipsum dolor Lorem
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </div>
+
+                    <div className='col-md-4 pt-2'>
+                      <Card className='p-3 pb-1'>
+                        <Card.Img variant="top" src="nfts.png" />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                              <h5 className='text-center'>(7)</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <Card.Title>Lorem ipsum dolor</Card.Title>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  Lorem ipsum dolor Lorem <br />
+                                  Lorem ipsum dolor Lorem
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                        </Card.Body>
+                      </Card>
+                    </div>
+
+                    <div className='col-md-4 pt-2'>
+                      <Card className='p-3 pb-1'>
+                        <Card.Img variant="top" src="nfts.png" />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                              <h5 className='text-center'>(7)</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <Card.Title>Lorem ipsum dolor</Card.Title>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  Lorem ipsum dolor Lorem <br />
+                                  Lorem ipsum dolor Lorem
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                        </Card.Body>
+                      </Card>
+                    </div>
+                  </div>
+
+                  <div className='row'>
+                    <div className='col-md-4 pt-2'>
+                      <Card className='p-3 pb-1'>
+                        <Card.Img variant="top" src="nfts.png" />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                              <h5 className='text-center'>(7)</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <Card.Title>Lorem ipsum dolor</Card.Title>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  Lorem ipsum dolor Lorem <br />
+                                  Lorem ipsum dolor Lorem
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                        </Card.Body>
+                      </Card>
+                    </div>
+
+                    <div className='col-md-4 pt-2'>
+                      <Card className='p-3 pb-1'>
+                        <Card.Img variant="top" src="nfts.png" />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                              <h5 className='text-center'>(7)</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <Card.Title>Lorem ipsum dolor</Card.Title>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  Lorem ipsum dolor Lorem <br />
+                                  Lorem ipsum dolor Lorem
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                        </Card.Body>
+                      </Card>
+                    </div>
+
+                    <div className='col-md-4 pt-2'>
+                      <Card className='p-3 pb-1'>
+                        <Card.Img variant="top" src="nfts.png" />
+                        <Card.Body className='pb-0'>
+                          <div className='row'>
+                            <div className='col-3 p-0'>
+                              <img className='nft-img' src="nft.png" width="100%" height="auto" />
+                              <h5 className='text-center'>(7)</h5>
+                            </div>
+
+                            <div className='col-9'>
+                              <Card.Title>Lorem ipsum dolor</Card.Title>
+                              <div className='d-flex'>
+                                <p className='text-grey font-14 mb-0'>
+                                  Lorem ipsum dolor Lorem <br />
+                                  Lorem ipsum dolor Lorem
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                        </Card.Body>
+                      </Card>
+                    </div>
+                  </div>
+                </Tab.Pane>
+              }
+
+              {pledgeStep === "nfts" &&
+                <Tab.Pane eventKey="second">
+                  <div className='row pt-2 mx-2 border-bottom-green'>
+                    <div className='col-md-6'>
+                      <h4 className='blue-font'>
+                        WITHDRAW NFT(S) FROM PLEDGE
+                      </h4>
+                    </div>
+                    <div className='col-md-6 text-end'>
+                      <div className='d-flex justify-content-between'>
+                        <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+
+                        <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
+                          onClick={() => setPledgeStep("item")} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className='row p-3'>
+                    {pledgeNFT.length > 0 && pledgeNFT.map((item, index) => (
+                      <div className='col-md-4' key={index}>
+                        <div className='row grey-border p-2 me-2 mt-2'>
+                          <div className='col-3 p-1'>
+                            {item.thumbnail.includes("ipfs") ?
+                              <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/", "")}
+                                width="100%" height="auto" />
+                              :
+                              <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
+                            }
                           </div>
 
                           <div className='col-9'>
-                            <p className='font-bold'>{item.contractName}</p>
-                            <div className='d-flex'>
-                              <p className='text-grey font-14 mb-0'>
-                                {item.collectionDescription}
-                              </p>
+                            <div className='d-flex justify-content-between'>
+                              <Card.Title>{item.name}</Card.Title>
+                              <Form.Check type="checkbox" onChange={(e) => selectWithdrawNFT(e, item.id)} />
                             </div>
+
+                            <p className='font-14 mb-0'>
+                              {item.description}
+                            </p>
+                            <p className='text-grey mb-0'>#{item.id}</p>
                           </div>
                         </div>
-                      </Card.Body>
-                    </Card>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </div>
-              :
-              <h5 className='blue-font mx-3 align-self-center'>
-                NO NFT(S)
-              </h5>
-              }
-            </Tab.Pane>
-            }
 
-            {pledgeStep === "coins" &&
-            <Tab.Pane eventKey="second">
-              <div className='d-flex justify-content-between border-bottom-green'>
-                <h4 className='p-2 mb-0 blue-font'>
-                  WITHDRAW COIN(S) FROM PLEDGE
-                </h4>
-
-                <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24} 
-                  onClick={() => setPledgeStep("item")} />
-              </div>              
-
-              {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 &&
-              <div className='row p-3'>
-                {pledgeItem.fungibleTokens.map((item, index) => (
-                  <>
-                  {item.identifier.includes("FlowToken") &&
-                    <div className='col-md-4' key={index}>
-                      <div className='grey-border p-2'>
-                        <div className='row'>
-
-                          <div className='col-md-3'>
-                            <img src="flowcoin.png" width="100%" height="auto" />
-                            <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                          </div>
-
-                          <div className='col-md-9'>
-                            <h5 className='blue-font mb-0'>FLOW</h5>
-                            <p className='text-grey mb-1'>{pledgeItem.holder}</p>
-
-                            <div className='row'>
-                              <div className='col-9 pr-0'>
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                  value={flowWithdraw} onChange={(e) => setFlowWithdraw(e.target.value)} />
-                              </div>
-
-                              <div className='col-3'>
-                                {txProgress && txType === "withdrawFlow" ?
-                                  <Spinner animation="border" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                  </Spinner>
-                                :
-                                <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                  onClick={() => withdrawFlow(item.identifier, pledgeItem.holder)} />
-                                }
-                              </div>
-                            </div>
-                          </div>
-
-                        </div>
+                  <div className='row p-3 pt-0'>
+                    <div className='col-md-6 px-0'>
+                      <div className='d-flex mt-4'>
+                        <h5>Please select NFTs to withdraw</h5>
                       </div>
                     </div>
-                  }
 
-                  {item.identifier.includes("BlpToken") &&
-                    <div className='col-md-4' key={index}>
-                      <div className='grey-border p-2'>
-                        <div className='row'>
-
-                          <div className='col-md-3'>
-                            <img src="coin.png" width="100%" height="auto" />
-                            <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                          </div>
-
-                          <div className='col-md-9'>
-                            <h5 className='blue-font mb-0'>BLP</h5>
-                            <p className='text-grey mb-1'>{pledgeItem.holder}</p>
-
-                            <div className='row'>
-                              <div className='col-9 pr-0'>
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                value={blpWithdraw} onChange={(e) => setBlpWithdraw(e.target.value)} />
-                              </div>
-
-                              <div className='col-3'>
-                                {txProgress && txType === "withdrawBlp" ?
-                                  <Spinner animation="border" role="status">
-                                    <span className="visually-hidden">Loading...</span>
-                                  </Spinner>
-                                :
-                                <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                  onClick={() => withdrawBlp(item.identifier, pledgeItem.holder)} />
-                                }
-                              </div>
-                            </div>
-                          </div>
-
-                        </div>
-                      </div>
-                    </div>
-                  }
-                  </>
-                )
-                )}
-              </div>
-              }
-            </Tab.Pane>
-            }
-
-            {pledgeStep === "nftcollection" &&
-            <Tab.Pane eventKey="second">
-              <h4 className='p-2 border-bottom-green blue-font'>
-                SELECT NFT COLLECTION TO WITHDRAW NFT(S)
-              </h4>
-
-              <div className='row'>
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1 cursor-pointer' onClick={() => setPledgeStep("nfts")}>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                    </Card.Body>
-                  </Card>
-                </div>
-              </div>
-
-              <div className='row'>
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                    </Card.Body>
-                  </Card>
-                </div>
-
-                <div className='col-md-4 pt-2'>
-                  <Card className='p-3 pb-1'>
-                    <Card.Img variant="top" src="nfts.png" />
-                    <Card.Body className='pb-0'>
-                      <div className='row'>
-                        <div className='col-3 p-0'>
-                          <img className='nft-img' src="nft.png" width="100%" height="auto" />
-                          <h5 className='text-center'>(7)</h5>
-                        </div>
-
-                        <div className='col-9'>
-                          <Card.Title>Lorem ipsum dolor</Card.Title>
-                          <div className='d-flex'>
-                            <p className='text-grey font-14 mb-0'>
-                              Lorem ipsum dolor Lorem <br/>
-                              Lorem ipsum dolor Lorem
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                    </Card.Body>
-                  </Card>
-                </div>
-              </div>
-            </Tab.Pane>
-            }
-
-            {pledgeStep === "nfts" &&
-            <Tab.Pane eventKey="second">
-              <div className='row pt-2 mx-2 border-bottom-green'>
-                <div className='col-md-6'>
-                  <h4 className='blue-font'>
-                    WITHDRAW NFT(S) FROM PLEDGE
-                  </h4>
-                </div>
-                <div className='col-md-6 text-end'>
-                  <div className='d-flex justify-content-between'>
-                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
-
-                    <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24} 
-                    onClick={() => setPledgeStep("item")} />
-                  </div>                  
-                </div>
-              </div>
-
-              <div className='row p-3'>
-                {pledgeNFT.length > 0 && pledgeNFT.map((item, index) => (
-                  <div className='col-md-4' key={index}>
-                    <div className='row grey-border p-2 me-2 mt-2'>
-                      <div className='col-3 p-1'>
-                        {item.thumbnail.includes("ipfs") ?
-                        <img className='green-border' src={"https://ipfs.io/" + item.thumbnail.replace(":/","")}
-                          width="100%" height="auto" />
+                    <div className='col-md-6'>
+                      {txProgress && txType === "withdrawNFT" ?
+                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                          <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </Spinner>
+                        </Button>
                         :
-                        <img className='green-border' src={item.thumbnail} width="100%" height="auto" />
-                        }
-                      </div>
+                        <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
+                          WITHDRAW NFT(S)
+                        </Button>
+                      }
 
-                      <div className='col-9'>
-                        <div className='d-flex justify-content-between'>
-                          <Card.Title>{item.name}</Card.Title>
-                          <Form.Check type="checkbox" onChange={(e) => selectWithdrawNFT(e, item.id)} />
-                        </div>
-
-                        <p className='font-14 mb-0'>
-                          {item.description}
-                        </p>
-                        <p className='text-grey mb-0'>#{item.id}</p>
-                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className='row p-3 pt-0'>
-                <div className='col-md-6 px-0'>
-                  <div className='d-flex mt-4'>
-                    <h5>Please select NFTs to withdraw</h5>
-                  </div>
-                </div>
-
-                <div className='col-md-6'>
-                {txProgress && txType === "withdrawNFT" ?
-                <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                  <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                  </Spinner>
-                </Button>
-                :
-                <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
-                  WITHDRAW NFT(S)
-                </Button>
-                }
-                  
-                </div>
-              </div>
-            </Tab.Pane>
-            }
+                </Tab.Pane>
+              }
             </>
 
           </Tab.Content>
