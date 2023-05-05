@@ -9,6 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { createLockUp } from '../cadence/transaction/createLockUp';
+import { updateLockUp } from '../cadence/transaction/updateLockUp';
 import { destroyLockup } from '../cadence/transaction/destroyLockup';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
@@ -345,27 +346,51 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("createLockup");
 
-    try {
-      const txid = await fcl.mutate({
-        cadence: createLockUp,
-        args: (arg, t) => [
-          arg(releaseDate, t.UInt64),
-          arg(recipient, t.Address),
-          arg(backupName, t.String),
-          arg(description, t.String)
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
-
-      console.log(txid);
-      setTxId(txid);
-    } catch (error) {
-      setTxProgress(false);
-      toast.error(error);
-    }
+    if(editLockUp){
+      try {
+        const txid = await fcl.mutate({
+          cadence: updateLockUp,
+          args: (arg, t) => [
+            arg(releaseDate, t.UInt64),
+            arg(backupName, t.String),
+            arg(description, t.String),
+            arg(recipient, t.Address)
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        setTxId(txid);
+      } catch (error) {
+        setTxProgress(false);
+        toast.error(error);
+      }
+    }else{
+      try {
+        const txid = await fcl.mutate({
+          cadence: createLockUp,
+          args: (arg, t) => [
+            arg(releaseDate, t.UInt64),
+            arg(recipient, t.Address),
+            arg(backupName, t.String),
+            arg(description, t.String)
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        setTxId(txid);
+      } catch (error) {
+        setTxProgress(false);
+        toast.error(error);
+      }
+    }    
   }
 
   const destoryBackup = async (e) => {
@@ -1095,7 +1120,7 @@ export default function Backup() {
                   <h4 className='p-2 border-bottom-green blue-font mt-4'>
                     NFT COLLECTION(S)
                     {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
-                    <Button className='mx-3' variant="danger" size="sm">
+                    <Button className='mx-3' variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
                       Edit
                     </Button>
                     :
@@ -1148,117 +1173,6 @@ export default function Backup() {
                     </div>
                   }
 
-                </Tab.Pane>
-              }
-
-              {step === "edit" &&
-                <Tab.Pane eventKey="first">
-                  <div className='row p-3 mb-3'>
-                    <div className='col-md-6'>
-                      <div className='row'>
-                        <div className='col-md-3 d-flex green-border'>
-                          <img src="safe.png" width="100%" height="auto" />
-                        </div>
-
-                        <div className='col-md-9'>
-                          <h5 className='blue-font'>{lockUp.name}</h5>
-                          <p className='blue-font mb-0'>{lockUp.description}</p>
-                          <p className='text-grey'>{lockUp.recipient}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className='col-md-6 text-webkit-right'>
-                      <p className='font-bold backup-date blue-font'>
-                        BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
-                      </p>
-
-                      <p className='font-bold maturity-date blue-bg border-none'>
-                        MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className='d-flex justify-content-between border-bottom-green'>
-                    <h4 className='p-2 blue-font m-0'>
-                      COIN(S)
-                      <Button className='mx-3' variant="danger" size="sm"
-                        onClick={() => setStep("removecoins")}>
-                        Edit
-                      </Button>
-                    </h4>
-
-                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
-                      onClick={() => setStep("default")} />
-                  </div>
-
-                  {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                    <div className='row mt-2'>
-                      {lockUp.fungibleTokens.map((item, index) => (
-                        <>
-                          {item.identifier.includes("FlowToken") &&
-                            <div className='col-md-1' key={index}>
-                              <img src="flowcoin.png" width="100%" height="auto" />
-                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                            </div>
-                          }
-
-                          {item.identifier.includes("BlpToken") &&
-                            <div className='col-md-1' key={index}>
-                              <img src="coin.png" width="100%" height="auto" />
-                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
-                            </div>
-                          }
-                        </>
-                      )
-                      )}
-                    </div>
-                    :
-                    <div className='d-flex mt-4'>
-                      <h5 className='blue-font mx-3 align-self-center'>
-                        No COIN(S)
-                      </h5>
-                    </div>
-                  }
-
-                  <h4 className='p-2 border-bottom-green blue-font mt-4'>
-                    NFT COLLECTION(S)
-                    <Button className='mx-3' variant="danger" size="sm">Edit</Button>
-                  </h4>
-                  {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
-                    <div className='row'>
-                      {ownCollection && ownCollection.map((item, index) => (
-                        <div className='col-md-3 pt-2' key={index}>
-                          <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => editNFTCollection(item)}>
-                            <Card.Img variant="top" src={item.collectionBannerImage} />
-                            <Card.Body className='pb-0'>
-                              <div className='row'>
-                                <div className='col-3 p-0'>
-                                  <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                  <h5 className='text-center'>({item.nftsCount})</h5>
-                                </div>
-
-                                <div className='col-9'>
-                                  <p className='font-bold'>{item.contractName}</p>
-                                  <div className='d-flex'>
-                                    <p className='text-grey font-14 mb-0'>
-                                      {item.collectionDescription}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </Card.Body>
-                          </Card>
-                        </div>
-                      ))}
-                    </div>
-                    :
-                    <div className='d-flex mt-4'>
-                      <h5 className='blue-font mx-3 align-self-center'>
-                        NO NFT(S)
-                      </h5>
-                    </div>
-                  }
                 </Tab.Pane>
               }
 
@@ -1463,6 +1377,49 @@ export default function Backup() {
                     {collection && collection.map((item, index) => (
                       <div className='col-md-4 pt-2' key={index}>
                         <Card className='p-3 pb-1 cursor-pointer' onClick={() => selectNFTCollection(item)}>
+                          <Card.Img variant="top" src={item.collectionBannerImage} />
+                          <Card.Body className='pb-0'>
+                            <div className='row'>
+                              <div className='col-3 p-0'>
+                                <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                                <h5 className='text-center'>({item.nftsCount})</h5>
+                              </div>
+
+                              <div className='col-9'>
+                                <Card.Title>{item.collectionName}</Card.Title>
+                                <div className='d-flex'>
+                                  <p className='text-grey font-14 mb-0'>
+                                    {item.collectionDescription}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className='row'>
+
+                  </div>
+                </Tab.Pane>
+              }
+              {step === "editnftcollection" &&
+                <Tab.Pane eventKey="first">
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='blue-font p-2 mb-0'>
+                      EDIT NFT COLLECTION(S)
+                    </h4>
+
+                    <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
+                      onClick={() => setStep("detail")} />
+                  </div>
+
+                  <div className='row'>
+                    {collection && collection.map((item, index) => (
+                      <div className='col-md-4 pt-2' key={index}>
+                        <Card className='p-3 pb-1 cursor-pointer' onClick={() => editNFTCollection(item)}>
                           <Card.Img variant="top" src={item.collectionBannerImage} />
                           <Card.Body className='pb-0'>
                             <div className='row'>
