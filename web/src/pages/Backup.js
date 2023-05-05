@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import * as fcl from "@onflow/fcl";
 import { Tab, Nav, Card, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaArrowLeft } from 'react-icons/fa';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from 'react-toastify';
@@ -989,6 +989,11 @@ export default function Backup() {
 
               {step === "detail" &&
               <Tab.Pane eventKey="first">
+                <div className='d-flex justify-content-end mb-2'>
+                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                   onClick={() => setStep("default")} />
+                </div>
+
                 <div className='row p-3 mb-3'>
                   <div className='col-md-6'>
                     <div className='row'>
@@ -1006,7 +1011,7 @@ export default function Backup() {
 
                   <div className='col-md-6 text-webkit-right'>
                     <p className='font-bold backup-date blue-font'>
-                      BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt))}
+                      BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt*1000))}
                     </p>
 
                     <p className='font-bold maturity-date blue-bg border-none'>
@@ -1105,6 +1110,11 @@ export default function Backup() {
 
               {step === "edit" &&
               <Tab.Pane eventKey="first">
+                <div className='d-flex justify-content-end mb-2'>
+                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                   onClick={() => setStep("default")} />
+                </div>
+
                 <div className='row p-3 mb-3'>
                   <div className='col-md-6'>
                     <div className='row'>
@@ -1210,6 +1220,11 @@ export default function Backup() {
 
               {step === "coins" &&
               <Tab.Pane eventKey="first">
+                <div className='d-flex justify-content-end mb-2'>
+                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                   onClick={() => setStep("detail")} />
+                </div>
+
                 <h4 className='blue-font p-2 border-bottom-green'>COIN(S)</h4>
                 <div className='row p-3'>
                 {ft !== null &&
@@ -1283,6 +1298,11 @@ export default function Backup() {
               }
               {step === "removecoins" &&
               <Tab.Pane eventKey="first">
+                <div className='d-flex justify-content-end mb-2'>
+                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                   onClick={() => setStep("edit")} />
+                </div>
+
                 <h4 className='blue-font p-2 border-bottom-green'>EDIT COIN(S)</h4>
                 <div className='row p-3'>
                 {lockUp !== null &&
@@ -1383,7 +1403,14 @@ export default function Backup() {
 
               {step === "nftcollection" &&
               <Tab.Pane eventKey="first">
-                <h4 className='blue-font p-2 border-bottom-green'>SELECT NFT COLLECTION(S)</h4>
+                <div className='d-flex justify-content-end mb-2'>
+                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                   onClick={() => setStep("detail")} />
+                </div>
+                
+                <h4 className='blue-font p-2 border-bottom-green'>
+                  SELECT NFT COLLECTION(S)
+                </h4>
 
                 <div className='row'>
                   {collection && collection.map((item, index) => (
@@ -1420,6 +1447,11 @@ export default function Backup() {
 
               {step === "nfts" &&
               <Tab.Pane eventKey="first">
+                <div className='d-flex justify-content-end mb-2'>
+                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                   onClick={() => setStep("nftcollection")} />
+                </div>
+
                 <div className='row pt-2 mx-2 border-bottom-green'>
                   <div className='col-md-4'>
                     <h4 className='blue-font'>SELECT NFT(S)</h4>
@@ -1483,6 +1515,11 @@ export default function Backup() {
               }
               {step === "removenfts" &&
               <Tab.Pane eventKey="first">
+                <div className='d-flex justify-content-end mb-2'>
+                  <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                   onClick={() => setStep("edit")} />
+                </div>
+
                 <div className='row pt-2 mx-2 border-bottom-green'>
                   <div className='col-md-6'>
                     <h4 className='blue-font'>EDIT NFT(S)</h4>
@@ -1584,6 +1621,11 @@ export default function Backup() {
 
             {pledgeStep === "item" &&
             <Tab.Pane eventKey="second">
+              <div className='d-flex justify-content-end mb-2'>
+                <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                  onClick={() => setPledgeStep("default")} />
+              </div>
+
               <div className='row p-3 mb-3'>
                 <div className='col-md-6'>
                   <div className='row'>
@@ -1682,6 +1724,11 @@ export default function Backup() {
 
             {pledgeStep === "coins" &&
             <Tab.Pane eventKey="second">
+              <div className='d-flex justify-content-end mb-2'>
+                <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                  onClick={() => setPledgeStep("item")} />
+              </div>
+
               <h4 className='p-2 border-bottom-green blue-font'>
                 WITHDRAW COIN(S) FROM PLEDGE
               </h4>
@@ -1936,6 +1983,11 @@ export default function Backup() {
 
             {pledgeStep === "nfts" &&
             <Tab.Pane eventKey="second">
+              <div className='d-flex justify-content-end mb-2'>
+                <FaArrowLeft className='blue-font cursor-pointer' size={24} 
+                  onClick={() => setPledgeStep("item")} />
+              </div>
+
               <div className='row pt-2 mx-2 border-bottom-green'>
                 <div className='col-md-6'>
                   <h4 className='blue-font'>
