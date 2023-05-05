@@ -169,6 +169,30 @@ export default function Backup() {
         setStep("detail");
       }
     }
+    else if (txStatus && txType === "addNFT"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("NonFungible Token is successfully added!");
+        setTxProgress(false);
+        setTxStatus(null);
+        setStep("detail");
+      }
+    }
+    else if (txStatus && txType === "editFT"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("Fungible Token is successfully edited!");
+        setTxProgress(false);
+        setTxStatus(null);
+        setStep("detail");
+      }
+    }
     else if (txStatus && txType === "removeFlow"){
       if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
         toast.error(txStatus.errorMessage);
@@ -191,6 +215,19 @@ export default function Backup() {
         setTxStatus(null);
       }
     }
+    else if (txStatus && txType === "editNFT"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("NonFungible Token is successfully edited!");
+        setTxProgress(false);
+        setTxStatus(null);
+        setStep("detail");
+      }
+    }
+
     else if (txStatus && txType === "withdrawFlow"){
       if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
         toast.error(txStatus.errorMessage);
@@ -211,6 +248,18 @@ export default function Backup() {
         toast.success("Blp token is successfully withdrawed!");
         setTxProgress(false);
         setTxStatus(null);
+      }
+    }
+    else if(txStatus && txType === "withdrawNFT"){
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== ""){
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      }else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("NonFungible Token is successfully withdrawed!");
+        setTxProgress(false);
+        setTxStatus(null);
+        setPledgeStep("item");
       }
     }
 
@@ -240,7 +289,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
       setLockUp(res);
-      console.log('lockup - ', res);
+      // console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -422,9 +471,10 @@ export default function Backup() {
   }
 
   const addNFT = async () => {
-
     const publicVal = publicType.replace(/A\.[^\.]*\./g, '');
     const privateVal = privateType.replace(/A\.[^\.]*\./g, '');
+    setTxProgress(true);
+    setTxType("addNFT");
 
     try{
       const txid = await fcl.mutate({
@@ -440,15 +490,18 @@ export default function Backup() {
       });
 
       console.log(txid);
-      toast.success("Successfully added!");
+      setTxId(txid);
     }catch(error){
-      console.log('err', error);
+      setTxProgress(false);
       toast.error(error);
     }
 
   }
 
   const editFT = async () => {
+    setTxProgress(true);
+    setTxType("editFT");
+
     if(editFlowAmount !== ""){
       try{
         const txid = await fcl.mutate({
@@ -464,9 +517,9 @@ export default function Backup() {
         });
 
         console.log(txid);
-        toast.success("Successfully edited!");
+        setTxId(txid);
       }catch(error) {
-        console.log('err', error);
+        setTxProgress(false);
         toast.error(error);
       }
     }
@@ -486,9 +539,9 @@ export default function Backup() {
         });
 
         console.log(txid);
-        toast.success("Successfully edited!");
+        setTxId(txid);
       }catch(error) {
-        console.log('err', error);
+        setTxProgress(false);
         toast.error(error);
       }
     }
@@ -587,6 +640,9 @@ export default function Backup() {
   }
 
   const editNFT = async () => {
+    setTxProgress(true);
+    setTxType("editNFT");
+
     try{
       const txid = await fcl.mutate({
         cadence: setLockUpNFTIDs,
@@ -601,9 +657,9 @@ export default function Backup() {
       });
 
       console.log(txid);
-      toast.success("Successfully edited!");
+      setTxId(txid);
     }catch(error) {
-      console.log('err', error);
+      setTxProgress(false);
       toast.error(error);
     }
   }
@@ -629,12 +685,12 @@ export default function Backup() {
         if(item.nftType.includes(info)) nftCollection.push(item);
       })
     });
-    console.log("nftCollection - ", nftCollection);
+    // console.log("nftCollection - ", nftCollection);
     setPledgeCollection(nftCollection);
   }
 
   const widthdrawCoins = () => {
-    const currentDate = parseInt(Date.now()/1000);
+    const currentDate = parseInt(Date.now());
 
     if(currentDate <= pledgeItem.releasedAt){
       toast.error("The assets are still in lock-up period");
@@ -739,6 +795,9 @@ export default function Backup() {
   }
 
   const withdrawNFT = async () => {
+    setTxProgress(true);
+    setTxType("withdrawNFT");
+
     try{
       const txid = await fcl.mutate({
         cadence: withdrawNonFungibleToken,
@@ -754,9 +813,9 @@ export default function Backup() {
       });
 
       console.log(txid);
-      toast.success("Successfully withdrawed!");
+      setTxId(txid);
     }catch(error) {
-      console.log('err', error);
+      setTxProgress(false);
       toast.error(error);
     }
   }
@@ -1306,9 +1365,17 @@ export default function Backup() {
                   </div>
 
                   <div className='col-md-4'>
+                    {txProgress && txType === "editFT" ?
+                    <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                      <Spinner animation="border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </Spinner>
+                    </Button>
+                    :
                     <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editFT()}>
                       SAVE CHANGES TO COIN(S)
                     </Button>
+                    }                    
                   </div>
                 </div>
               </Tab.Pane>
@@ -1394,13 +1461,23 @@ export default function Backup() {
                 </div>
 
                 {nftIDs.length > 0 ?
+                <>
+                {txProgress && txType === "addNFT" ?
+                <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
+                  <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </Spinner>
+                </Button>
+                :
                 <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
                   ADD NFT(S) TO BACKUP
                 </Button>
+                }
+                </>
                 :
                 <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
                   ADD NFT(S) TO BACKUP
-                </Button>
+                </Button>                
                 }
               </Tab.Pane>
               }
@@ -1451,9 +1528,17 @@ export default function Backup() {
                   </div>
 
                   <div className='col-md-6'>
-                    <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
-                      SAVE CHANGES TO NFT COLLECTION(S)
-                    </Button>
+                  {txProgress && txType === "editNFT" ?
+                  <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                    <Spinner animation="border" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </Spinner>
+                  </Button>
+                  :
+                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
+                    SAVE CHANGES TO NFT COLLECTION(S)
+                  </Button>
+                  }                    
                   </div>
                 </div>
               </Tab.Pane>
@@ -1481,7 +1566,7 @@ export default function Backup() {
 
                         <p className='red-font font-14 mb-0'>Maturity Date</p>
                         <p className='red-font'>
-                        {convertDate(Math.floor(item.releasedAt*1000))}
+                        {convertDate(Math.floor(item.releasedAt))}
                         </p>
                       </Card.Body>
                     </Card>
@@ -1516,7 +1601,7 @@ export default function Backup() {
 
                 <div className='col-md-6 text-webkit-right'>
                   <p className='font-bold maturity-date blue-bg border-none'>
-                    MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt*1000))}
+                    MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt))}
                   </p>
                 </div>
               </div>
@@ -1899,9 +1984,18 @@ export default function Backup() {
                 </div>
 
                 <div className='col-md-6'>
-                  <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
-                    WITHDRAW NFT(S)
-                  </Button>
+                {txProgress && txType === "withdrawNFT" ?
+                <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                  <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                  </Spinner>
+                </Button>
+                :
+                <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
+                  WITHDRAW NFT(S)
+                </Button>
+                }
+                  
                 </div>
               </div>
             </Tab.Pane>
