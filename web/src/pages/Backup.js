@@ -1262,7 +1262,7 @@ export default function Backup() {
                   <div className='d-flex justify-content-between border-bottom-green'>
                     <h4 className='blue-font p-2 mb-0'>EDIT COIN(S)</h4>
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
-                      onClick={() => setStep("edit")} />
+                      onClick={() => setStep("detail")} />
                   </div>
 
                   <div className='row p-3'>
