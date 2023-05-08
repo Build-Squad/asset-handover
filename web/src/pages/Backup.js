@@ -818,6 +818,7 @@ export default function Backup() {
 
   const widthdrawCoins = () => {
     const currentDate = parseInt(Date.now());
+    console.log(currentDate);
 
     if (currentDate <= pledgeItem.releasedAt) {
       toast.error("The assets are still in lock-up period");
@@ -1002,12 +1003,27 @@ export default function Backup() {
                               <p className='mb-1 blue-font'>
                                 {convertDate(Math.floor(lockUp.createdAt * 1000))}
                               </p>
-                              <p className='red-font font-14 mb-0'>
-                                Maturity Date
-                              </p>
-                              <p className='red-font'>
-                                {convertDate(Math.floor(lockUp.releasedAt))}
-                              </p>
+
+
+                              {(parseInt(Date.now())) <= lockUp.releasedAt*1000 ?
+                              <>
+                                <p className='text-success font-14 mb-0'>
+                                  Maturity Date
+                                </p>
+                                <p className='text-success'>
+                                  {convertDate(Math.floor(lockUp.releasedAt))}
+                                </p>
+                              </>                              
+                              :
+                              <>
+                                <p className='red-font font-14 mb-0'>
+                                  Maturity Date
+                                </p>
+                                <p className='red-font'>
+                                  {convertDate(Math.floor(lockUp.releasedAt))}
+                                </p>
+                              </>                              
+                              }                             
 
                               <Button variant="dark" size="sm" className='blue-bg me-5' onClick={(e) => editClick(e)}>
                                 Edit
@@ -1712,10 +1728,25 @@ export default function Backup() {
                               {convertDate(Math.floor(item.createdAt * 1000))}
                             </p>
 
-                            <p className='red-font font-14 mb-0'>Maturity Date</p>
-                            <p className='red-font'>
-                              {convertDate(Math.floor(item.releasedAt))}
-                            </p>
+                            {(parseInt(Date.now())) <= item.releasedAt*1000 ?
+                            <>
+                              <p className='text-success font-14 mb-0'>
+                                Maturity Date
+                              </p>
+                              <p className='text-success'>
+                                {convertDate(Math.floor(item.releasedAt))}
+                              </p>
+                            </>                              
+                            :
+                            <>
+                              <p className='red-font font-14 mb-0'>
+                                Maturity Date
+                              </p>
+                              <p className='red-font'>
+                                {convertDate(Math.floor(item.releasedAt))}
+                              </p>
+                            </>                              
+                            }
                           </Card.Body>
                         </Card>
                       </div>
