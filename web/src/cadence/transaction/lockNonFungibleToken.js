@@ -2,7 +2,7 @@ export const lockNonFungibleToken = `
 import AssetHandover from 0xAssetHandover
 import NonFungibleToken from 0xNFT
 
-transaction(identifier: String, nftIDs: [UInt64]) {
+transaction(identifier: String, nftIDs: [UInt64]?) {
     prepare(account: AuthAccount) {
         let info = AssetHandover.getNonFungibleTokenInfoMapping()[identifier]!
         let lockUp = account

@@ -21,6 +21,7 @@ import { getCollectionsForAccount } from '../cadence/script/getCollectionsForAcc
 import { getNFTsForAccountCollection } from '../cadence/script/getNFTsForAccountCollection';
 import { initCollectionTemplate } from '../cadence/transaction/initCollectionTemplate';
 import { setLockUpNFTIDs } from '../cadence/transaction/setLockUpNFTIDs';
+import { lockNonFungibleToken } from '../cadence/transaction/lockNonFungibleToken';
 
 import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVaultAndWithdrawFT';
@@ -61,6 +62,7 @@ export default function Backup() {
   const [collectionID, setCollectionID] = useState(null);
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
+  const [selectedNFT, setSelectedNFT] = useState([]);
 
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
@@ -552,6 +554,26 @@ export default function Backup() {
 
     setNFTIDs(ids);
   }
+  
+  const selectAllNFT = (e) => {
+    let ids = [...nftIDs];
+    let selectedIds = [];
+
+    if(e.target.checked){
+      nft.map((item) => {
+        ids.push(item.id);
+        selectedIds.push(true);
+      });
+    }else{
+      ids = [];
+      nft.map((item) => {
+        selectedIds.push(false);
+      })
+    }
+
+    setSelectedNFT(selectedIds);
+    setNFTIDs(ids);
+  }
 
   const addNFT = async () => {
     const publicVal = publicType.replace(/A\.[^\.]*\./g, '');
@@ -726,25 +748,47 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("editNFT");
 
-    try {
-      const txid = await fcl.mutate({
-        cadence: setLockUpNFTIDs,
-        args: (arg, t) => [
-          arg(collectionID.replace(".NFT", ""), t.String),
-          arg(editNFTIDs, t.Array(t.UInt64))
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
-
-      console.log(txid);
-      setTxId(txid);
-    } catch (error) {
-      setTxProgress(false);
-      toast.error(error);
-    }
+    if(editNFTIDs !== []){
+      try {
+        const txid = await fcl.mutate({
+          cadence: setLockUpNFTIDs,
+          args: (arg, t) => [
+            arg(collectionID.replace(".NFT", ""), t.String),
+            arg(editNFTIDs, t.Array(t.UInt64))
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        setTxId(txid);
+      } catch (error) {
+        setTxProgress(false);
+        toast.error(error);
+      }
+    }else{
+      try {
+        const txid = await fcl.mutate({
+          cadence: lockNonFungibleToken,
+          args: (arg, t) => [
+            arg(collectionID.replace(".NFT", ""), t.String),
+            arg(null, t.Optional(t.UInt64))
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        setTxId(txid);
+      } catch (error) {
+        setTxProgress(false);
+        toast.error(error);
+      }
+    }    
   }
 
   //Pledges
@@ -1518,7 +1562,8 @@ export default function Backup() {
                       <h4 className='blue-font'>SELECT NFT(S)</h4>
                     </div>
                     <div className='col-md-4 pt-2'>
-                      <Form.Check type="checkbox" label="Select All NFTs" />
+                      <Form.Check type="checkbox" label="Select All NFTs" 
+                        onChange={(e) => selectAllNFT(e)} />
                     </div>
                     <div className='col-md-4 text-end'>
                       <div className='d-flex justify-content-between'>
@@ -1545,7 +1590,7 @@ export default function Backup() {
                           <div className='col-9'>
                             <div className='d-flex justify-content-between'>
                               <Card.Title>{item.name}</Card.Title>
-                              <Form.Check type="checkbox" onChange={(e) => selectNFT(e, item.id)} />
+                              <Form.Check type="checkbox" checked={selectedNFT[index]} onChange={(e) => selectNFT(e, item.id)} />
                             </div>
 
                             <p className='font-14 mb-0'>
