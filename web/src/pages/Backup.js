@@ -65,8 +65,8 @@ export default function Backup() {
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
   const [editBlpAmount, setEditBlpAmount] = useState("");
-  const [flowBalance, setFlowBalance] = useState(0);
-  const [blpBalance, setBlpBalance] = useState(0);
+  const [flowBalance, setFlowBalance] = useState(null);
+  const [blpBalance, setBlpBalance] = useState(null);
   const [editNFTIDs, setEditNFTIDs] = useState([]);
 
   //pledges
@@ -455,7 +455,7 @@ export default function Backup() {
             cadence: lockFungibleToken,
             args: (arg, t) => [
               arg(flowID, t.String),
-              arg('null', t.Optional(t.UFix64))
+              arg(null, t.Optional(t.UFix64))
             ],
             proposer: fcl.currentUser,
             payer: fcl.currentUser,
@@ -473,25 +473,47 @@ export default function Backup() {
     }
 
     if (blpSelect) {
-      try {
-        const txid = await fcl.mutate({
-          cadence: lockFungibleToken,
-          args: (arg, t) => [
-            arg(blpID, t.String),
-            arg(blpAmount + ".0", t.UFix64)
-          ],
-          proposer: fcl.currentUser,
-          payer: fcl.currentUser,
-          authorizations: [fcl.currentUser],
-          limit: 999,
-        });
-
-        console.log(txid);
-        setTxId(txid);
-      } catch (error) {
-        setTxProgress(false);
-        toast.error(error);
-      }
+      if(blpAmount !== ""){
+        try {
+          const txid = await fcl.mutate({
+            cadence: lockFungibleToken,
+            args: (arg, t) => [
+              arg(blpID, t.String),
+              arg(blpAmount + ".0", t.UFix64)
+            ],
+            proposer: fcl.currentUser,
+            payer: fcl.currentUser,
+            authorizations: [fcl.currentUser],
+            limit: 999,
+          });
+  
+          console.log(txid);
+          setTxId(txid);
+        } catch (error) {
+          setTxProgress(false);
+          toast.error(error);
+        }
+      }else{
+        try {
+          const txid = await fcl.mutate({
+            cadence: lockFungibleToken,
+            args: (arg, t) => [
+              arg(blpID, t.String),
+              arg(null, t.Optional(t.UFix64))
+            ],
+            proposer: fcl.currentUser,
+            payer: fcl.currentUser,
+            authorizations: [fcl.currentUser],
+            limit: 999,
+          });
+  
+          console.log(txid);
+          setTxId(txid);
+        } catch (error) {
+          setTxProgress(false);
+          toast.error(error);
+        }
+      }      
     }
   }
 
@@ -1109,14 +1131,32 @@ export default function Backup() {
                           {item.identifier.includes("FlowToken") &&
                             <div className='col-md-1'>
                               <img src="flowcoin.png" width="100%" height="auto" />
-                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                              
+                              {item.balance === null ?
+                              <p className='blue-font font-bold text-center'>
+                                (All)
+                              </p>
+                              :
+                              <p className='blue-font font-bold text-center'>
+                                ({parseInt(item.balance)})
+                              </p>
+                              }
                             </div>
                           }
 
                           {item.identifier.includes("BlpToken") &&
                             <div className='col-md-1'>
                               <img src="coin.png" width="100%" height="auto" />
-                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                              
+                              {item.balance === null ?
+                              <p className='blue-font font-bold text-center'>
+                                (All)
+                              </p>
+                              :
+                              <p className='blue-font font-bold text-center'>
+                                ({parseInt(item.balance)})
+                              </p>
+                              }                              
                             </div>
                           }
                         </React.Fragment>
@@ -1303,7 +1343,7 @@ export default function Backup() {
                                 {item.balance ?
                                   <h5 className='text-center'>({parseInt(item.balance)})</h5>
                                   :
-                                  <h5 className='text-center'>(0)</h5>
+                                  <h5 className='text-center'>(All)</h5>
                                 }
                               </div>
 
@@ -1314,7 +1354,7 @@ export default function Backup() {
                                       <h5 className='blue-font mb-0'>FLOW</h5>
 
                                       {txProgress && txType === "removeFlow" ?
-                                        <Spinner animation="border" role="status">
+                                        <Spinner animation="border" role="status" size="sm">
                                           <span className="visually-hidden">Loading...</span>
                                         </Spinner>
                                         :
@@ -1326,7 +1366,7 @@ export default function Backup() {
                                     <>
                                       <h5 className='blue-font mb-0'>BLP</h5>
                                       {txProgress && txType === "removeBlp" ?
-                                        <Spinner animation="border" role="status">
+                                        <Spinner animation="border" role="status" size="sm">
                                           <span className="visually-hidden">Loading...</span>
                                         </Spinner>
                                         :
