@@ -361,7 +361,7 @@ export default function Backup() {
           authorizations: [fcl.currentUser],
           limit: 999,
         });
-  
+
         console.log(txid);
         setTxId(txid);
       } catch (error) {
@@ -383,14 +383,14 @@ export default function Backup() {
           authorizations: [fcl.currentUser],
           limit: 999,
         });
-  
+
         console.log(txid);
         setTxId(txid);
       } catch (error) {
         setTxProgress(false);
         toast.error(error);
       }
-    }    
+    }
   }
 
   const destoryBackup = async (e) => {
@@ -442,7 +442,7 @@ export default function Backup() {
             authorizations: [fcl.currentUser],
             limit: 999,
           });
-  
+
           console.log(txid);
           setTxId(txid);
         } catch (error) {
@@ -455,21 +455,21 @@ export default function Backup() {
             cadence: lockFungibleToken,
             args: (arg, t) => [
               arg(flowID, t.String),
-              arg(nil, t.UFix64)
+              arg('null', t.Optional(t.UFix64))
             ],
             proposer: fcl.currentUser,
             payer: fcl.currentUser,
             authorizations: [fcl.currentUser],
             limit: 999,
           });
-  
+
           console.log(txid);
           setTxId(txid);
         } catch (error) {
           setTxProgress(false);
           toast.error(error);
         }
-      }      
+      }
     }
 
     if (blpSelect) {
@@ -1047,7 +1047,7 @@ export default function Backup() {
                             CREATE BACKUP
                           </Button>
                           }
-                          </>                          
+                          </>
                         }
 
                       </Form>
@@ -1095,7 +1095,7 @@ export default function Backup() {
                       :
                       <></>
                       }
-                    </h4>                  
+                    </h4>
 
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
                       onClick={() => setStep("default")} />
