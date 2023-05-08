@@ -1539,7 +1539,7 @@ export default function Backup() {
                   </div>
 
                   <div className='row'>
-                    {collection && collection.map((item, index) => (
+                    {ownCollection && ownCollection.map((item, index) => (
                       <div className='col-md-4 pt-2' key={index}>
                         <Card className='p-3 pb-1 cursor-pointer' onClick={() => editNFTCollection(item)}>
                           <Card.Img variant="top" src={item.collectionBannerImage} />
@@ -1651,7 +1651,7 @@ export default function Backup() {
                         <h4 className='blue-font'>NFT COLLECTION(S)</h4>
 
                         <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
-                          onClick={() => setStep("edit")} />
+                          onClick={() => setStep("editnftcollection")} />
                       </div>
                     </div>
                   </div>
