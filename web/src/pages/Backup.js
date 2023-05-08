@@ -429,25 +429,47 @@ export default function Backup() {
     setTxType("addFT");
 
     if (flowSelect) {
-      try {
-        const txid = await fcl.mutate({
-          cadence: lockFungibleToken,
-          args: (arg, t) => [
-            arg(flowID, t.String),
-            arg(flowAmount + ".0", t.UFix64)
-          ],
-          proposer: fcl.currentUser,
-          payer: fcl.currentUser,
-          authorizations: [fcl.currentUser],
-          limit: 999,
-        });
-
-        console.log(txid);
-        setTxId(txid);
-      } catch (error) {
-        setTxProgress(false);
-        toast.error(error);
-      }
+      if(flowAmount !== ""){
+        try {
+          const txid = await fcl.mutate({
+            cadence: lockFungibleToken,
+            args: (arg, t) => [
+              arg(flowID, t.String),
+              arg(flowAmount + ".0", t.UFix64)
+            ],
+            proposer: fcl.currentUser,
+            payer: fcl.currentUser,
+            authorizations: [fcl.currentUser],
+            limit: 999,
+          });
+  
+          console.log(txid);
+          setTxId(txid);
+        } catch (error) {
+          setTxProgress(false);
+          toast.error(error);
+        }
+      }else{
+        try {
+          const txid = await fcl.mutate({
+            cadence: lockFungibleToken,
+            args: (arg, t) => [
+              arg(flowID, t.String),
+              arg(nil, t.UFix64)
+            ],
+            proposer: fcl.currentUser,
+            payer: fcl.currentUser,
+            authorizations: [fcl.currentUser],
+            limit: 999,
+          });
+  
+          console.log(txid);
+          setTxId(txid);
+        } catch (error) {
+          setTxProgress(false);
+          toast.error(error);
+        }
+      }      
     }
 
     if (blpSelect) {
