@@ -70,6 +70,7 @@ export default function Backup() {
   const [flowBalance, setFlowBalance] = useState(null);
   const [blpBalance, setBlpBalance] = useState(null);
   const [editNFTIDs, setEditNFTIDs] = useState([]);
+  const [loadingNFTId, setLoadingNFTId] = useState(null);
 
   //pledges
   const [pledge, setPledge] = useState(null);
@@ -133,8 +134,6 @@ export default function Backup() {
       fcl.tx(txId).subscribe(setTxStatus);
     }
   }, [txId]);
-
-  // console.log("txStatus - ", txStatus);
 
   useEffect(() => {
 
@@ -226,6 +225,18 @@ export default function Backup() {
         setTxStatus(null);
       } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
         toast.success("NonFungible Token is successfully edited!");
+        setTxProgress(false);
+        setTxStatus(null);
+        setStep("detail");
+      }
+    }
+    else if (txStatus && txType === "removeNFT") {
+      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+        toast.error(txStatus.errorMessage);
+        setTxProgress(false);
+        setTxStatus(null);
+      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        toast.success("NonFungible Token is successfully removed!");
         setTxProgress(false);
         setTxStatus(null);
         setStep("detail");
@@ -744,51 +755,60 @@ export default function Backup() {
     setEditNFTIDs(ids);
   }
 
+  const removeNFT = async (id) => {
+    setTxProgress(true);
+    setTxType("removeNFT");
+    setLoadingNFTId(id);
+
+    const ids = [];
+    nft.map((item) => {
+      if(item.id !== id) ids.push(item.id);
+    })
+
+    try {
+      const txid = await fcl.mutate({
+        cadence: setLockUpNFTIDs,
+        args: (arg, t) => [
+          arg(collectionID.replace(".NFT", ""), t.String),
+          arg(ids, t.Array(t.UInt64))
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+      setTxId(txid);
+    } catch (error) {
+      setTxProgress(false);
+      toast.error(error);
+    }
+  }
+
   const editNFT = async () => {
     setTxProgress(true);
     setTxType("editNFT");
 
-    if(editNFTIDs !== []){
-      try {
-        const txid = await fcl.mutate({
-          cadence: setLockUpNFTIDs,
-          args: (arg, t) => [
-            arg(collectionID.replace(".NFT", ""), t.String),
-            arg(editNFTIDs, t.Array(t.UInt64))
-          ],
-          proposer: fcl.currentUser,
-          payer: fcl.currentUser,
-          authorizations: [fcl.currentUser],
-          limit: 999,
-        });
-  
-        console.log(txid);
-        setTxId(txid);
-      } catch (error) {
-        setTxProgress(false);
-        toast.error(error);
-      }
-    }else{
-      try {
-        const txid = await fcl.mutate({
-          cadence: lockNonFungibleToken,
-          args: (arg, t) => [
-            arg(collectionID.replace(".NFT", ""), t.String),
-            arg(null, t.Optional(t.UInt64))
-          ],
-          proposer: fcl.currentUser,
-          payer: fcl.currentUser,
-          authorizations: [fcl.currentUser],
-          limit: 999,
-        });
-  
-        console.log(txid);
-        setTxId(txid);
-      } catch (error) {
-        setTxProgress(false);
-        toast.error(error);
-      }
-    }    
+    try {
+      const txid = await fcl.mutate({
+        cadence: lockNonFungibleToken,
+        args: (arg, t) => [
+          arg(collectionID.replace(".NFT", ""), t.String),
+          arg(null, t.Optional(t.UInt64))
+        ],
+        proposer: fcl.currentUser,
+        payer: fcl.currentUser,
+        authorizations: [fcl.currentUser],
+        limit: 999,
+      });
+
+      console.log(txid);
+      setTxId(txid);
+    } catch (error) {
+      setTxProgress(false);
+      toast.error(error);
+    }
   }
 
   //Pledges
@@ -1005,7 +1025,7 @@ export default function Backup() {
                               </p>
 
 
-                              {(parseInt(Date.now())) <= lockUp.releasedAt*1000 ?
+                              {parseInt(Date.now()) >= lockUp.releasedAt ?
                               <>
                                 <p className='text-success font-14 mb-0'>
                                   Maturity Date
@@ -1425,6 +1445,7 @@ export default function Backup() {
                                     :
                                     <>
                                       <h5 className='blue-font mb-0'>BLP</h5>
+
                                       {txProgress && txType === "removeBlp" ?
                                         <Spinner animation="border" role="status" size="sm">
                                           <span className="visually-hidden">Loading...</span>
@@ -1670,8 +1691,16 @@ export default function Backup() {
 
                           <div className='col-9'>
                             <div className='d-flex justify-content-between'>
-                              <Card.Title>{item.name}</Card.Title>
-                              <Form.Check type="checkbox" onChange={(e) => selectEditNFT(e, item.id)} />
+                              <Card.Title className="me-2">{item.name}</Card.Title>
+
+                              {txProgress && txType === "removeNFT" && item.id === loadingNFTId ?
+                              <Spinner animation="border" role="status" size="sm">
+                                <span className="visually-hidden">Loading...</span>
+                              </Spinner>
+                              :
+                              <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                onClick={() => removeNFT(item.id)} />
+                              }
                             </div>
 
                             <p className='font-14 mb-0'>
@@ -1686,8 +1715,9 @@ export default function Backup() {
 
                   <div className='row p-3 pt-0'>
                     <div className='col-md-6 px-0'>
-                      <div className='d-flex mt-4'>
-                        <h5>Please select NFTs to save</h5>
+                      <div className='d-flex mt-3'>
+                        <img className='mt-1 me-2' src="remove-button.png" alt="" width="20px" height="20px" />
+                        <h5>= Remove from the NFT Collection</h5>
                       </div>
                     </div>
 
@@ -1700,7 +1730,7 @@ export default function Backup() {
                         </Button>
                         :
                         <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
-                          SAVE CHANGES TO NFT COLLECTION(S)
+                          REMOVE ALL NFTS
                         </Button>
                       }
                     </div>
@@ -1728,7 +1758,7 @@ export default function Backup() {
                               {convertDate(Math.floor(item.createdAt * 1000))}
                             </p>
 
-                            {(parseInt(Date.now())) <= item.releasedAt*1000 ?
+                            {parseInt(Date.now()) <= item.releasedAt ?
                             <>
                               <p className='text-success font-14 mb-0'>
                                 Maturity Date
