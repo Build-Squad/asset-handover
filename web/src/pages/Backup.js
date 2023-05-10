@@ -764,17 +764,6 @@ export default function Backup() {
     setEditNFTIDs(currentNFTIDs);
   };
 
-  const removeNFT = async (id) => {
-    setTxProgress(true);
-    setTxType("removeNFT");
-    setLoadingNFTId(id);
-
-    const ids = [];
-    nft.map((item) => {
-      if(item.id !== id) ids.push(item.id);
-    })
-  }
-
   const editNFT = async () => {
     setTxProgress(true);
     setTxType("editNFT");
