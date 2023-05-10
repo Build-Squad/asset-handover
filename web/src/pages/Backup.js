@@ -70,7 +70,8 @@ export default function Backup() {
   const [flowBalance, setFlowBalance] = useState(null);
   const [blpBalance, setBlpBalance] = useState(null);
   const [editNFTIDs, setEditNFTIDs] = useState([]);
-  const [loadingNFTId, setLoadingNFTId] = useState(null);
+  const [showNFT, setShowNFT] = useState(null);
+  const [currentNFTIDs, setCurrentNFTIDs] = useState(null);
 
   //pledges
   const [pledge, setPledge] = useState(null);
@@ -279,6 +280,17 @@ export default function Backup() {
     }
 
   }, [txStatus, txType]);
+
+  useEffect(() => {
+    setShowNFT(Array(nft.length).fill(true));
+    const ids = [];
+
+    nft.map((item) => {
+      ids.push(item.id);
+    });
+
+    setCurrentNFTIDs(ids);
+  }, [nft]);
 
   const logout = () => {
     fcl.unauthenticate();
@@ -739,21 +751,18 @@ export default function Backup() {
     setStep("removenfts");
   }
 
-  const selectEditNFT = (e, id) => {
-    let ids = [...editNFTIDs];
+  const toggleNFTVisibility = (index, id) => {
+    const newShowNFT = [...showNFT];
+    newShowNFT[index] = !newShowNFT[index];
+    setShowNFT(newShowNFT);
 
-    if (e.target.checked) {
-      if (!ids.includes(id)) {
-        ids.push(id);
-      }
-    } else {
-      if (ids.includes(id)) {
-        ids = ids.filter(item => item !== id)
-      }
-    }
+    const ids = [];
+    nft.map((item) => {
+      if(item.id === id) currentNFTIDs.pop(item.id);
+    })
 
-    setEditNFTIDs(ids);
-  }
+    setEditNFTIDs(currentNFTIDs);
+  };
 
   const removeNFT = async (id) => {
     setTxProgress(true);
@@ -764,52 +773,56 @@ export default function Backup() {
     nft.map((item) => {
       if(item.id !== id) ids.push(item.id);
     })
-
-    try {
-      const txid = await fcl.mutate({
-        cadence: setLockUpNFTIDs,
-        args: (arg, t) => [
-          arg(collectionID.replace(".NFT", ""), t.String),
-          arg(ids, t.Array(t.UInt64))
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
-
-      console.log(txid);
-      setTxId(txid);
-    } catch (error) {
-      setTxProgress(false);
-      toast.error(error);
-    }
   }
 
   const editNFT = async () => {
     setTxProgress(true);
     setTxType("editNFT");
 
-    try {
-      const txid = await fcl.mutate({
-        cadence: lockNonFungibleToken,
-        args: (arg, t) => [
-          arg(collectionID.replace(".NFT", ""), t.String),
-          arg(null, t.Optional(t.UInt64))
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
-
-      console.log(txid);
-      setTxId(txid);
-    } catch (error) {
-      setTxProgress(false);
-      toast.error(error);
+    if(currentNFTIDs.length > 0){
+      try {
+        const txid = await fcl.mutate({
+          cadence: setLockUpNFTIDs,
+          args: (arg, t) => [
+            arg(collectionID.replace(".NFT", ""), t.String),
+            arg(editNFTIDs, t.Array(t.UInt64))
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        setTxId(txid);
+      } catch (error) {
+        setTxProgress(false);
+        toast.error(error);
+      }
+    }else{
+      try {
+        const txid = await fcl.mutate({
+          cadence: lockNonFungibleToken,
+          args: (arg, t) => [
+            arg(collectionID.replace(".NFT", ""), t.String),
+            arg(null, t.Optional(t.UInt64))
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        setTxId(txid);
+      } catch (error) {
+        setTxProgress(false);
+        toast.error(error);
+      }    
     }
+
   }
+
 
   //Pledges
   const clickPledge = async (item) => {
@@ -1678,7 +1691,7 @@ export default function Backup() {
                   </div>
 
                   <div className='row p-3'>
-                    {nft.length > 0 && nft.map((item, index) => (
+                    {nft.length > 0 && nft.map((item, index) => showNFT[index] && (
                       <div className='col-md-4' key={index}>
                         <div className='row grey-border p-2 me-2 mt-2'>
                           <div className='col-3 p-1'>
@@ -1693,14 +1706,8 @@ export default function Backup() {
                             <div className='d-flex justify-content-between'>
                               <Card.Title className="me-2">{item.name}</Card.Title>
 
-                              {txProgress && txType === "removeNFT" && item.id === loadingNFTId ?
-                              <Spinner animation="border" role="status" size="sm">
-                                <span className="visually-hidden">Loading...</span>
-                              </Spinner>
-                              :
                               <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                onClick={() => removeNFT(item.id)} />
-                              }
+                                onClick={() => toggleNFTVisibility(index, item.id)} />
                             </div>
 
                             <p className='font-14 mb-0'>
@@ -1730,7 +1737,7 @@ export default function Backup() {
                         </Button>
                         :
                         <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
-                          REMOVE ALL NFTS
+                          SAVE CHANGES TO COIN(S)
                         </Button>
                       }
                     </div>

@@ -262,3 +262,7 @@ input::placeholder {
 .mt-10{
   margin-top: 10px!important;
 }
+
+.display-none{
+  display: none!important;
+}
