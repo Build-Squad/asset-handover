@@ -27,6 +27,7 @@ import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVaultAndWithdrawFT';
 import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFungibleToken';
 
+import NftId from '../components/NftId';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null, addr: '' });
@@ -63,6 +64,7 @@ export default function Backup() {
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
   const [selectedNFT, setSelectedNFT] = useState([]);
+  const [nftIDsLength, setNftIDsLength] = useState(0);
 
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
@@ -120,6 +122,8 @@ export default function Backup() {
 
       setOwnCollection(tempOwnCollection);
     }
+
+    console.log("ownCollection - ", ownCollection);
 
     if (lockUp && lockUp.fungibleTokens.length > 0) {
       lockUp.fungibleTokens.map((item) => {
@@ -794,7 +798,7 @@ export default function Backup() {
           cadence: lockNonFungibleToken,
           args: (arg, t) => [
             arg(collectionID.replace(".NFT", ""), t.String),
-            arg(null, t.Optional(t.UInt64))
+            arg(null, t.Optional(t.Array(t.UInt64)))
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -1281,7 +1285,7 @@ export default function Backup() {
                               <div className='row'>
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                  <h5 className='text-center'>({item.nftsCount})</h5>
+                                  <NftId lockUp={lockUp} item={item} />
                                 </div>
 
                                 <div className='col-9'>
