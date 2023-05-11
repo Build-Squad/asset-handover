@@ -123,7 +123,7 @@ export default function Backup() {
       setOwnCollection(tempOwnCollection);
     }
 
-    console.log("ownCollection - ", ownCollection);
+    // console.log("ownCollection - ", ownCollection);
 
     if (lockUp && lockUp.fungibleTokens.length > 0) {
       lockUp.fungibleTokens.map((item) => {
@@ -343,7 +343,7 @@ export default function Backup() {
           if (item.nftType.includes(info)) nftCollection.push(item);
         })
       });
-      // console.log("nftCollection - ", nftCollection);
+      console.log("nftCollection - ", nftCollection);
       setCollection(nftCollection);
 
 
@@ -1574,7 +1574,7 @@ export default function Backup() {
                             <div className='row'>
                               <div className='col-3 p-0'>
                                 <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                <h5 className='text-center'>({item.nftsCount})</h5>
+                                <NftId lockUp={lockUp} item={item} />
                               </div>
 
                               <div className='col-9'>
