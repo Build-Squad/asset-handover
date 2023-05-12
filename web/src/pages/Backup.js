@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import * as fcl from "@onflow/fcl";
 import { Tab, Nav, Card, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { FaPlus, FaArrowLeft } from 'react-icons/fa';
+import { FaPlus, FaArrowLeft, FaInfo } from 'react-icons/fa';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from 'react-toastify';
@@ -1465,7 +1465,7 @@ export default function Backup() {
                                 <div className='d-flex justify-content-between'>
                                   <h5 className='blue-font mb-0'>FLOW</h5>
 
-                                  {lockUp.fungibleTokens.length > 1 &&
+                                  {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
                                     <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
                                       onClick={() => removeFlow()} />
                                   }                                  
@@ -1501,7 +1501,7 @@ export default function Backup() {
                                 <div className='d-flex justify-content-between'>
                                   <h5 className='blue-font mb-0'>BLP</h5>
 
-                                  {lockUp.fungibleTokens.length > 1 &&
+                                  {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
                                   <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
                                     onClick={() => removeBlp()} />
                                   }                                  
@@ -1523,14 +1523,15 @@ export default function Backup() {
                     }
                   </div>
 
-
+                  {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
                   <div className='d-flex p-2 mt-5'>
                     <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
                     <h5>= Remove from the Coin(s)</h5>
                   </div>
+                  }                  
 
                   <div className='row p-3 pt-0'>
-                    {lockUp.fungibleTokens.length > 1 ?
+                    {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 ?
                       <div className='col-md-8'>
                         <h5 className='text-danger'>
                           * If you don’t enter quantity of Coin(s) to handover, whole ownership of
@@ -1721,18 +1722,11 @@ export default function Backup() {
               }
               {step === "removenfts" &&
                 <Tab.Pane eventKey="first">
-                  <div className='row pt-2 mx-2 border-bottom-green'>
-                    <div className='col-md-5'>
-                      <h4 className='blue-font'>EDIT NFT(S)</h4>
-                    </div>
-                    <div className='col-md-7 text-end'>
-                      <div className='d-flex justify-content-between'>
-                        <h4 className='blue-font'>NFT COLLECTION(S)</h4>
-
-                        <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
-                          onClick={() => setStep("editnftcollection")} />
-                      </div>
-                    </div>
+                  <div className='d-flex justify-content-between pt-2 mx-2 border-bottom-green'>
+                    <h4 className='blue-font'>EDIT NFT(S)</h4>
+                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+                    <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
+                      onClick={() => setStep("editnftcollection")} />
                   </div>
 
                   <div className='row p-3'>
@@ -1771,8 +1765,8 @@ export default function Backup() {
                         <img className='mt-1 me-2' src="remove-button.png" alt="" width="20px" height="20px" />
                         <h5>= Remove from the NFT Collection</h5>
                       </div>
-                      <p className='red-font px-1'>
-                        ! = If you remove all the NFTs that would mean you want to 
+                      <p className='text-warning px-1'>
+                        <FaInfo /> = If you remove all the NFTs that would mean you want to 
                         <br/>delegate the ownership of your whole collection
                       </p>
                     </div>
