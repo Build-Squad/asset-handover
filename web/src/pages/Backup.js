@@ -65,11 +65,12 @@ export default function Backup() {
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
   const [selectedNFT, setSelectedNFT] = useState([]);
-  const [nftIDsLength, setNftIDsLength] = useState(0);
 
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
   const [editBlpAmount, setEditBlpAmount] = useState("");
+  const [isRemoveFlow, setIsRemoveFlow] = useState(false);
+  const [isRemoveBlp, setIsRemoveBlp] = useState(false);
   const [flowBalance, setFlowBalance] = useState(null);
   const [blpBalance, setBlpBalance] = useState(null);
   const [editNFTIDs, setEditNFTIDs] = useState([]);
@@ -296,6 +297,11 @@ export default function Backup() {
 
     setCurrentNFTIDs(ids);
   }, [nft]);
+
+  useEffect(() => {
+    setIsRemoveBlp(false);
+    setIsRemoveFlow(false);
+  }, [step])
 
   const logout = () => {
     fcl.unauthenticate();
@@ -557,7 +563,7 @@ export default function Backup() {
         arg(item.collectionIdentifier, t.String)
       ],
     });
-    console.log('nftRes - ', nftRes);
+    // console.log('nftRes - ', nftRes);
 
     lockUp.nonFungibleTokens.forEach((token) => {
       if(item.nftType.includes(token.identifier)){
@@ -569,7 +575,7 @@ export default function Backup() {
         setNFT(availableNFT);
       }
     });
-    console.log("available nft - ", availableNFT);
+    // console.log("available nft - ", availableNFT);
     
     setContractName(item.contractName);
     setContractAddress(item.contractAddress);
@@ -648,6 +654,50 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("editFT");
 
+    if(isRemoveFlow){
+      try {
+        const txid = await fcl.mutate({
+          cadence: lockFungibleTokens,
+          args: (arg, t) => [
+            arg([{ key: blpID, value: blpBalance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        setTxId(txid);
+      } catch (error) {
+        toast.error(error);
+        setTxProgress(false);
+        setIsRemoveFlow(false);
+      }
+    }
+
+    if(isRemoveBlp){
+      try {
+        const txid = await fcl.mutate({
+          cadence: lockFungibleTokens,
+          args: (arg, t) => [
+            arg([{ key: flowID, value: flowBalance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
+          ],
+          proposer: fcl.currentUser,
+          payer: fcl.currentUser,
+          authorizations: [fcl.currentUser],
+          limit: 999,
+        });
+  
+        console.log(txid);
+        setTxId(txid);
+      } catch (error) {
+        toast.error(error);
+        setTxProgress(false);
+        setIsRemoveBlp(false);
+      }
+    }
+
     if (editFlowAmount !== "") {
       try {
         const txid = await fcl.mutate({
@@ -693,52 +743,12 @@ export default function Backup() {
     }
   }
 
-  const removeFlow = async () => {
-    setTxProgress(true);
-    setTxType("removeFlow");
-
-    try {
-      const txid = await fcl.mutate({
-        cadence: lockFungibleTokens,
-        args: (arg, t) => [
-          arg([{ key: blpID, value: blpBalance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
-
-      console.log(txid);
-      setTxId(txid);
-    } catch (error) {
-      toast.error(error);
-      setTxProgress(false);
-    }
+  const removeFlow = () => {
+    setIsRemoveFlow(true);    
   }
 
-  const removeBlp = async () => {
-    setTxProgress(true);
-    setTxType("removeBlp");
-
-    try {
-      const txid = await fcl.mutate({
-        cadence: lockFungibleTokens,
-        args: (arg, t) => [
-          arg([{ key: flowID, value: flowBalance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
-
-      console.log(txid);
-      setTxId(txid);
-    } catch (error) {
-      toast.error(error);
-      setTxProgress(false);
-    }
+  const removeBlp = () => {
+    setIsRemoveBlp(true);    
   }
 
   const editNFTCollection = async (item) => {
@@ -984,9 +994,11 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
+      setWithdrawNFTIDs([]);
     } catch (error) {
       setTxProgress(false);
       toast.error(error);
+      setWithdrawNFTIDs([]);
     }
   }
 
@@ -1354,7 +1366,7 @@ export default function Backup() {
                   <div className='row p-3'>
                     {ft !== null &&
                       Object.keys(ft).map((key, index) => (
-                        <div className='col-md-4' key={index} >
+                        <div className='col-lg-6 col-xl-4 pt-2' key={index}>
                           <div className='grey-border p-2'>
                             <div className='row'>
                               <div className='col-md-3'>
@@ -1373,7 +1385,7 @@ export default function Backup() {
                                   <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)} />
                                 </div>
 
-                                <p className='text-grey mb-1'>{key}</p>
+                                <p className='text-grey mb-1 font-14'>{key}</p>
                                 {ft[key].name === "FLOW" ?
                                   <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                                     value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
@@ -1432,15 +1444,15 @@ export default function Backup() {
                   <div className='row p-3'>
                     {lockUp !== null &&
                       lockUp.fungibleTokens.map((item, index) => (
-                        <div className='col-md-4' key={index} >
+                        <React.Fragment key={index}>
+                        {item.identifier.includes("FlowToken") ?
+                        <>
+                        {!isRemoveFlow && 
+                        <div className='col-lg-6 col-xl-4 pt-2'>
                           <div className='grey-border p-2'>
                             <div className='row'>
                               <div className='col-md-3'>
-                                {item.identifier.includes("FlowToken") ?
-                                  <img src="flowcoin.png" width="100%" height="auto" />
-                                  :
-                                  <img src="coin.png" width="100%" height="auto" />
-                                }
+                                <img src="flowcoin.png" width="100%" height="auto" />
 
                                 {item.balance ?
                                   <h5 className='text-center'>({parseInt(item.balance)})</h5>
@@ -1451,48 +1463,64 @@ export default function Backup() {
 
                               <div className='col-md-9'>
                                 <div className='d-flex justify-content-between'>
-                                  {item.identifier.includes("FlowToken") ?
-                                    <>
-                                      <h5 className='blue-font mb-0'>FLOW</h5>
+                                  <h5 className='blue-font mb-0'>FLOW</h5>
 
-                                      {txProgress && txType === "removeFlow" ?
-                                        <Spinner animation="border" role="status" size="sm">
-                                          <span className="visually-hidden">Loading...</span>
-                                        </Spinner>
-                                        :
-                                        <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                          onClick={() => removeFlow()} />
-                                      }
-                                    </>
-                                    :
-                                    <>
-                                      <h5 className='blue-font mb-0'>BLP</h5>
-
-                                      {txProgress && txType === "removeBlp" ?
-                                        <Spinner animation="border" role="status" size="sm">
-                                          <span className="visually-hidden">Loading...</span>
-                                        </Spinner>
-                                        :
-                                        <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                          onClick={() => removeBlp()} />
-                                      }
-                                    </>
-                                  }
+                                  <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                    onClick={() => removeFlow()} />
                                 </div>
 
-                                <p className='text-grey mb-1'>{item.identifier}</p>
+                                <p className='text-grey mb-1 font-14'>{item.identifier}</p>
 
-                                {item.identifier.includes("FlowToken") ?
-                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                    value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
-                                  :
-                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                    value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
-                                }
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                  value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
                               </div>
                             </div>
                           </div>
                         </div>
+                        }
+                        </>                        
+                        :
+                        <>
+                        {!isRemoveBlp &&
+                        <div className='col-lg-6 col-xl-4 pt-2'>
+                          <div className='grey-border p-2'>
+                            <div className='row'>
+                              <div className='col-md-3'>
+                                <img src="coin.png" width="100%" height="auto" />
+
+                                {item.balance ?
+                                  <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                  :
+                                  <h5 className='text-center'>(All)</h5>
+                                }
+                              </div>
+
+                              <div className='col-md-9'>
+                                <div className='d-flex justify-content-between'>
+                                  <h5 className='blue-font mb-0'>BLP</h5>
+
+                                  {txProgress && txType === "removeBlp" ?
+                                    <Spinner animation="border" role="status" size="sm">
+                                      <span className="visually-hidden">Loading...</span>
+                                    </Spinner>
+                                    :
+                                    <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                      onClick={() => removeBlp()} />
+                                  }
+                                </div>
+
+                                <p className='text-grey mb-1 font-14'>{item.identifier}</p>
+
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                  value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        }
+                        </>                        
+                        }
+                        </React.Fragment>                     
                       ))
                     }
                   </div>
@@ -1774,7 +1802,7 @@ export default function Backup() {
                               {convertDate(Math.floor(item.createdAt * 1000))}
                             </p>
 
-                            {parseInt(Date.now()) <= item.releasedAt ?
+                            {parseInt(Date.now()) >= item.releasedAt ?
                             <>
                               <p className='text-success font-14 mb-0'>
                                 Maturity Date
@@ -1847,21 +1875,21 @@ export default function Backup() {
                   {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
                     <div className='row mt-2'>
                       {pledgeItem.fungibleTokens.map((item, index) => (
-                        <>
+                        <React.Fragment key={index}>
                           {item.identifier.includes("FlowToken") &&
-                            <div className='col-md-1' key={index}>
+                            <div className='col-md-1'>
                               <img src="flowcoin.png" width="100%" height="auto" />
                               <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
                             </div>
                           }
 
                           {item.identifier.includes("BlpToken") &&
-                            <div className='col-md-1' key={index}>
+                            <div className='col-md-1'>
                               <img src="coin.png" width="100%" height="auto" />
                               <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
                             </div>
                           }
-                        </>
+                        </React.Fragment>
                       )
                       )}
                     </div>
@@ -1887,7 +1915,7 @@ export default function Backup() {
                               <div className='row'>
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                  <h5 className='text-center'>({item.nftsCount})</h5>
+                                  <NftId lockUp={pledgeItem} item={item} />
                                 </div>
 
                                 <div className='col-9'>
