@@ -1023,7 +1023,7 @@ export default function Backup() {
 
             <Nav.Item className="type" onClick={() => logout()}>
               <Nav.Link eventKey="third" className="text-center">
-                <p className='text-grey mb-0'>
+                <p className='text-grey mb-0 font-12'>
                   {user.addr}
                 </p>
                 <img className='mt-1' src="wallet1.png" width="50%" height="50%" />
@@ -1465,8 +1465,10 @@ export default function Backup() {
                                 <div className='d-flex justify-content-between'>
                                   <h5 className='blue-font mb-0'>FLOW</h5>
 
-                                  <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                    onClick={() => removeFlow()} />
+                                  {lockUp.fungibleTokens.length > 1 &&
+                                    <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                      onClick={() => removeFlow()} />
+                                  }                                  
                                 </div>
 
                                 <p className='text-grey mb-1 font-14'>{item.identifier}</p>
@@ -1499,14 +1501,10 @@ export default function Backup() {
                                 <div className='d-flex justify-content-between'>
                                   <h5 className='blue-font mb-0'>BLP</h5>
 
-                                  {txProgress && txType === "removeBlp" ?
-                                    <Spinner animation="border" role="status" size="sm">
-                                      <span className="visually-hidden">Loading...</span>
-                                    </Spinner>
-                                    :
-                                    <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                      onClick={() => removeBlp()} />
-                                  }
+                                  {lockUp.fungibleTokens.length > 1 &&
+                                  <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                    onClick={() => removeBlp()} />
+                                  }                                  
                                 </div>
 
                                 <p className='text-grey mb-1 font-14'>{item.identifier}</p>
@@ -1525,18 +1523,28 @@ export default function Backup() {
                     }
                   </div>
 
+
                   <div className='d-flex p-2 mt-5'>
                     <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
                     <h5>= Remove from the Coin(s)</h5>
                   </div>
 
                   <div className='row p-3 pt-0'>
-                    <div className='col-md-8'>
-                      <h5 className='text-danger'>
-                        * If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                        the Coin(s) will goes to recipient.
-                      </h5>
-                    </div>
+                    {lockUp.fungibleTokens.length > 1 ?
+                      <div className='col-md-8'>
+                        <h5 className='text-danger'>
+                          * If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                          the Coin(s) will goes to recipient.
+                        </h5>
+                      </div>
+                    :
+                      <div className='col-md-8'>
+                        <h5 className='text-white'>
+                          * If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                          the Coin(s) will goes to recipient.
+                        </h5>
+                      </div>
+                    }                    
 
                     <div className='col-md-4'>
                       {txProgress && txType === "editFT" ?
@@ -1714,10 +1722,10 @@ export default function Backup() {
               {step === "removenfts" &&
                 <Tab.Pane eventKey="first">
                   <div className='row pt-2 mx-2 border-bottom-green'>
-                    <div className='col-md-6'>
+                    <div className='col-md-5'>
                       <h4 className='blue-font'>EDIT NFT(S)</h4>
                     </div>
-                    <div className='col-md-6 text-end'>
+                    <div className='col-md-7 text-end'>
                       <div className='d-flex justify-content-between'>
                         <h4 className='blue-font'>NFT COLLECTION(S)</h4>
 
@@ -1763,6 +1771,10 @@ export default function Backup() {
                         <img className='mt-1 me-2' src="remove-button.png" alt="" width="20px" height="20px" />
                         <h5>= Remove from the NFT Collection</h5>
                       </div>
+                      <p className='red-font px-1'>
+                        ! = If you remove all the NFTs that would mean you want to 
+                        <br/>delegate the ownership of your whole collection
+                      </p>
                     </div>
 
                     <div className='col-md-6'>
@@ -1778,7 +1790,7 @@ export default function Backup() {
                         </Button>
                       }
                     </div>
-                  </div>
+                  </div>                  
                 </Tab.Pane>
               }
             </>
