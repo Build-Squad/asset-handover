@@ -774,9 +774,11 @@ export default function Backup() {
     newShowNFT[index] = !newShowNFT[index];
     setShowNFT(newShowNFT);
 
-    const ids = [];
-    nft.forEach((item) => {
-      if(item.id === id) currentNFTIDs.pop(item.id);
+    
+    console.log("currentNFTIDs", currentNFTIDs);
+
+    currentNFTIDs.forEach((item, index) => {
+      if(item === id) currentNFTIDs.splice(index, 1);
     })
 
     setEditNFTIDs(currentNFTIDs);
