@@ -28,6 +28,7 @@ import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVault
 import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFungibleToken';
 
 import NftId from '../components/NftId';
+import AddNftId from '../components/AddNftId';
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null, addr: '' });
@@ -547,16 +548,29 @@ export default function Backup() {
   }
 
   const selectNFTCollection = async (item) => {
-    const nft = await fcl.query({
+    let availableNFT = [];
+
+    const nftRes = await fcl.query({
       cadence: getNFTsForAccountCollection,
       args: (arg, t) => [
         arg(user.addr, t.Address),
         arg(item.collectionIdentifier, t.String)
       ],
     });
+    console.log('nftRes - ', nftRes);
 
-    setNFT(nft);
-    console.log('nft - ', nft);
+    lockUp.nonFungibleTokens.forEach((token) => {
+      if(item.nftType.includes(token.identifier)){
+        nftRes.map((nftItem) => {
+          if(!token.nftIDs.includes(nftItem.id)) {
+            availableNFT.push(nftItem);
+          }
+        })
+        setNFT(availableNFT);
+      }
+    });
+    console.log("available nft - ", availableNFT);
+    
     setContractName(item.contractName);
     setContractAddress(item.contractAddress);
     setPublicType(item.publicLinkedType.typeID);
@@ -761,7 +775,7 @@ export default function Backup() {
     setShowNFT(newShowNFT);
 
     const ids = [];
-    nft.map((item) => {
+    nft.forEach((item) => {
       if(item.id === id) currentNFTIDs.pop(item.id);
     })
 
@@ -1531,7 +1545,7 @@ export default function Backup() {
                             <div className='row'>
                               <div className='col-3 p-0'>
                                 <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                <h5 className='text-center'>({item.nftsCount})</h5>
+                                <AddNftId lockUp={lockUp} item={item} />
                               </div>
 
                               <div className='col-9'>
