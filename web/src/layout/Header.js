@@ -8,12 +8,12 @@ export default function Header() {
   const [user, setUser] = useState({ loggedIn: null });
   const navigate = useNavigate();
 
-  useEffect(() => { 
+  useEffect(() => {
     fcl.currentUser.subscribe(setUser);
-  }, []);  
+  }, []);
 
-  useEffect(() => { 
-    user.loggedIn ? navigate("/backup") : navigate("/");
+  useEffect(() => {
+    user.loggedIn ? navigate("/safe") : navigate("/");
   }, [user]);
 
   return(

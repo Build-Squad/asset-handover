@@ -14,7 +14,7 @@ function App() {
         <Header />
         <Routes>
           <Route path="" element={<Home />} />
-          <Route path="/backup" element={<Backup />} />
+          <Route path="/safe" element={<Backup />} />
         </Routes>
         <Footer />
       </Router>
