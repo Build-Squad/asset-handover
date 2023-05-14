@@ -1531,21 +1531,12 @@ export default function Backup() {
                   }                  
 
                   <div className='row p-3 pt-0'>
-                    {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 ?
-                      <div className='col-md-8'>
-                        <h5 className='text-danger'>
-                          * If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                          the Coin(s) will goes to recipient.
-                        </h5>
-                      </div>
-                    :
-                      <div className='col-md-8'>
-                        <h5 className='text-white'>
-                          * If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                          the Coin(s) will goes to recipient.
-                        </h5>
-                      </div>
-                    }                    
+                    <div className='col-md-8'>
+                      <h5 className='text-warning'>
+                        <FaInfo /> If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                        the Coin(s) will goes to recipient.
+                      </h5>
+                    </div>                 
 
                     <div className='col-md-4'>
                       {txProgress && txType === "editFT" ?
