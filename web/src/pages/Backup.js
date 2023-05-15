@@ -65,6 +65,7 @@ export default function Backup() {
   const [nft, setNFT] = useState([]);
   const [nftIDs, setNFTIDs] = useState([]);
   const [selectedNFT, setSelectedNFT] = useState([]);
+  const [selectAll_checked, setSelectAllChecked] = useState(false);
 
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
@@ -290,11 +291,11 @@ export default function Backup() {
   useEffect(() => {
     setShowNFT(Array(nft.length).fill(true));
     const ids = [];
-
+    const selected_ids = Array(nft.length).fill(false);
     nft.map((item) => {
       ids.push(item.id);
     });
-
+    setSelectedNFT(selected_ids);
     setCurrentNFTIDs(ids);
   }, [nft]);
 
@@ -592,37 +593,52 @@ export default function Backup() {
 
   const selectNFT = (e, id) => {
     let ids = [...nftIDs];
+    let selected_ids = [...selectedNFT];
+    console.log(ids, id);
+    console.log("id---", id);
+    console.log(ids.indexOf(id));
+    let nftallids = [];
+
+    nft.map((item) => {
+      nftallids.push(item.id);
+    })
 
     if (e.target.checked) {
       if (!ids.includes(id)) {
         ids.push(id);
       }
     } else {
+      setSelectAllChecked(false);
       if (ids.includes(id)) {
         ids = ids.filter(item => item !== id)
       }
     }
 
+    selected_ids[nftallids.indexOf(id)] = !selected_ids[nftallids.indexOf(id)];
+    setSelectedNFT(selected_ids);
     setNFTIDs(ids);
   }
 
   const selectAllNFT = (e) => {
     let ids = [...nftIDs];
-    let selectedIds = [];
+    let selected_ids = [...selectedNFT];
 
     if (e.target.checked) {
-      nft.map((item) => {
+      setSelectAllChecked(true);
+      nft.map((item, index) => {
         ids.push(item.id);
-        selectedIds.push(true);
+        selected_ids[index] = true;
       });
+
     } else {
+      setSelectAllChecked(false);
       ids = [];
-      nft.map((item) => {
-        selectedIds.push(false);
+      nft.map((item, index) => {
+        selected_ids[index] = false;
       })
     }
 
-    setSelectedNFT(selectedIds);
+    setSelectedNFT(selected_ids);
     setNFTIDs(ids);
   }
 
@@ -1653,7 +1669,7 @@ export default function Backup() {
                       <h4 className='blue-font'>SELECT NFT(S)</h4>
                     </div>
                     <div className='col-md-4 pt-2'>
-                      <Form.Check type="checkbox" label="Select All NFTs"
+                      <Form.Check type="checkbox" label="Select All NFTs" checked={selectAll_checked}
                         onChange={(e) => selectAllNFT(e)} />
                     </div>
                     <div className='col-md-4 text-end'>
