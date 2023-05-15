@@ -382,7 +382,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("createLockup");
 
-    if(editLockUp){
+    if (editLockUp) {
       try {
         const txid = await fcl.mutate({
           cadence: updateLockUp,
@@ -404,7 +404,7 @@ export default function Backup() {
         setTxProgress(false);
         toast.error(error);
       }
-    }else{
+    } else {
       try {
         const txid = await fcl.mutate({
           cadence: createLockUp,
@@ -465,7 +465,7 @@ export default function Backup() {
     setTxType("addFT");
 
     if (flowSelect) {
-      if(flowAmount !== ""){
+      if (flowAmount !== "") {
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleToken,
@@ -485,7 +485,7 @@ export default function Backup() {
           setTxProgress(false);
           toast.error(error);
         }
-      }else{
+      } else {
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleToken,
@@ -509,7 +509,7 @@ export default function Backup() {
     }
 
     if (blpSelect) {
-      if(blpAmount !== ""){
+      if (blpAmount !== "") {
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleToken,
@@ -529,7 +529,7 @@ export default function Backup() {
           setTxProgress(false);
           toast.error(error);
         }
-      }else{
+      } else {
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleToken,
@@ -563,19 +563,23 @@ export default function Backup() {
         arg(item.collectionIdentifier, t.String)
       ],
     });
-    // console.log('nftRes - ', nftRes);
+    console.log('nftRes - ', nftRes);
 
-    lockUp.nonFungibleTokens.forEach((token) => {
-      if(item.nftType.includes(token.identifier)){
-        nftRes.map((nftItem) => {
-          if(!token.nftIDs.includes(nftItem.id)) {
-            availableNFT.push(nftItem);
-          }
-        })
-        setNFT(availableNFT);
-      }
-    });
-    // console.log("available nft - ", availableNFT);
+    if (lockUp.nonFungibleTokens.length === 0) {
+      setNFT(nftRes);
+    } else {
+      lockUp.nonFungibleTokens.forEach((token) => {
+        if (item.nftType.includes(token.identifier)) {
+          nftRes.map((nftItem) => {
+            if (!token.nftIDs.includes(nftItem.id)) {
+              availableNFT.push(nftItem);
+            }
+          })
+          setNFT(availableNFT);
+        }
+      });
+      console.log("available nft - ", availableNFT);
+    }
 
     setContractName(item.contractName);
     setContractAddress(item.contractAddress);
@@ -606,12 +610,12 @@ export default function Backup() {
     let ids = [...nftIDs];
     let selectedIds = [];
 
-    if(e.target.checked){
+    if (e.target.checked) {
       nft.map((item) => {
         ids.push(item.id);
         selectedIds.push(true);
       });
-    }else{
+    } else {
       ids = [];
       nft.map((item) => {
         selectedIds.push(false);
@@ -654,7 +658,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("editFT");
 
-    if(isRemoveFlow){
+    if (isRemoveFlow) {
       try {
         const txid = await fcl.mutate({
           cadence: lockFungibleTokens,
@@ -676,7 +680,7 @@ export default function Backup() {
       }
     }
 
-    if(isRemoveBlp){
+    if (isRemoveBlp) {
       try {
         const txid = await fcl.mutate({
           cadence: lockFungibleTokens,
@@ -788,7 +792,7 @@ export default function Backup() {
     console.log("currentNFTIDs", currentNFTIDs);
 
     currentNFTIDs.forEach((item, index) => {
-      if(item === id) currentNFTIDs.splice(index, 1);
+      if (item === id) currentNFTIDs.splice(index, 1);
     })
 
     setEditNFTIDs(currentNFTIDs);
@@ -798,7 +802,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("editNFT");
 
-    if(currentNFTIDs.length > 0){
+    if (currentNFTIDs.length > 0) {
       try {
         const txid = await fcl.mutate({
           cadence: setLockUpNFTIDs,
@@ -818,7 +822,7 @@ export default function Backup() {
         setTxProgress(false);
         toast.error(error);
       }
-    }else{
+    } else {
       try {
         const txid = await fcl.mutate({
           cadence: lockNonFungibleToken,
@@ -1010,7 +1014,7 @@ export default function Backup() {
             <Nav.Item className="type">
               <Nav.Link eventKey="first" className="text-center" onClick={() => setStep("default")}>
                 <img src="safe.png" width="80%" height="80%" />
-                <h5 className='mt-3 blue-font'>SAFE</h5>
+                <h5 className='mt-3 blue-font'>BACKUPS</h5>
               </Nav.Link>
             </Nav.Item>
 
@@ -1052,7 +1056,7 @@ export default function Backup() {
                                 {lockUp.recipient}
                               </p>
                               <p className='font-14 mb-0 blue-font'>
-                                Created at
+                                Created on
                               </p>
                               <p className='mb-1 blue-font'>
                                 {convertDate(Math.floor(lockUp.createdAt * 1000))}
@@ -1060,23 +1064,23 @@ export default function Backup() {
 
 
                               {parseInt(Date.now()) >= lockUp.releasedAt ?
-                              <>
-                                <p className='text-success font-14 mb-0'>
-                                  Maturity Date
-                                </p>
-                                <p className='text-success'>
-                                  {convertDate(Math.floor(lockUp.releasedAt))}
-                                </p>
-                              </>
-                              :
-                              <>
-                                <p className='red-font font-14 mb-0'>
-                                  Maturity Date
-                                </p>
-                                <p className='red-font'>
-                                  {convertDate(Math.floor(lockUp.releasedAt))}
-                                </p>
-                              </>
+                                <>
+                                  <p className='text-success font-14 mb-0'>
+                                    Maturity Date
+                                  </p>
+                                  <p className='text-success'>
+                                    {convertDate(Math.floor(lockUp.releasedAt))}
+                                  </p>
+                                </>
+                                :
+                                <>
+                                  <p className='red-font font-14 mb-0'>
+                                    Maturity Date
+                                  </p>
+                                  <p className='red-font'>
+                                    {convertDate(Math.floor(lockUp.releasedAt))}
+                                  </p>
+                                </>
                               }
 
                               <Button variant="dark" size="sm" className='blue-bg me-5' onClick={(e) => editClick(e)}>
@@ -1105,7 +1109,7 @@ export default function Backup() {
                       <div className='row justify-content-center'>
                         <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
                           <FaPlus className='blue-font mt-5 me-2' size={60} />
-                          <h5 className='mt-3 blue-font'>CREATE NEW SAFE</h5>
+                          <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
                         </div>
                       </div>
                     </div>
@@ -1118,16 +1122,17 @@ export default function Backup() {
                   <div className='row p-3'>
                     <div className='col-md-6'>
                       <h4 className='blue-font mb-4'>
-                        CREATE NEW SAFE
+                        CREATE NEW BACKUP
                       </h4>
                       <h5 className='mb-5'>
-                        Create a new safe to protect your assets. A safe
-                        is a secure container where you can store your digital assets and
-                        control their access. When you create a new safe,
-                        you gain the ability to manage and authorize transactions involving your assets.
-                        Safes provide an added layer of security and control,
-                        ensuring that only authorized individuals can interact with your valuable tokens.
-                        Take control of your assets and create a new safe today.
+                        Lorem ipsum dolor sit amet, consectetur
+                        adipiscing elit. Proin luctus ut enim a aliquam. Ut
+                        vel ante non nibh lacinia hendrerit a sed risus.
+                        Sed elit diam, mattis quis porta in, dignissim quis
+                        ex. Morbi ut nulla a nisl sagittis luctus id sed erat.
+                        Class aptent taciti sociosqu ad litora torquent per
+                        conubia nostra, per inceptos himenaeos. Sed
+                        efficitur pulvinar sapien.
                       </h5>
                       <div className='d-flex justify-content-center'>
                         <img src="page-3-banner.png" width="80%" height="auto" />
@@ -1138,7 +1143,7 @@ export default function Backup() {
                       <Form>
                         <Form.Group className="mb-3">
                           <Form.Label>
-                            Safe Name <span className='text-danger'>*</span>
+                            Backup Name <span className='text-danger'>*</span>
                           </Form.Label>
                           <Form.Control type="text" value={backupName}
                             onChange={(e) => setBackupName(e.target.value)} />
@@ -1173,15 +1178,15 @@ export default function Backup() {
                           </Button>
                           :
                           <>
-                          {editLockUp ?
-                          <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
-                            SAVE CHANGES
-                          </Button>
-                          :
-                          <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
-                            CREATE SAFE
-                          </Button>
-                          }
+                            {editLockUp ?
+                              <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
+                                SAVE CHANGES
+                              </Button>
+                              :
+                              <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
+                                CREATE BACKUP
+                              </Button>
+                            }
                           </>
                         }
 
@@ -1210,7 +1215,7 @@ export default function Backup() {
 
                     <div className='col-md-6 text-webkit-right'>
                       <p className='font-bold backup-date blue-font'>
-                        CREATED AT: {convertDate(Math.floor(lockUp.createdAt * 1000))}
+                        BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt * 1000))}
                       </p>
 
                       <p className='font-bold maturity-date blue-bg border-none'>
@@ -1223,12 +1228,12 @@ export default function Backup() {
                     <h4 className='p-2 blue-font mb-0'>
                       COIN(S)
                       {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                      <Button className='mx-3' variant="danger" size="sm"
-                        onClick={() => setStep("removecoins")}>
-                        Edit
-                      </Button>
-                      :
-                      <></>
+                        <Button className='mx-3' variant="danger" size="sm"
+                          onClick={() => setStep("removecoins")}>
+                          Edit
+                        </Button>
+                        :
+                        <></>
                       }
                     </h4>
 
@@ -1246,13 +1251,13 @@ export default function Backup() {
                               <img src="flowcoin.png" width="100%" height="auto" />
 
                               {item.balance === null ?
-                              <p className='blue-font font-bold text-center'>
-                                (All)
-                              </p>
-                              :
-                              <p className='blue-font font-bold text-center'>
-                                ({parseInt(item.balance)})
-                              </p>
+                                <p className='blue-font font-bold text-center'>
+                                  (All)
+                                </p>
+                                :
+                                <p className='blue-font font-bold text-center'>
+                                  ({parseInt(item.balance)})
+                                </p>
                               }
                             </div>
                           }
@@ -1262,13 +1267,13 @@ export default function Backup() {
                               <img src="coin.png" width="100%" height="auto" />
 
                               {item.balance === null ?
-                              <p className='blue-font font-bold text-center'>
-                                (All)
-                              </p>
-                              :
-                              <p className='blue-font font-bold text-center'>
-                                ({parseInt(item.balance)})
-                              </p>
+                                <p className='blue-font font-bold text-center'>
+                                  (All)
+                                </p>
+                                :
+                                <p className='blue-font font-bold text-center'>
+                                  ({parseInt(item.balance)})
+                                </p>
                               }
                             </div>
                           }
@@ -1287,7 +1292,7 @@ export default function Backup() {
                         <FaPlus className='blue-font' size={40} />
                       </div>
                       <h5 className='blue-font mx-3 align-self-center'>
-                        ADD COIN(S) TO SAFE
+                        ADD COIN(S) TO BACKUP
                       </h5>
                     </div>
                   }
@@ -1295,11 +1300,11 @@ export default function Backup() {
                   <h4 className='p-2 border-bottom-green blue-font mt-4'>
                     NFT COLLECTION(S)
                     {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
-                    <Button className='mx-3' variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
-                      Edit
-                    </Button>
-                    :
-                    <></>
+                      <Button className='mx-3' variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
+                        Edit
+                      </Button>
+                      :
+                      <></>
                     }
                   </h4>
                   {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
@@ -1343,7 +1348,7 @@ export default function Backup() {
                         <FaPlus className='blue-font' size={40} />
                       </div>
                       <h5 className='blue-font mx-3 align-self-center'>
-                        ADD NFT(S) TO SAFE
+                        ADD NFT(S) TO BACKUP
                       </h5>
                     </div>
                   }
@@ -1402,16 +1407,16 @@ export default function Backup() {
 
                   <div className='row mt-3 p-3'>
                     <div className='col-md-8'>
-                      <h5 className='text-warning'>
-                        <FaInfo /> If you don’t enter quantity of Coin(s), whole ownership of
-                        the Coin(s) goes to the recipient.
+                      <h5 className='text-danger'>
+                        * If you don’t enter quantity of Coin(s) to handover, whole ownership of
+                        the Coin(s) will goes to recipient.
                       </h5>
                     </div>
 
                     <div className='col-md-4'>
                       {(!flowSelect && !blpSelect) ?
                         <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                          ADD COINS TO SAFE
+                          ADD COINS TO BACKUP
                         </Button>
                         :
                         <>
@@ -1423,7 +1428,7 @@ export default function Backup() {
                             </Button>
                             :
                             <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
-                              ADD COINS TO SAFE
+                              ADD COINS TO BACKUP
                             </Button>
                           }
                         </>
@@ -1444,89 +1449,89 @@ export default function Backup() {
                     {lockUp !== null &&
                       lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
-                        {item.identifier.includes("FlowToken") ?
-                        <>
-                        {!isRemoveFlow &&
-                        <div className='col-lg-6 col-xl-4 pt-2'>
-                          <div className='grey-border p-2'>
-                            <div className='row'>
-                              <div className='col-md-3'>
-                                <img src="flowcoin.png" width="100%" height="auto" />
+                          {item.identifier.includes("FlowToken") ?
+                            <>
+                              {!isRemoveFlow &&
+                                <div className='col-lg-6 col-xl-4 pt-2'>
+                                  <div className='grey-border p-2'>
+                                    <div className='row'>
+                                      <div className='col-md-3'>
+                                        <img src="flowcoin.png" width="100%" height="auto" />
 
-                                {item.balance ?
-                                  <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                                  :
-                                  <h5 className='text-center'>(All)</h5>
-                                }
-                              </div>
+                                        {item.balance ?
+                                          <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                          :
+                                          <h5 className='text-center'>(All)</h5>
+                                        }
+                                      </div>
 
-                              <div className='col-md-9'>
-                                <div className='d-flex justify-content-between'>
-                                  <h5 className='blue-font mb-0'>FLOW</h5>
+                                      <div className='col-md-9'>
+                                        <div className='d-flex justify-content-between'>
+                                          <h5 className='blue-font mb-0'>FLOW</h5>
 
-                                  {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
-                                    <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                      onClick={() => removeFlow()} />
-                                  }
+                                          {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
+                                            <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                              onClick={() => removeFlow()} />
+                                          }
+                                        </div>
+
+                                        <p className='text-grey mb-1 font-14'>{item.identifier}</p>
+
+                                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                          value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
+                              }
+                            </>
+                            :
+                            <>
+                              {!isRemoveBlp &&
+                                <div className='col-lg-6 col-xl-4 pt-2'>
+                                  <div className='grey-border p-2'>
+                                    <div className='row'>
+                                      <div className='col-md-3'>
+                                        <img src="coin.png" width="100%" height="auto" />
 
-                                <p className='text-grey mb-1 font-14'>{item.identifier}</p>
+                                        {item.balance ?
+                                          <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                          :
+                                          <h5 className='text-center'>(All)</h5>
+                                        }
+                                      </div>
 
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                  value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        }
-                        </>
-                        :
-                        <>
-                        {!isRemoveBlp &&
-                        <div className='col-lg-6 col-xl-4 pt-2'>
-                          <div className='grey-border p-2'>
-                            <div className='row'>
-                              <div className='col-md-3'>
-                                <img src="coin.png" width="100%" height="auto" />
+                                      <div className='col-md-9'>
+                                        <div className='d-flex justify-content-between'>
+                                          <h5 className='blue-font mb-0'>BLP</h5>
 
-                                {item.balance ?
-                                  <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                                  :
-                                  <h5 className='text-center'>(All)</h5>
-                                }
-                              </div>
+                                          {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
+                                            <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
+                                              onClick={() => removeBlp()} />
+                                          }
+                                        </div>
 
-                              <div className='col-md-9'>
-                                <div className='d-flex justify-content-between'>
-                                  <h5 className='blue-font mb-0'>BLP</h5>
+                                        <p className='text-grey mb-1 font-14'>{item.identifier}</p>
 
-                                  {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
-                                  <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                    onClick={() => removeBlp()} />
-                                  }
+                                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                          value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-
-                                <p className='text-grey mb-1 font-14'>{item.identifier}</p>
-
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                  value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        }
-                        </>
-                        }
+                              }
+                            </>
+                          }
                         </React.Fragment>
                       ))
                     }
                   </div>
 
                   {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
-                  <div className='d-flex p-2 mt-5'>
-                    <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
-                    <h5>= Remove from the Coin(s)</h5>
-                  </div>
+                    <div className='d-flex p-2 mt-5'>
+                      <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
+                      <h5>= Remove from the Coin(s)</h5>
+                    </div>
                   }
 
                   <div className='row p-3 pt-0'>
@@ -1643,12 +1648,22 @@ export default function Backup() {
 
               {step === "nfts" &&
                 <Tab.Pane eventKey="first">
-                  <div className='d-flex justify-content-between pt-2 mx-2 border-bottom-green'>
-                    <h4 className='blue-font'>SELECT NFT(S)</h4>
+                  <div className='row pt-2 mx-2 border-bottom-green'>
+                    <div className='col-md-4'>
+                      <h4 className='blue-font'>SELECT NFT(S)</h4>
+                    </div>
+                    <div className='col-md-4 pt-2'>
                       <Form.Check type="checkbox" label="Select All NFTs"
                         onChange={(e) => selectAllNFT(e)} />
-                      <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
-                        onClick={() => setStep("nftcollection")} />
+                    </div>
+                    <div className='col-md-4 text-end'>
+                      <div className='d-flex justify-content-between'>
+                        <h4 className='blue-font'>NFT COLLECTION(S)</h4>
+
+                        <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
+                          onClick={() => setStep("nftcollection")} />
+                      </div>
+                    </div>
                   </div>
 
                   <div className='row p-3'>
@@ -1689,13 +1704,13 @@ export default function Backup() {
                         </Button>
                         :
                         <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
-                          ADD NFT(S) TO SAFE
+                          ADD NFT(S) TO BACKUP
                         </Button>
                       }
                     </>
                     :
                     <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
-                      ADD NFT(S) TO SAFE
+                      ADD NFT(S) TO BACKUP
                     </Button>
                   }
                 </Tab.Pane>
@@ -1704,6 +1719,7 @@ export default function Backup() {
                 <Tab.Pane eventKey="first">
                   <div className='d-flex justify-content-between pt-2 mx-2 border-bottom-green'>
                     <h4 className='blue-font'>EDIT NFT(S)</h4>
+                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
                     <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
                       onClick={() => setStep("editnftcollection")} />
                   </div>
@@ -1745,7 +1761,8 @@ export default function Backup() {
                         <h5>= Remove from the NFT Collection</h5>
                       </div>
                       <p className='text-warning px-1'>
-                        <FaInfo /> By removing all the NFTs you delegate ownership of your whole collection
+                        <FaInfo /> = If you remove all the NFTs that would mean you want to
+                        <br />delegate the ownership of your whole collection
                       </p>
                     </div>
 
@@ -1781,29 +1798,29 @@ export default function Backup() {
                             <p className='text-grey mb-0'>
                               {item.holder}
                             </p>
-                            <p className='font-14 mb-0 blue-font'>Created at</p>
+                            <p className='font-14 mb-0 blue-font'>Created on</p>
                             <p className='mb-1 blue-font'>
                               {convertDate(Math.floor(item.createdAt * 1000))}
                             </p>
 
                             {parseInt(Date.now()) >= item.releasedAt ?
-                            <>
-                              <p className='text-success font-14 mb-0'>
-                                Maturity Date
-                              </p>
-                              <p className='text-success'>
-                                {convertDate(Math.floor(item.releasedAt))}
-                              </p>
-                            </>
-                            :
-                            <>
-                              <p className='red-font font-14 mb-0'>
-                                Maturity Date
-                              </p>
-                              <p className='red-font'>
-                                {convertDate(Math.floor(item.releasedAt))}
-                              </p>
-                            </>
+                              <>
+                                <p className='text-success font-14 mb-0'>
+                                  Maturity Date
+                                </p>
+                                <p className='text-success'>
+                                  {convertDate(Math.floor(item.releasedAt))}
+                                </p>
+                              </>
+                              :
+                              <>
+                                <p className='red-font font-14 mb-0'>
+                                  Maturity Date
+                                </p>
+                                <p className='red-font'>
+                                  {convertDate(Math.floor(item.releasedAt))}
+                                </p>
+                              </>
                             }
                           </Card.Body>
                         </Card>

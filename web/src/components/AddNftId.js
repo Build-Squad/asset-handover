@@ -1,17 +1,24 @@
 
 import { useState, useEffect } from "react";
 
-export default function AddNftId ({ lockUp, item }) {
+export default function AddNftId({ lockUp, item }) {
   const [nftIDsLength, setNftIDsLength] = useState(0);
 
   useEffect(() => {
     const updateNftIDsLength = () => {
       let length = 0;
-      lockUp.nonFungibleTokens.forEach((nft) => {
-        if (item.nftType.replace(".NFT", "") === nft.identifier) {
-          length = item.nftsCount - nft.nftIDs.length;
-        }
-      });
+
+      if (lockUp.nonFungibleTokens.length === 0) {
+        length = item.nftsCount;
+      } else {
+        lockUp.nonFungibleTokens.forEach((nft) => {
+          if (item.nftType.replace(".NFT", "") === nft.identifier) {
+            length = item.nftsCount - nft.nftIDs.length;
+          }
+        });
+      }
+
+
       setNftIDsLength(length);
     };
 
