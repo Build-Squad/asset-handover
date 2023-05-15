@@ -1030,7 +1030,7 @@ export default function Backup() {
             <Nav.Item className="type">
               <Nav.Link eventKey="first" className="text-center" onClick={() => setStep("default")}>
                 <img src="safe.png" width="80%" height="80%" />
-                <h5 className='mt-3 blue-font'>BACKUPS</h5>
+                <h5 className='mt-3 blue-font'>SAFE</h5>
               </Nav.Link>
             </Nav.Item>
 
@@ -1072,7 +1072,7 @@ export default function Backup() {
                                 {lockUp.recipient}
                               </p>
                               <p className='font-14 mb-0 blue-font'>
-                                Created on
+                                Created at
                               </p>
                               <p className='mb-1 blue-font'>
                                 {convertDate(Math.floor(lockUp.createdAt * 1000))}
@@ -1125,7 +1125,7 @@ export default function Backup() {
                       <div className='row justify-content-center'>
                         <div className='col-xl-3 col-lg-5 text-center cursor-pointer' onClick={() => setStep("create")}>
                           <FaPlus className='blue-font mt-5 me-2' size={60} />
-                          <h5 className='mt-3 blue-font'>CREATE NEW BACKUP</h5>
+                          <h5 className='mt-3 blue-font'>CREATE NEW SAFE</h5>
                         </div>
                       </div>
                     </div>
@@ -1138,17 +1138,16 @@ export default function Backup() {
                   <div className='row p-3'>
                     <div className='col-md-6'>
                       <h4 className='blue-font mb-4'>
-                        CREATE NEW BACKUP
+                        CREATE NEW SAFE
                       </h4>
                       <h5 className='mb-5'>
-                        Lorem ipsum dolor sit amet, consectetur
-                        adipiscing elit. Proin luctus ut enim a aliquam. Ut
-                        vel ante non nibh lacinia hendrerit a sed risus.
-                        Sed elit diam, mattis quis porta in, dignissim quis
-                        ex. Morbi ut nulla a nisl sagittis luctus id sed erat.
-                        Class aptent taciti sociosqu ad litora torquent per
-                        conubia nostra, per inceptos himenaeos. Sed
-                        efficitur pulvinar sapien.
+                        Create a new safe to protect your assets. A safe
+                        is a secure container where you can store your digital assets and
+                        control their access. When you create a new safe,
+                        you gain the ability to manage and authorize transactions involving your assets.
+                        Safes provide an added layer of security and control,
+                        ensuring that only authorized individuals can interact with your valuable tokens.
+                        Take control of your assets and create a new safe today.
                       </h5>
                       <div className='d-flex justify-content-center'>
                         <img src="page-3-banner.png" width="80%" height="auto" />
@@ -1159,7 +1158,7 @@ export default function Backup() {
                       <Form>
                         <Form.Group className="mb-3">
                           <Form.Label>
-                            Backup Name <span className='text-danger'>*</span>
+                            Safe Name <span className='text-danger'>*</span>
                           </Form.Label>
                           <Form.Control type="text" value={backupName}
                             onChange={(e) => setBackupName(e.target.value)} />
@@ -1200,7 +1199,7 @@ export default function Backup() {
                               </Button>
                               :
                               <Button className='blue-bg border-radius-none mt-5' onClick={createBackup}>
-                                CREATE BACKUP
+                                CREATE SAFE
                               </Button>
                             }
                           </>
@@ -1231,7 +1230,7 @@ export default function Backup() {
 
                     <div className='col-md-6 text-webkit-right'>
                       <p className='font-bold backup-date blue-font'>
-                        BACKUP DATE: {convertDate(Math.floor(lockUp.createdAt * 1000))}
+                        CREATED AT: {convertDate(Math.floor(lockUp.createdAt * 1000))}
                       </p>
 
                       <p className='font-bold maturity-date blue-bg border-none'>
@@ -1308,7 +1307,7 @@ export default function Backup() {
                         <FaPlus className='blue-font' size={40} />
                       </div>
                       <h5 className='blue-font mx-3 align-self-center'>
-                        ADD COIN(S) TO BACKUP
+                        ADD COIN(S) TO SAFE
                       </h5>
                     </div>
                   }
@@ -1364,7 +1363,7 @@ export default function Backup() {
                         <FaPlus className='blue-font' size={40} />
                       </div>
                       <h5 className='blue-font mx-3 align-self-center'>
-                        ADD NFT(S) TO BACKUP
+                        ADD NFT(S) TO SAFE
                       </h5>
                     </div>
                   }
@@ -1376,7 +1375,7 @@ export default function Backup() {
                 <Tab.Pane eventKey="first">
                   <div className='d-flex justify-content-between border-bottom-green'>
                     <h4 className='blue-font p-2 mb-0'>
-                      COIN(S)
+                      SELECT COIN(S)
                     </h4>
 
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
@@ -1423,16 +1422,16 @@ export default function Backup() {
 
                   <div className='row mt-3 p-3'>
                     <div className='col-md-8'>
-                      <h5 className='text-danger'>
-                        * If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                        the Coin(s) will goes to recipient.
+                      <h5 className='text-warning'>
+                        <FaInfo /> If you don’t enter quantity of Coin(s), whole ownership of
+                        the Coin(s) goes to the recipient.
                       </h5>
                     </div>
 
                     <div className='col-md-4'>
                       {(!flowSelect && !blpSelect) ?
                         <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                          ADD COINS TO BACKUP
+                          ADD COINS TO SAFE
                         </Button>
                         :
                         <>
@@ -1444,7 +1443,7 @@ export default function Backup() {
                             </Button>
                             :
                             <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
-                              ADD COINS TO BACKUP
+                              ADD COINS TO SAFE
                             </Button>
                           }
                         </>
@@ -1546,15 +1545,15 @@ export default function Backup() {
                   {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
                     <div className='d-flex p-2 mt-5'>
                       <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
-                      <h5>= Remove from the Coin(s)</h5>
+                      <h5>= Remove Coin(s) from Safe</h5>
                     </div>
                   }
 
                   <div className='row p-3 pt-0'>
                     <div className='col-md-8'>
                       <h5 className='text-warning'>
-                        <FaInfo /> If you don’t enter quantity of Coin(s) to handover, whole ownership of
-                        the Coin(s) will goes to recipient.
+                        <FaInfo /> If you don’t enter quantity of Coin(s), whole ownership of
+                        the Coin(s) goes to the recipient.
                       </h5>
                     </div>
 
@@ -1664,22 +1663,12 @@ export default function Backup() {
 
               {step === "nfts" &&
                 <Tab.Pane eventKey="first">
-                  <div className='row pt-2 mx-2 border-bottom-green'>
-                    <div className='col-md-4'>
-                      <h4 className='blue-font'>SELECT NFT(S)</h4>
-                    </div>
-                    <div className='col-md-4 pt-2'>
+                  <div className='d-flex justify-content-between pt-2 mx-2 border-bottom-green'>
+                    <h4 className='blue-font'>SELECT NFT(S)</h4>
                       <Form.Check type="checkbox" label="Select All NFTs" checked={selectAll_checked}
                         onChange={(e) => selectAllNFT(e)} />
-                    </div>
-                    <div className='col-md-4 text-end'>
-                      <div className='d-flex justify-content-between'>
-                        <h4 className='blue-font'>NFT COLLECTION(S)</h4>
-
                         <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
                           onClick={() => setStep("nftcollection")} />
-                      </div>
-                    </div>
                   </div>
 
                   <div className='row p-3'>
@@ -1720,13 +1709,13 @@ export default function Backup() {
                         </Button>
                         :
                         <Button className='blue-bg border-none border-radius-none mt-5 me-3' onClick={() => addNFT()}>
-                          ADD NFT(S) TO BACKUP
+                          ADD NFT(S) TO SAFE
                         </Button>
                       }
                     </>
                     :
                     <Button className='blue-bg border-none border-radius-none mt-5 me-3' disabled>
-                      ADD NFT(S) TO BACKUP
+                      ADD NFT(S) TO SAFE
                     </Button>
                   }
                 </Tab.Pane>
@@ -1735,7 +1724,6 @@ export default function Backup() {
                 <Tab.Pane eventKey="first">
                   <div className='d-flex justify-content-between pt-2 mx-2 border-bottom-green'>
                     <h4 className='blue-font'>EDIT NFT(S)</h4>
-                    <h4 className='blue-font'>NFT COLLECTION(S)</h4>
                     <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
                       onClick={() => setStep("editnftcollection")} />
                   </div>
@@ -1774,11 +1762,10 @@ export default function Backup() {
                     <div className='col-md-6 px-0'>
                       <div className='d-flex mt-3'>
                         <img className='mt-1 me-2' src="remove-button.png" alt="" width="20px" height="20px" />
-                        <h5>= Remove from the NFT Collection</h5>
+                        <h5>= Remove NFT from Safe</h5>
                       </div>
                       <p className='text-warning px-1'>
-                        <FaInfo /> = If you remove all the NFTs that would mean you want to
-                        <br />delegate the ownership of your whole collection
+                        <FaInfo /> By removing all the NFTs you delegate ownership of your whole collection
                       </p>
                     </div>
 
@@ -1814,7 +1801,7 @@ export default function Backup() {
                             <p className='text-grey mb-0'>
                               {item.holder}
                             </p>
-                            <p className='font-14 mb-0 blue-font'>Created on</p>
+                            <p className='font-14 mb-0 blue-font'>Created at</p>
                             <p className='mb-1 blue-font'>
                               {convertDate(Math.floor(item.createdAt * 1000))}
                             </p>
@@ -2218,20 +2205,12 @@ export default function Backup() {
 
               {pledgeStep === "nfts" &&
                 <Tab.Pane eventKey="second">
-                  <div className='row pt-2 mx-2 border-bottom-green'>
-                    <div className='col-md-6'>
-                      <h4 className='blue-font'>
-                        WITHDRAW NFT(S) FROM PLEDGE
-                      </h4>
-                    </div>
-                    <div className='col-md-6 text-end'>
-                      <div className='d-flex justify-content-between'>
-                        <h4 className='blue-font'>NFT COLLECTION(S)</h4>
-
-                        <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
-                          onClick={() => setPledgeStep("item")} />
-                      </div>
-                    </div>
+                  <div className='d-flex justify-content-between border-bottom-green'>
+                    <h4 className='blue-font p-2 mb-0'>
+                      WITHDRAW NFT(S) FROM PLEDGE
+                    </h4>
+                    <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
+                      onClick={() => setPledgeStep("item")} />
                   </div>
 
                   <div className='row p-3'>
@@ -2263,11 +2242,11 @@ export default function Backup() {
                     ))}
                   </div>
 
-                  <div className='row p-3 pt-0'>
-                    <div className='col-md-6 px-0'>
-                      <div className='d-flex mt-4'>
-                        <h5>Please select NFTs to withdraw</h5>
-                      </div>
+                  <div className='row mt-3 p-3'>
+                    <div className='col-md-8'>
+                        <h5 className='text-warning'>
+                          <FaInfo /> Please select NFTs to withdraw
+                        </h5>
                     </div>
 
                     <div className='col-md-6'>
