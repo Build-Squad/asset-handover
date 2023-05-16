@@ -1068,12 +1068,18 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("withdrawNFT");
     let withdrawNFTids = [];
-    pledgeNFT.map((item, index)=>{
-      if(changeSelection[index]){
+    pledgeNFT.map((item, index) => {
+      if (changeSelection[index]) {
         withdrawNFTids.push(item.id);
       }
     })
+
+
+    setWithdrawNFTIDs(withdrawNFTids);
     console.log("withdrawNFTids -- ", withdrawNFTids);
+
+    console.log("WithdrawNFT ---- collectionID", collectionID.replace(".NFT", ""))
+    console.log("WithdrawNFT ---- holder", holder);
     try {
       const txid = await fcl.mutate({
         cadence: withdrawNonFungibleToken,
