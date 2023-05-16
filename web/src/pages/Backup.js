@@ -334,7 +334,7 @@ export default function Backup() {
         cadence: getFungibleTokenInfoMapping
       });
       setFT(ftinfo);
-      // console.log("ftinfo - ", ftinfo);
+      console.log("ftinfo - ", ftinfo);
 
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
@@ -361,7 +361,7 @@ export default function Backup() {
           arg(user.addr, t.Address),
         ],
       });
-      // console.log('pledge - ', pledge);
+      console.log('pledge - ', pledge);
       setPledge(pledge);
     }
   }
@@ -869,7 +869,7 @@ export default function Backup() {
     console.log("pledge - ", item);
     setPledgeStep("item");
     setHolder(item.holder);
-
+    setFlowWithdraw();
     const pledgeCollection = await fcl.query({
       cadence: getCollectionsForAccount,
       args: (arg, t) => [arg(item.holder, t.Address)]
@@ -902,10 +902,16 @@ export default function Backup() {
   const withdrawFlow = async (identifier, holder) => {
     setTxProgress(true);
     setTxType("withdrawFlow");
+    console.log("FlowWithdraw--- ", flowWithdraw);
+    // let withdrawAmount ;
+    // if (flowWithdraw === "") {
+    //   withdrawAmount = identifier.
+    // }
+    // else withdrawAmount = flowWithdraw;
 
     try {
       const txid = await fcl.mutate({
-        cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
+        cadence: setupAddVaultAndWithdrawFT("FlowToken", "0xAssetHandover"),
         args: (arg, t) => [
           arg(identifier, t.String),
           arg(holder, t.Address),
@@ -1665,10 +1671,10 @@ export default function Backup() {
                 <Tab.Pane eventKey="first">
                   <div className='d-flex justify-content-between pt-2 mx-2 border-bottom-green'>
                     <h4 className='blue-font'>SELECT NFT(S)</h4>
-                      <Form.Check type="checkbox" label="Select All NFTs" checked={selectAll_checked}
-                        onChange={(e) => selectAllNFT(e)} />
-                        <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
-                          onClick={() => setStep("nftcollection")} />
+                    <Form.Check type="checkbox" label="Select All NFTs" checked={selectAll_checked}
+                      onChange={(e) => selectAllNFT(e)} />
+                    <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
+                      onClick={() => setStep("nftcollection")} />
                   </div>
 
                   <div className='row p-3'>
@@ -1883,14 +1889,30 @@ export default function Backup() {
                           {item.identifier.includes("FlowToken") &&
                             <div className='col-md-1'>
                               <img src="flowcoin.png" width="100%" height="auto" />
-                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                              {item.balance === null ?
+                                <p className='blue-font font-bold text-center'>
+                                  (All)
+                                </p>
+                                :
+                                <p className='blue-font font-bold text-center'>
+                                  ({parseInt(item.balance)})
+                                </p>
+                              }
                             </div>
                           }
 
                           {item.identifier.includes("BlpToken") &&
                             <div className='col-md-1'>
                               <img src="coin.png" width="100%" height="auto" />
-                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                              {item.balance === null ?
+                                <p className='blue-font font-bold text-center'>
+                                  (All)
+                                </p>
+                                :
+                                <p className='blue-font font-bold text-center'>
+                                  ({parseInt(item.balance)})
+                                </p>
+                              }
                             </div>
                           }
                         </React.Fragment>
@@ -1966,7 +1988,13 @@ export default function Backup() {
 
                                   <div className='col-md-3'>
                                     <img src="flowcoin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                    {item.balance === null ?
+                                      <h5 className='text-center'>
+                                        (All)
+                                      </h5>
+                                      :
+                                      <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                    }
                                   </div>
 
                                   <div className='col-md-9'>
@@ -1976,7 +2004,13 @@ export default function Backup() {
                                     <div className='row'>
                                       <div className='col-9 pr-0'>
                                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                          value={flowWithdraw} onChange={(e) => setFlowWithdraw(e.target.value)} />
+                                          value={flowWithdraw} onChange={(e, item) => {
+                                            // if (e.target.value === "")
+                                            //   setFlowWithdraw(parseInt(item.balance));
+                                            // else
+                                            console.log("balance----", item.balance);
+                                            setFlowWithdraw(e.target.value);
+                                          }} />
                                       </div>
 
                                       <div className='col-3'>
@@ -2004,7 +2038,13 @@ export default function Backup() {
 
                                   <div className='col-md-3'>
                                     <img src="coin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                    {item.balance === null ?
+                                      <h5 className='text-center'>
+                                        (All)
+                                      </h5>
+                                      :
+                                      <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                    }
                                   </div>
 
                                   <div className='col-md-9'>
@@ -2244,9 +2284,9 @@ export default function Backup() {
 
                   <div className='row mt-3 p-3'>
                     <div className='col-md-8'>
-                        <h5 className='text-warning'>
-                          <FaInfo /> Please select NFTs to withdraw
-                        </h5>
+                      <h5 className='text-warning'>
+                        <FaInfo /> Please select NFTs to withdraw
+                      </h5>
                     </div>
 
                     <div className='col-md-6'>
