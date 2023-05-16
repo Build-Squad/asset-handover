@@ -959,9 +959,18 @@ export default function Backup() {
     }
   }
 
-  const withdrawBlp = async (identifier, holder) => {
+  const withdrawBlp = async (identifier, holder, item) => {
     setTxProgress(true);
     setTxType("withdrawBlp");
+    let withdrawAmount;
+    if (blpWithdraw === "" || blpWithdraw === null || blpWithdraw === undefined) {
+      withdrawAmount = Math.floor(item.balance);
+    }
+    else {
+      withdrawAmount = blpWithdraw;
+
+    }
+    console.log("blpWithdraw--- ", withdrawAmount);
 
     try {
       const txid = await fcl.mutate({
@@ -969,7 +978,7 @@ export default function Backup() {
         args: (arg, t) => [
           arg(identifier, t.String),
           arg(holder, t.Address),
-          arg(blpWithdraw + ".0", t.UFix64)
+          arg(withdrawAmount + ".0", t.UFix64)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -2089,7 +2098,7 @@ export default function Backup() {
                                           </Spinner>
                                           :
                                           <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                            onClick={() => withdrawBlp(item.identifier, pledgeItem.holder)} />
+                                            onClick={() => withdrawBlp(item.identifier, pledgeItem.holder, item)} />
                                         }
                                       </div>
                                     </div>
