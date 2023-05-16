@@ -88,7 +88,8 @@ export default function Backup() {
   const [pledgeCollection, setPledgeCollection] = useState(null);
   const [pledgeNFT, setPledgeNFT] = useState(null);
   const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
-
+  const [changeSelection, setChangeSelection] = useState([]);
+  const [checkWithdrawAllNFT, setCheckWithdrawAllNFT] = useState(false);
   useEffect(() => {
     fcl.currentUser.subscribe(setUser);
     setStep("default");
@@ -289,6 +290,7 @@ export default function Backup() {
 
   }, [txStatus, txType]);
 
+
   useEffect(() => {
     setShowNFT(Array(nft.length).fill(true));
     const ids = [];
@@ -296,6 +298,7 @@ export default function Backup() {
     nft.map((item) => {
       ids.push(item.id);
     });
+
     setSelectedNFT(selected_ids);
     setCurrentNFTIDs(ids);
   }, [nft]);
@@ -994,6 +997,26 @@ export default function Backup() {
     }
   }
 
+  const selectAllWithdrawNFT = async (e) => {
+    let selectIDs = [];
+    if (e.target.checked) {
+      setCheckWithdrawAllNFT(true);
+      let temp = Array(changeSelection.length).fill(true);
+      pledgeNFT.map((item, index) => {
+        selectIDs.push(item.id);
+      });
+      setChangeSelection(temp);
+    }
+    else {
+      setCheckWithdrawAllNFT(false);
+
+      let temp = Array(changeSelection.length).fill(false);
+      setChangeSelection(temp);
+    }
+    console.log("selectAllWithdrawNFT---", changeSelection);
+    setWithdrawNFTIDs(selectIDs);
+
+  }
   const withdrawNFTCollection = async (item) => {
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
@@ -1015,39 +1038,49 @@ export default function Backup() {
 
     setPledgeNFT(ownNFT);
     console.log('nft - ', ownNFT);
-
+    let selectionFlag_NFTWithdraw = Array(ownNFT.length).fill(false);
+    setChangeSelection(selectionFlag_NFTWithdraw);
     setCollectionID(item.nftType);
 
     setPledgeStep("nfts");
   }
 
-  const selectWithdrawNFT = (e, id) => {
+  const selectWithdrawNFT = (e, id, index) => {
     let ids = [...withdrawNFTIDs];
-
+    let changeSelectionFlag = [...changeSelection];
     if (e.target.checked) {
+      changeSelectionFlag[index] = true;
       if (!ids.includes(id)) {
         ids.push(id);
       }
     } else {
+      setCheckWithdrawAllNFT(false);
+      changeSelectionFlag[index] = false;
       if (ids.includes(id)) {
         ids = ids.filter(item => item !== id)
       }
     }
-
+    setChangeSelection(changeSelectionFlag);
     setWithdrawNFTIDs(ids);
   }
 
   const withdrawNFT = async () => {
     setTxProgress(true);
     setTxType("withdrawNFT");
-
+    let withdrawNFTids = [];
+    pledgeNFT.map((item, index)=>{
+      if(changeSelection[index]){
+        withdrawNFTids.push(item.id);
+      }
+    })
+    console.log("withdrawNFTids -- ", withdrawNFTids);
     try {
       const txid = await fcl.mutate({
         cadence: withdrawNonFungibleToken,
         args: (arg, t) => [
           arg(collectionID.replace(".NFT", ""), t.String),
           arg(holder, t.Address),
-          arg(withdrawNFTIDs, t.Array(t.UInt64))
+          arg(withdrawNFTids, t.Array(t.UInt64))
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -2283,6 +2316,9 @@ export default function Backup() {
                     <h4 className='blue-font p-2 mb-0'>
                       WITHDRAW NFT(S) FROM PLEDGE
                     </h4>
+                    <Form.Check type="checkbox" label="Select All NFTs" checked={checkWithdrawAllNFT}
+                      onChange={(e) => selectAllWithdrawNFT(e)} />
+
                     <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
                       onClick={() => setPledgeStep("item")} />
                   </div>
@@ -2303,7 +2339,7 @@ export default function Backup() {
                           <div className='col-9'>
                             <div className='d-flex justify-content-between'>
                               <Card.Title>{item.name}</Card.Title>
-                              <Form.Check type="checkbox" onChange={(e) => selectWithdrawNFT(e, item.id)} />
+                              <Form.Check type="checkbox" checked={changeSelection[index]} onChange={(e) => selectWithdrawNFT(e, item.id, index)} />
                             </div>
 
                             <p className='font-14 mb-0'>
