@@ -77,6 +77,7 @@ export default function Backup() {
   const [editNFTIDs, setEditNFTIDs] = useState([]);
   const [showNFT, setShowNFT] = useState(null);
   const [currentNFTIDs, setCurrentNFTIDs] = useState(null);
+  const [showNFTCollection, setShowNFTCollection] = useState([]);
 
   //pledges
   const [pledge, setPledge] = useState(null);
@@ -554,6 +555,28 @@ export default function Backup() {
     }
   }
 
+  const getAllNFTCollectionInfo = () => {
+    let isShowCollection = [];
+    collection.map((item, index) => {
+      let length = 0;
+
+      if (lockUp.nonFungibleTokens.length === 0) {
+        length = item.nftsCount;
+      } else {
+        lockUp.nonFungibleTokens.forEach((nft) => {
+          if (item.nftType.replace(".NFT", "") === nft.identifier) {
+            length = item.nftsCount - nft.nftIDs.length;
+          }
+        });
+      }
+
+
+
+      isShowCollection.push(length)
+    });
+    setShowNFTCollection(isShowCollection);
+    setStep("nftcollection")
+  }
   const selectNFTCollection = async (item) => {
     let availableNFT = [];
 
@@ -1369,7 +1392,7 @@ export default function Backup() {
                     </div>
                     :
                     <div className='d-flex mt-4'>
-                      <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
+                      <div className='backup-date p-3 cursor-pointer' onClick={() => getAllNFTCollectionInfo}>
                         <FaPlus className='blue-font' size={40} />
                       </div>
                       <h5 className='blue-font mx-3 align-self-center'>
@@ -1597,28 +1620,29 @@ export default function Backup() {
 
                   <div className='row'>
                     {collection && collection.map((item, index) => (
-                      <div className='col-md-4 pt-2' key={index}>
-                        <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => selectNFTCollection(item)}>
-                          <Card.Img variant="top" src={item.collectionBannerImage} />
-                          <Card.Body className='pb-0'>
-                            <div className='row'>
-                              <div className='col-3 p-0'>
-                                <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                <AddNftId lockUp={lockUp} item={item} />
-                              </div>
+                      showNFTCollection[index] && (
+                        <div className='col-md-4 pt-2' key={index}>
+                          <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => selectNFTCollection(item)}>
+                            <Card.Img variant="top" src={item.collectionBannerImage} />
+                            <Card.Body className='pb-0'>
+                              <div className='row'>
+                                <div className='col-3 p-0'>
+                                  <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                                  <AddNftId lockUp={lockUp} item={item} />
+                                </div>
 
-                              <div className='col-9'>
-                                <Card.Title>{item.collectionName}</Card.Title>
-                                <div className='d-flex'>
-                                  <p className='text-grey font-14 mb-0'>
-                                    {item.collectionDescription}
-                                  </p>
+                                <div className='col-9'>
+                                  <Card.Title>{item.collectionName}</Card.Title>
+                                  <div className='d-flex'>
+                                    <p className='text-grey font-14 mb-0'>
+                                      {item.collectionDescription}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </div>
+                            </Card.Body>
+                          </Card>
+                        </div>)
                     ))}
                   </div>
 
