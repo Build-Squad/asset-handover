@@ -1598,7 +1598,7 @@ export default function Backup() {
                   <div className='row'>
                     {collection && collection.map((item, index) => (
                       <div className='col-md-4 pt-2' key={index}>
-                        <Card className='p-3 pb-1 cursor-pointer' onClick={() => selectNFTCollection(item)}>
+                        <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => selectNFTCollection(item)}>
                           <Card.Img variant="top" src={item.collectionBannerImage} />
                           <Card.Body className='pb-0'>
                             <div className='row'>
