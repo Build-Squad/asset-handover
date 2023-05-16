@@ -77,6 +77,7 @@ export default function Backup() {
   const [editNFTIDs, setEditNFTIDs] = useState([]);
   const [showNFT, setShowNFT] = useState(null);
   const [currentNFTIDs, setCurrentNFTIDs] = useState(null);
+  const [showNFTCollection, setShowNFTCollection] = useState([]);
 
   //pledges
   const [pledge, setPledge] = useState(null);
@@ -87,7 +88,8 @@ export default function Backup() {
   const [pledgeCollection, setPledgeCollection] = useState(null);
   const [pledgeNFT, setPledgeNFT] = useState(null);
   const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
-
+  const [changeSelection, setChangeSelection] = useState([]);
+  const [checkWithdrawAllNFT, setCheckWithdrawAllNFT] = useState(false);
   useEffect(() => {
     fcl.currentUser.subscribe(setUser);
     setStep("default");
@@ -288,6 +290,7 @@ export default function Backup() {
 
   }, [txStatus, txType]);
 
+
   useEffect(() => {
     setShowNFT(Array(nft.length).fill(true));
     const ids = [];
@@ -295,6 +298,7 @@ export default function Backup() {
     nft.map((item) => {
       ids.push(item.id);
     });
+
     setSelectedNFT(selected_ids);
     setCurrentNFTIDs(ids);
   }, [nft]);
@@ -334,7 +338,7 @@ export default function Backup() {
         cadence: getFungibleTokenInfoMapping
       });
       setFT(ftinfo);
-      // console.log("ftinfo - ", ftinfo);
+      console.log("ftinfo - ", ftinfo);
 
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
@@ -361,7 +365,7 @@ export default function Backup() {
           arg(user.addr, t.Address),
         ],
       });
-      // console.log('pledge - ', pledge);
+      console.log('pledge - ', pledge);
       setPledge(pledge);
     }
   }
@@ -554,6 +558,29 @@ export default function Backup() {
     }
   }
 
+  const getAllNFTCollectionInfo = () => {
+    let isShowCollection = [];
+    collection.map((item, index) => {
+      let length = 0;
+
+      if (lockUp.nonFungibleTokens.length === 0) {
+        length = item.nftsCount;
+      } else {
+        lockUp.nonFungibleTokens.forEach((nft) => {
+          if (item.nftType.replace(".NFT", "") === nft.identifier) {
+            length = item.nftsCount - nft.nftIDs.length;
+          }
+        });
+      }
+
+
+
+      isShowCollection.push(length)
+    });
+    console.log("getAllNFT --- isShowCollection", isShowCollection);
+    setShowNFTCollection(isShowCollection);
+    setStep("nftcollection")
+  }
   const selectNFTCollection = async (item) => {
     let availableNFT = [];
 
@@ -869,7 +896,7 @@ export default function Backup() {
     console.log("pledge - ", item);
     setPledgeStep("item");
     setHolder(item.holder);
-
+    setFlowWithdraw();
     const pledgeCollection = await fcl.query({
       cadence: getCollectionsForAccount,
       args: (arg, t) => [arg(item.holder, t.Address)]
@@ -899,17 +926,26 @@ export default function Backup() {
     }
   }
 
-  const withdrawFlow = async (identifier, holder) => {
+  const withdrawFlow = async (identifier, holder, item) => {
     setTxProgress(true);
     setTxType("withdrawFlow");
+    let withdrawAmount;
+    if (flowWithdraw === "" || flowWithdraw === null || flowWithdraw === undefined) {
+      withdrawAmount = Math.floor(item.balance);
+    }
+    else {
+      withdrawAmount = flowWithdraw;
 
+    }
+    console.log("FlowWithdraw--- ", withdrawAmount);
+    console.log("holder+identifier", holder,)
     try {
       const txid = await fcl.mutate({
-        cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
+        cadence: setupAddVaultAndWithdrawFT("FlowToken", "0xAssetHandover"),
         args: (arg, t) => [
           arg(identifier, t.String),
           arg(holder, t.Address),
-          arg(flowWithdraw + ".0", t.UFix64)
+          arg(withdrawAmount + ".0", t.UFix64)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -920,14 +956,24 @@ export default function Backup() {
       console.log(txid);
       setTxId(txid);
     } catch (error) {
+      console.log(error)
       toast.error(error);
       setTxProgress(false);
     }
   }
 
-  const withdrawBlp = async (identifier, holder) => {
+  const withdrawBlp = async (identifier, holder, item) => {
     setTxProgress(true);
     setTxType("withdrawBlp");
+    let withdrawAmount;
+    if (blpWithdraw === "" || blpWithdraw === null || blpWithdraw === undefined) {
+      withdrawAmount = Math.floor(item.balance);
+    }
+    else {
+      withdrawAmount = blpWithdraw;
+
+    }
+    console.log("blpWithdraw--- ", withdrawAmount);
 
     try {
       const txid = await fcl.mutate({
@@ -935,7 +981,7 @@ export default function Backup() {
         args: (arg, t) => [
           arg(identifier, t.String),
           arg(holder, t.Address),
-          arg(blpWithdraw + ".0", t.UFix64)
+          arg(withdrawAmount + ".0", t.UFix64)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -951,6 +997,26 @@ export default function Backup() {
     }
   }
 
+  const selectAllWithdrawNFT = async (e) => {
+    let selectIDs = [];
+    if (e.target.checked) {
+      setCheckWithdrawAllNFT(true);
+      let temp = Array(changeSelection.length).fill(true);
+      pledgeNFT.map((item, index) => {
+        selectIDs.push(item.id);
+      });
+      setChangeSelection(temp);
+    }
+    else {
+      setCheckWithdrawAllNFT(false);
+
+      let temp = Array(changeSelection.length).fill(false);
+      setChangeSelection(temp);
+    }
+    console.log("selectAllWithdrawNFT---", changeSelection);
+    setWithdrawNFTIDs(selectIDs);
+
+  }
   const withdrawNFTCollection = async (item) => {
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
@@ -972,39 +1038,55 @@ export default function Backup() {
 
     setPledgeNFT(ownNFT);
     console.log('nft - ', ownNFT);
-
+    let selectionFlag_NFTWithdraw = Array(ownNFT.length).fill(false);
+    setChangeSelection(selectionFlag_NFTWithdraw);
     setCollectionID(item.nftType);
 
     setPledgeStep("nfts");
   }
 
-  const selectWithdrawNFT = (e, id) => {
+  const selectWithdrawNFT = (e, id, index) => {
     let ids = [...withdrawNFTIDs];
-
+    let changeSelectionFlag = [...changeSelection];
     if (e.target.checked) {
+      changeSelectionFlag[index] = true;
       if (!ids.includes(id)) {
         ids.push(id);
       }
     } else {
+      setCheckWithdrawAllNFT(false);
+      changeSelectionFlag[index] = false;
       if (ids.includes(id)) {
         ids = ids.filter(item => item !== id)
       }
     }
-
+    setChangeSelection(changeSelectionFlag);
     setWithdrawNFTIDs(ids);
   }
 
   const withdrawNFT = async () => {
     setTxProgress(true);
     setTxType("withdrawNFT");
+    let withdrawNFTids = [];
+    pledgeNFT.map((item, index) => {
+      if (changeSelection[index]) {
+        withdrawNFTids.push(item.id);
+      }
+    })
 
+
+    setWithdrawNFTIDs(withdrawNFTids);
+    console.log("withdrawNFTids -- ", withdrawNFTids);
+
+    console.log("WithdrawNFT ---- collectionID", collectionID.replace(".NFT", ""))
+    console.log("WithdrawNFT ---- holder", holder);
     try {
       const txid = await fcl.mutate({
         cadence: withdrawNonFungibleToken,
         args: (arg, t) => [
           arg(collectionID.replace(".NFT", ""), t.String),
           arg(holder, t.Address),
-          arg(withdrawNFTIDs, t.Array(t.UInt64))
+          arg(withdrawNFTids, t.Array(t.UInt64))
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -1351,7 +1433,7 @@ export default function Backup() {
 
                       <div className='col-md-3 pt-2'>
                         <div className='center-pad'>
-                          <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("nftcollection")}>
+                          <div className='backup-date p-3 cursor-pointer m-auto' onClick={getAllNFTCollectionInfo}>
                             <FaPlus className='blue-font' size={40} />
                           </div>
                         </div>
@@ -1359,7 +1441,7 @@ export default function Backup() {
                     </div>
                     :
                     <div className='d-flex mt-4'>
-                      <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("nftcollection")}>
+                      <div className='backup-date p-3 cursor-pointer' onClick={getAllNFTCollectionInfo}>
                         <FaPlus className='blue-font' size={40} />
                       </div>
                       <h5 className='blue-font mx-3 align-self-center'>
@@ -1587,28 +1669,29 @@ export default function Backup() {
 
                   <div className='row'>
                     {collection && collection.map((item, index) => (
-                      <div className='col-md-4 pt-2' key={index}>
-                        <Card className='p-3 pb-1 cursor-pointer' onClick={() => selectNFTCollection(item)}>
-                          <Card.Img variant="top" src={item.collectionBannerImage} />
-                          <Card.Body className='pb-0'>
-                            <div className='row'>
-                              <div className='col-3 p-0'>
-                                <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                <AddNftId lockUp={lockUp} item={item} />
-                              </div>
+                      showNFTCollection[index] && (
+                        <div className='col-md-4 pt-2' key={index}>
+                          <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => selectNFTCollection(item)}>
+                            <Card.Img variant="top" src={item.collectionBannerImage} />
+                            <Card.Body className='pb-0'>
+                              <div className='row'>
+                                <div className='col-3 p-0'>
+                                  <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
+                                  <AddNftId lockUp={lockUp} item={item} />
+                                </div>
 
-                              <div className='col-9'>
-                                <Card.Title>{item.collectionName}</Card.Title>
-                                <div className='d-flex'>
-                                  <p className='text-grey font-14 mb-0'>
-                                    {item.collectionDescription}
-                                  </p>
+                                <div className='col-9'>
+                                  <Card.Title>{item.collectionName}</Card.Title>
+                                  <div className='d-flex'>
+                                    <p className='text-grey font-14 mb-0'>
+                                      {item.collectionDescription}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </Card.Body>
-                        </Card>
-                      </div>
+                            </Card.Body>
+                          </Card>
+                        </div>)
                     ))}
                   </div>
 
@@ -1665,10 +1748,10 @@ export default function Backup() {
                 <Tab.Pane eventKey="first">
                   <div className='d-flex justify-content-between pt-2 mx-2 border-bottom-green'>
                     <h4 className='blue-font'>SELECT NFT(S)</h4>
-                      <Form.Check type="checkbox" label="Select All NFTs" checked={selectAll_checked}
-                        onChange={(e) => selectAllNFT(e)} />
-                        <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
-                          onClick={() => setStep("nftcollection")} />
+                    <Form.Check type="checkbox" label="Select All NFTs" checked={selectAll_checked}
+                      onChange={(e) => selectAllNFT(e)} />
+                    <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
+                      onClick={() => setStep("nftcollection")} />
                   </div>
 
                   <div className='row p-3'>
@@ -1883,14 +1966,30 @@ export default function Backup() {
                           {item.identifier.includes("FlowToken") &&
                             <div className='col-md-1'>
                               <img src="flowcoin.png" width="100%" height="auto" />
-                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                              {item.balance === null ?
+                                <p className='blue-font font-bold text-center'>
+                                  (All)
+                                </p>
+                                :
+                                <p className='blue-font font-bold text-center'>
+                                  ({parseInt(item.balance)})
+                                </p>
+                              }
                             </div>
                           }
 
                           {item.identifier.includes("BlpToken") &&
                             <div className='col-md-1'>
                               <img src="coin.png" width="100%" height="auto" />
-                              <p className='blue-font font-bold text-center'>({parseInt(item.balance)})</p>
+                              {item.balance === null ?
+                                <p className='blue-font font-bold text-center'>
+                                  (All)
+                                </p>
+                                :
+                                <p className='blue-font font-bold text-center'>
+                                  ({parseInt(item.balance)})
+                                </p>
+                              }
                             </div>
                           }
                         </React.Fragment>
@@ -1966,7 +2065,13 @@ export default function Backup() {
 
                                   <div className='col-md-3'>
                                     <img src="flowcoin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                    {item.balance === null ?
+                                      <h5 className='text-center'>
+                                        (All)
+                                      </h5>
+                                      :
+                                      <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                    }
                                   </div>
 
                                   <div className='col-md-9'>
@@ -1976,7 +2081,9 @@ export default function Backup() {
                                     <div className='row'>
                                       <div className='col-9 pr-0'>
                                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                          value={flowWithdraw} onChange={(e) => setFlowWithdraw(e.target.value)} />
+                                          value={flowWithdraw} onChange={(e) => {
+                                            setFlowWithdraw(e.target.value);
+                                          }} />
                                       </div>
 
                                       <div className='col-3'>
@@ -1986,7 +2093,7 @@ export default function Backup() {
                                           </Spinner>
                                           :
                                           <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                            onClick={() => withdrawFlow(item.identifier, pledgeItem.holder)} />
+                                            onClick={() => withdrawFlow(item.identifier, pledgeItem.holder, item)} />
                                         }
                                       </div>
                                     </div>
@@ -2004,7 +2111,13 @@ export default function Backup() {
 
                                   <div className='col-md-3'>
                                     <img src="coin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                    {item.balance === null ?
+                                      <h5 className='text-center'>
+                                        (All)
+                                      </h5>
+                                      :
+                                      <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                    }
                                   </div>
 
                                   <div className='col-md-9'>
@@ -2024,7 +2137,7 @@ export default function Backup() {
                                           </Spinner>
                                           :
                                           <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                            onClick={() => withdrawBlp(item.identifier, pledgeItem.holder)} />
+                                            onClick={() => withdrawBlp(item.identifier, pledgeItem.holder, item)} />
                                         }
                                       </div>
                                     </div>
@@ -2209,6 +2322,9 @@ export default function Backup() {
                     <h4 className='blue-font p-2 mb-0'>
                       WITHDRAW NFT(S) FROM PLEDGE
                     </h4>
+                    <Form.Check type="checkbox" label="Select All NFTs" checked={checkWithdrawAllNFT}
+                      onChange={(e) => selectAllWithdrawNFT(e)} />
+
                     <FaArrowLeft className='blue-font cursor-pointer mt-1' size={24}
                       onClick={() => setPledgeStep("item")} />
                   </div>
@@ -2229,7 +2345,7 @@ export default function Backup() {
                           <div className='col-9'>
                             <div className='d-flex justify-content-between'>
                               <Card.Title>{item.name}</Card.Title>
-                              <Form.Check type="checkbox" onChange={(e) => selectWithdrawNFT(e, item.id)} />
+                              <Form.Check type="checkbox" checked={changeSelection[index]} onChange={(e) => selectWithdrawNFT(e, item.id, index)} />
                             </div>
 
                             <p className='font-14 mb-0'>
@@ -2244,9 +2360,9 @@ export default function Backup() {
 
                   <div className='row mt-3 p-3'>
                     <div className='col-md-8'>
-                        <h5 className='text-warning'>
-                          <FaInfo /> Please select NFTs to withdraw
-                        </h5>
+                      <h5 className='text-warning'>
+                        <FaInfo /> Please select NFTs to withdraw
+                      </h5>
                     </div>
 
                     <div className='col-md-6'>
