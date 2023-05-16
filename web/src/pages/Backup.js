@@ -574,6 +574,7 @@ export default function Backup() {
 
       isShowCollection.push(length)
     });
+    console.log("getAllNFT --- isShowCollection", isShowCollection);
     setShowNFTCollection(isShowCollection);
     setStep("nftcollection")
   }
@@ -1384,7 +1385,7 @@ export default function Backup() {
 
                       <div className='col-md-3 pt-2'>
                         <div className='center-pad'>
-                          <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("nftcollection")}>
+                          <div className='backup-date p-3 cursor-pointer m-auto' onClick={getAllNFTCollectionInfo}>
                             <FaPlus className='blue-font' size={40} />
                           </div>
                         </div>
@@ -1392,7 +1393,7 @@ export default function Backup() {
                     </div>
                     :
                     <div className='d-flex mt-4'>
-                      <div className='backup-date p-3 cursor-pointer' onClick={() => getAllNFTCollectionInfo}>
+                      <div className='backup-date p-3 cursor-pointer' onClick={getAllNFTCollectionInfo}>
                         <FaPlus className='blue-font' size={40} />
                       </div>
                       <h5 className='blue-font mx-3 align-self-center'>
