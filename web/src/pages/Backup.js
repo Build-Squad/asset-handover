@@ -899,23 +899,26 @@ export default function Backup() {
     }
   }
 
-  const withdrawFlow = async (identifier, holder) => {
+  const withdrawFlow = async (identifier, holder, item) => {
     setTxProgress(true);
     setTxType("withdrawFlow");
-    console.log("FlowWithdraw--- ", flowWithdraw);
-    // let withdrawAmount ;
-    // if (flowWithdraw === "") {
-    //   withdrawAmount = identifier.
-    // }
-    // else withdrawAmount = flowWithdraw;
+    let withdrawAmount;
+    if (flowWithdraw === "" || flowWithdraw === null || flowWithdraw === undefined) {
+      withdrawAmount = Math.floor(item.balance);
+    }
+    else {
+      withdrawAmount = flowWithdraw;
 
+    }
+    console.log("FlowWithdraw--- ", withdrawAmount);
+    console.log("holder+identifier", holder,)
     try {
       const txid = await fcl.mutate({
         cadence: setupAddVaultAndWithdrawFT("FlowToken", "0xAssetHandover"),
         args: (arg, t) => [
           arg(identifier, t.String),
           arg(holder, t.Address),
-          arg(flowWithdraw + ".0", t.UFix64)
+          arg(withdrawAmount + ".0", t.UFix64)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -926,6 +929,7 @@ export default function Backup() {
       console.log(txid);
       setTxId(txid);
     } catch (error) {
+      console.log(error)
       toast.error(error);
       setTxProgress(false);
     }
@@ -2004,11 +2008,7 @@ export default function Backup() {
                                     <div className='row'>
                                       <div className='col-9 pr-0'>
                                         <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                          value={flowWithdraw} onChange={(e, item) => {
-                                            // if (e.target.value === "")
-                                            //   setFlowWithdraw(parseInt(item.balance));
-                                            // else
-                                            console.log("balance----", item.balance);
+                                          value={flowWithdraw} onChange={(e) => {
                                             setFlowWithdraw(e.target.value);
                                           }} />
                                       </div>
@@ -2020,7 +2020,7 @@ export default function Backup() {
                                           </Spinner>
                                           :
                                           <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                            onClick={() => withdrawFlow(item.identifier, pledgeItem.holder)} />
+                                            onClick={() => withdrawFlow(item.identifier, pledgeItem.holder, item)} />
                                         }
                                       </div>
                                     </div>
