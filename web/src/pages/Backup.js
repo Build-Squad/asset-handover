@@ -927,6 +927,7 @@ export default function Backup() {
   }
 
   const withdrawFlow = async (identifier, holder, item) => {
+
     setTxProgress(true);
     setTxType("withdrawFlow");
     let withdrawAmount;
@@ -1018,6 +1019,14 @@ export default function Backup() {
 
   }
   const withdrawNFTCollection = async (item) => {
+
+    const currentDate = parseInt(Date.now());
+    console.log(currentDate);
+
+    if (currentDate <= pledgeItem.releasedAt) {
+      toast.error("The assets are still in lock-up period");
+      return;
+    }
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
       args: (arg, t) => [
@@ -2006,12 +2015,12 @@ export default function Backup() {
 
                   <h4 className='p-2 border-bottom-green blue-font'>
                     NFT COLLECTION(S)
-                    <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button>
+                    {/* <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button> */}
                   </h4>
                   {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
                     <div className='row'>
                       {pledgeCollection && pledgeCollection.map((item, index) =>
-                        <div className='col-md-3 pt-2' key={index}>
+                        <div className='col-md-6 col-sm-12 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => withdrawNFTCollection(item)}>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
                             <Card.Body className='pb-0'>
@@ -2019,6 +2028,9 @@ export default function Backup() {
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
                                   <NftId lockUp={pledgeItem} item={item} />
+                                  <Button className='mx-3' variant="danger" size="sm" onClick={() => withdrawNFTCollection(item)}>
+                                    WITHDRAW
+                                  </Button>
                                 </div>
 
                                 <div className='col-9'>
@@ -2365,19 +2377,26 @@ export default function Backup() {
                       </h5>
                     </div>
 
-                    <div className='col-md-6'>
-                      {txProgress && txType === "withdrawNFT" ?
-                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                          <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                          </Spinner>
-                        </Button>
+                    <div className='col-md-4'>
+                      {withdrawNFTIDs.length > 0 ?
+                        <>
+                          {txProgress && txType === "withdrawNFT" ?
+                            <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                              <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                              </Spinner>
+                            </Button>
+                            :
+                            <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
+                              WITHDRAW NFT(S)
+                            </Button>
+                          }
+                        </>
                         :
-                        <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
+                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
                           WITHDRAW NFT(S)
                         </Button>
                       }
-
                     </div>
                   </div>
                 </Tab.Pane>
