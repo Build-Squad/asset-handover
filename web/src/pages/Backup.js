@@ -13,6 +13,8 @@ import { updateLockUp } from '../cadence/transaction/updateLockUp';
 import { destroyLockup } from '../cadence/transaction/destroyLockup';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
+import { getAccountBalance } from '../cadence/script/getAccountBalance';
+
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
 import { lockFungibleTokens } from '../cadence/transaction/lockFungibleTokens';
 import { setLockUpBalance } from '../cadence/transaction/setLockUpBalance';
@@ -55,6 +57,7 @@ export default function Backup() {
   const [blpAmount, setBlpAmount] = useState("");
   const [flowSelect, setFlowSelect] = useState(false);
   const [blpSelect, setBLPSelect] = useState(false);
+  const [tokenHoldAmount, setTokenHoldAmount] = useState({ FLOW: 0, BLP: 0 });
 
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
@@ -66,6 +69,7 @@ export default function Backup() {
   const [nftIDs, setNFTIDs] = useState([]);
   const [selectedNFT, setSelectedNFT] = useState([]);
   const [selectAll_checked, setSelectAllChecked] = useState(false);
+  const [coinCanBeLockup, setCoinCanBeLockup] = useState(false);
 
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
@@ -337,6 +341,14 @@ export default function Backup() {
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
       });
+      const account_flow_amount = await fcl.query({
+        cadence: getAccountBalance,
+        args: (arg, t) => [arg(user.addr, t.Address)],
+      });
+
+      console.log("account_flow_amount---", parseFloat(account_flow_amount));
+      setTokenHoldAmount({ FLOW: parseFloat(account_flow_amount), BLP: 0 });
+
       setFT(ftinfo);
       console.log("ftinfo - ", ftinfo);
 
@@ -470,13 +482,13 @@ export default function Backup() {
     setTxType("addFT");
 
     if (flowSelect) {
-      if (flowAmount !== "") {
+      if (flowAmount !== "" && parseFloat(flowAmount) <= tokenHoldAmount.FLOW) {
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleToken,
             args: (arg, t) => [
               arg(flowID, t.String),
-              arg(flowAmount + ".0", t.UFix64)
+              arg(parseFloat(flowAmount), t.UFix64)
             ],
             proposer: fcl.currentUser,
             payer: fcl.currentUser,
@@ -490,13 +502,13 @@ export default function Backup() {
           setTxProgress(false);
           toast.error(error);
         }
-      } else {
+      } else if (flowAmount === "") {
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleToken,
             args: (arg, t) => [
               arg(flowID, t.String),
-              arg(null, t.Optional(t.UFix64))
+              arg(tokenHoldAmount.FLOW, t.UFix64)
             ],
             proposer: fcl.currentUser,
             payer: fcl.currentUser,
@@ -514,7 +526,7 @@ export default function Backup() {
     }
 
     if (blpSelect) {
-      if (blpAmount !== "") {
+      if (blpAmount !== "" && parseFloat(blpAmount) <= tokenHoldAmount.BLP) {
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleToken,
@@ -534,13 +546,13 @@ export default function Backup() {
           setTxProgress(false);
           toast.error(error);
         }
-      } else {
+      } else if (blpAmount === "") {
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleToken,
             args: (arg, t) => [
               arg(blpID, t.String),
-              arg(null, t.Optional(t.UFix64))
+              arg(tokenHoldAmount.BLP, t.UFix64)
             ],
             proposer: fcl.currentUser,
             payer: fcl.currentUser,
@@ -701,7 +713,7 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("editFT");
 
-    if (isRemoveFlow) {
+    if (isRemoveBlp) {
       try {
         const txid = await fcl.mutate({
           cadence: lockFungibleTokens,
@@ -723,7 +735,7 @@ export default function Backup() {
       }
     }
 
-    if (isRemoveBlp) {
+    if (isRemoveFlow) {
       try {
         const txid = await fcl.mutate({
           cadence: lockFungibleTokens,
@@ -745,13 +757,14 @@ export default function Backup() {
       }
     }
 
-    if (editFlowAmount !== "") {
+    if (editFlowAmount !== "" && parseFloat(editFlowAmount <= tokenHoldAmount.FLOW)) {
+
       try {
         const txid = await fcl.mutate({
           cadence: setLockUpBalance,
           args: (arg, t) => [
             arg(flowID, t.String),
-            arg(editFlowAmount + ".0", t.UFix64)
+            arg(parseFloat(editFlowAmount), t.UFix64)
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -766,6 +779,9 @@ export default function Backup() {
         toast.error(error);
       }
     }
+    else if (editFlowAmount === "") {
+
+    }
 
     if (editBlpAmount !== "") {
       try {
@@ -773,7 +789,7 @@ export default function Backup() {
           cadence: setLockUpBalance,
           args: (arg, t) => [
             arg(blpID, t.String),
-            arg(editBlpAmount + ".0", t.UFix64)
+            arg(parseFloat(editBlpAmount), t.UFix64)
           ],
           proposer: fcl.currentUser,
           payer: fcl.currentUser,
@@ -889,6 +905,18 @@ export default function Backup() {
 
   }
 
+  const onClickHandleAddCoinsToSafe = (e) => {
+    getBackup();
+    let isCoinCanBeLockup = false;
+    Object.keys(tokenHoldAmount).map((key, index) => {
+      if (tokenHoldAmount[key] > 0) {
+        isCoinCanBeLockup = true;
+      }
+    });
+    console.log("onClickHandleAddCoinsToSafe - isCoinCanBeLockup ->", isCoinCanBeLockup);
+    setCoinCanBeLockup(isCoinCanBeLockup);
+    setStep("coins")
+  }
 
   //Pledges
   const clickPledge = async (item) => {
@@ -1387,14 +1415,14 @@ export default function Backup() {
                       )
                       )}
                       <div className='col-md-1 pt-2'>
-                        <div className='backup-date p-3 cursor-pointer m-auto' onClick={() => setStep("coins")}>
+                        <div className='backup-date p-3 cursor-pointer m-auto' onClick={onClickHandleAddCoinsToSafe}>
                           <FaPlus className='blue-font' size={40} />
                         </div>
                       </div>
                     </div>
                     :
                     <div className='d-flex mt-4'>
-                      <div className='backup-date p-3 cursor-pointer' onClick={() => setStep("coins")}>
+                      <div className='backup-date p-3 cursor-pointer' onClick={onClickHandleAddCoinsToSafe}>
                         <FaPlus className='blue-font' size={40} />
                       </div>
                       <h5 className='blue-font mx-3 align-self-center'>
@@ -1474,19 +1502,24 @@ export default function Backup() {
                   </div>
 
                   <div className='row p-3'>
-                    {ft !== null &&
+                    {ft !== null && coinCanBeLockup &&
                       Object.keys(ft).map((key, index) => (
-                        <div className='col-lg-6 col-xl-4 pt-2' key={index}>
+                        tokenHoldAmount[ft[key].name] > 0 &&
+                        (<div className='col-lg-6 col-xl-4 pt-2' key={index}>
                           <div className='grey-border p-2'>
                             <div className='row'>
                               <div className='col-md-3'>
                                 {ft[key].name === 'FLOW' ?
-                                  <img src="flowcoin.png" width="100%" height="auto" />
+                                  <>
+                                    <img src="flowcoin.png" width="100%" height="auto" />
+                                    <h5 className='text-center'>{tokenHoldAmount.FLOW}</h5>
+                                  </>
                                   :
-                                  <img src="coin.png" width="100%" height="auto" />
+                                  <>
+                                    <img src="coin.png" width="100%" height="auto" />
+                                    <h5 className='text-center'>{tokenHoldAmount.BLP}</h5>
+                                  </>
                                 }
-
-                                <h5 className='text-center'>(0)</h5>
                               </div>
 
                               <div className='col-md-9'>
@@ -1506,17 +1539,20 @@ export default function Backup() {
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </div>)
                       ))
                     }
                   </div>
 
                   <div className='row mt-3 p-3'>
                     <div className='col-md-8'>
-                      <h5 className='text-warning'>
+                      {coinCanBeLockup ? <h5 className='text-warning'>
                         <FaInfo /> If you don’t enter quantity of Coin(s), whole ownership of
                         the Coin(s) goes to the recipient.
                       </h5>
+                        : <h5 className='text-warning'>
+                          <FaInfo /> You have no coin to lockup!
+                        </h5>}
                     </div>
 
                     <div className='col-md-4'>
@@ -1565,7 +1601,7 @@ export default function Backup() {
                                         <img src="flowcoin.png" width="100%" height="auto" />
 
                                         {item.balance ?
-                                          <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                          <h5 className='text-center'>({parseFloat(item.balance)})</h5>
                                           :
                                           <h5 className='text-center'>(All)</h5>
                                         }
