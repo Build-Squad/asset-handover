@@ -927,6 +927,7 @@ export default function Backup() {
   }
 
   const withdrawFlow = async (identifier, holder, item) => {
+
     setTxProgress(true);
     setTxType("withdrawFlow");
     let withdrawAmount;
@@ -1018,6 +1019,14 @@ export default function Backup() {
 
   }
   const withdrawNFTCollection = async (item) => {
+
+    const currentDate = parseInt(Date.now());
+    console.log(currentDate);
+
+    if (currentDate <= pledgeItem.releasedAt) {
+      toast.error("The assets are still in lock-up period");
+      return;
+    }
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
       args: (arg, t) => [
@@ -2019,6 +2028,9 @@ export default function Backup() {
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
                                   <NftId lockUp={pledgeItem} item={item} />
+                                  <Button className='mx-3' variant="danger" size="sm" onClick={() => withdrawNFTCollection(item)}>
+                                    WITHDRAW
+                                  </Button>
                                 </div>
 
                                 <div className='col-9'>
