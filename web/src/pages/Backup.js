@@ -2006,7 +2006,7 @@ export default function Backup() {
 
                   <h4 className='p-2 border-bottom-green blue-font'>
                     NFT COLLECTION(S)
-                    <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button>
+                    {/* <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button> */}
                   </h4>
                   {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
                     <div className='row'>
