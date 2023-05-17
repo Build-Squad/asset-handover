@@ -2378,18 +2378,25 @@ export default function Backup() {
                     </div>
 
                     <div className='col-md-6'>
-                      {txProgress && txType === "withdrawNFT" ?
-                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                          <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                          </Spinner>
-                        </Button>
+                      {withdrawNFTIDs.length > 0 ?
+                        <>
+                          {txProgress && txType === "withdrawNFT" ?
+                            <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                              <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                              </Spinner>
+                            </Button>
+                            :
+                            <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
+                              WITHDRAW NFT(S)
+                            </Button>
+                          }
+                        </>
                         :
-                        <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => withdrawNFT()}>
+                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
                           WITHDRAW NFT(S)
                         </Button>
                       }
-
                     </div>
                   </div>
                 </Tab.Pane>
