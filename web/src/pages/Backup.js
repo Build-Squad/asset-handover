@@ -2370,14 +2370,14 @@ export default function Backup() {
                     ))}
                   </div>
 
-                  <div className='row mt-3 p-3 h-100'>
+                  <div className='row mt-3 p-3'>
                     <div className='col-md-8'>
                       <h5 className='text-warning'>
                         <FaInfo /> Please select NFTs to withdraw
                       </h5>
                     </div>
 
-                    <div className='col-md-6 w-100'>
+                    <div className='col-md-4'>
                       {withdrawNFTIDs.length > 0 ?
                         <>
                           {txProgress && txType === "withdrawNFT" ?
