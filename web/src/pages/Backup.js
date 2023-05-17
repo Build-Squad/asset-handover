@@ -2020,7 +2020,7 @@ export default function Backup() {
                   {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
                     <div className='row'>
                       {pledgeCollection && pledgeCollection.map((item, index) =>
-                        <div className='col-md-3 pt-2' key={index}>
+                        <div className='col-md-6 col-sm-12 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => withdrawNFTCollection(item)}>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
                             <Card.Body className='pb-0'>
@@ -2370,14 +2370,14 @@ export default function Backup() {
                     ))}
                   </div>
 
-                  <div className='row mt-3 p-3'>
+                  <div className='row mt-3 p-3 h-100'>
                     <div className='col-md-8'>
                       <h5 className='text-warning'>
                         <FaInfo /> Please select NFTs to withdraw
                       </h5>
                     </div>
 
-                    <div className='col-md-6'>
+                    <div className='col-md-6 w-100'>
                       {withdrawNFTIDs.length > 0 ?
                         <>
                           {txProgress && txType === "withdrawNFT" ?
