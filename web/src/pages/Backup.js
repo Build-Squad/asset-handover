@@ -99,6 +99,7 @@ export default function Backup() {
     setStep("default");
     setPledgeStep("default");
     setNFTIDs([]);
+    setWithdrawNFTIDs([]);
     setTxStatus(null);
   }, []);
 
@@ -914,6 +915,7 @@ export default function Backup() {
       }
     });
     console.log("onClickHandleAddCoinsToSafe - isCoinCanBeLockup ->", isCoinCanBeLockup);
+    setWithdrawNFTIDs([]);
     setCoinCanBeLockup(isCoinCanBeLockup);
     console.log("onClickHandleAddCoinsToSafe -- Lockup", lockUp);
     setStep("coins")
@@ -1112,12 +1114,7 @@ export default function Backup() {
       }
     })
 
-
     setWithdrawNFTIDs(withdrawNFTids);
-    console.log("withdrawNFTids -- ", withdrawNFTids);
-
-    console.log("WithdrawNFT ---- collectionID", collectionID.replace(".NFT", ""))
-    console.log("WithdrawNFT ---- holder", holder);
     try {
       const txid = await fcl.mutate({
         cadence: withdrawNonFungibleToken,
@@ -1134,11 +1131,13 @@ export default function Backup() {
 
       console.log(txid);
       setTxId(txid);
-      setWithdrawNFTIDs([]);
+      // setWithdrawNFTIDs([]);
     } catch (error) {
       setTxProgress(false);
+      console.log("withdrawNFT---", "Here is 0-0-00909iu09u0u");
       toast.error(error);
-      setWithdrawNFTIDs([]);
+      console.log("asdfasdf =--- ", error);
+      // setWithdrawNFTIDs([]);
     }
   }
 
