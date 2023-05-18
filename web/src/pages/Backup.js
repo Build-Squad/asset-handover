@@ -915,6 +915,7 @@ export default function Backup() {
     });
     console.log("onClickHandleAddCoinsToSafe - isCoinCanBeLockup ->", isCoinCanBeLockup);
     setCoinCanBeLockup(isCoinCanBeLockup);
+    console.log("onClickHandleAddCoinsToSafe -- Lockup", lockUp);
     setStep("coins")
   }
 
@@ -1512,12 +1513,12 @@ export default function Backup() {
                                 {ft[key].name === 'FLOW' ?
                                   <>
                                     <img src="flowcoin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>{tokenHoldAmount.FLOW}</h5>
+                                    <h5 className='text-center'>{tokenHoldAmount.FLOW - flowBalance}</h5>
                                   </>
                                   :
                                   <>
                                     <img src="coin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>{tokenHoldAmount.BLP}</h5>
+                                    <h5 className='text-center'>{tokenHoldAmount.BLP - blpBalance}</h5>
                                   </>
                                 }
                               </div>
