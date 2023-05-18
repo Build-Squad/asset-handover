@@ -97,12 +97,29 @@ body {
 }
 
 .search-pad {
-  justify-content: end;
+  justify-content: space-between;
+  gap: 14px;
 }
+
 
 @media screen and (max-width: 768px) {
   .search-pad {
     justify-content: center;
+  }
+  
+  .maturity-date, .backup-date {
+    margin: 10px auto;
+  }
+
+  .main-avatar {
+    width: 70% !important;
+    margin: auto;
+  }
+}
+
+@media (max-width: 425px) {
+  .main-avatar {
+    width: 100% !important;
   }
 }
 

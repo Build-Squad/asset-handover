@@ -1347,11 +1347,11 @@ export default function Backup() {
                   <div className='row p-3 mb-3'>
                     <div className='col-md-6'>
                       <div className='row'>
-                        <div className='col-md-3 d-flex green-border'>
+                        <div className='col-md-3 d-flex green-border main-avatar'>
                           <img src="safe.png" width="100%" height="auto" />
                         </div>
 
-                        <div className='col-md-9'>
+                        <div className='col-md-9 text-md-start text-center'>
                           <h5 className='blue-font'>{lockUp.name}</h5>
                           <p className='blue-font mb-0'>{lockUp.description}</p>
                           <p className='text-grey'>{lockUp.recipient}</p>
@@ -1393,7 +1393,7 @@ export default function Backup() {
                       {lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
                           {item.identifier.includes("FlowToken") &&
-                            <div className='col-md-1'>
+                            <div className='col-md-1 col-3'>
                               <img src="flowcoin.png" width="100%" height="auto" />
 
                               {item.balance === null ?
@@ -1409,7 +1409,7 @@ export default function Backup() {
                           }
 
                           {item.identifier.includes("BlpToken") &&
-                            <div className='col-md-1'>
+                            <div className='col-md-1 col-3'>
                               <img src="coin.png" width="100%" height="auto" />
 
                               {item.balance === null ?
@@ -1469,11 +1469,14 @@ export default function Backup() {
                                 <div className='col-9'>
                                   <p className='font-bold'>{item.contractName}</p>
                                   <div className='d-flex'>
-                                    <p className='text-grey font-14 mb-0'>
+                                    <p className='text-grey font-14 mb-0 d-none d-xl-block'>
                                       {item.collectionDescription}
                                     </p>
                                   </div>
                                 </div>
+                                <p className='text-grey font-14 mb-0 d-block d-xl-none'>
+                                  {item.collectionDescription}
+                                </p>
                               </div>
                             </Card.Body>
                           </Card>
@@ -1931,10 +1934,10 @@ export default function Backup() {
             <>
               {pledgeStep === "default" &&
                 <Tab.Pane eventKey="second">
-                  <div className='row'>
+                  <div className='row gap-sm-0 gap-2'>
                     {pledge && pledge.map((item, index) => (
-                      <div className='col-xl-3 col-lg-5' key={index}>
-                        <Card className="text-center cursor-pointer" onClick={() => clickPledge(item)}>
+                      <div className='col-xl-3 col-lg-4 col-sm-6' key={index}>
+                        <Card className="text-center cursor-pointer h-100" onClick={() => clickPledge(item)}>
                           <Card.Img className='item-img' variant="top" src="pleages.png" />
                           <Card.Body className='p-0'>
                             <Card.Title className="blue-font">{item.name}</Card.Title>
@@ -1984,11 +1987,11 @@ export default function Backup() {
                   <div className='row p-3 mb-3'>
                     <div className='col-md-6'>
                       <div className='row'>
-                        <div className='col-md-3 d-flex green-border'>
+                        <div className='col-md-3 d-flex green-border main-avatar'>
                           <img src="pleages.png" width="100%" height="auto" />
                         </div>
 
-                        <div className='col-md-9'>
+                        <div className='col-md-9 text-center text-md-start'>
                           <h5 className='blue-font'>{pledgeItem.name}</h5>
                           <p className='blue-font mb-0'>{pledgeItem.description}</p>
                           <p className='text-grey'>{pledgeItem.holder}</p>
@@ -2021,7 +2024,7 @@ export default function Backup() {
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
                           {item.identifier.includes("FlowToken") &&
-                            <div className='col-md-1'>
+                            <div className='col-md-1 col-3'>
                               <img src="flowcoin.png" width="100%" height="auto" />
                               {item.balance === null ?
                                 <p className='blue-font font-bold text-center'>
@@ -2036,7 +2039,7 @@ export default function Backup() {
                           }
 
                           {item.identifier.includes("BlpToken") &&
-                            <div className='col-md-1'>
+                            <div className='col-md-1 col-3'>
                               <img src="coin.png" width="100%" height="auto" />
                               {item.balance === null ?
                                 <p className='blue-font font-bold text-center'>
@@ -2066,9 +2069,9 @@ export default function Backup() {
                     {/* <Button className='mx-3' variant="danger" size="sm">WITHDRAW</Button> */}
                   </h4>
                   {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
-                    <div className='row'>
+                    <div className='row overflow-auto'>
                       {pledgeCollection && pledgeCollection.map((item, index) =>
-                        <div className='col-md-3 col-sm-6 pt-2' key={index}>
+                        <div className='col-lg-3 col-md-4 col-sm-6 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer'>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
                             <Card.Body className='pb-0'>
@@ -2082,14 +2085,17 @@ export default function Backup() {
                                 <div className='col-9'>
                                   <p className='font-bold'>{item.contractName}</p>
                                   <div className='d-flex'>
-                                    <p className='text-grey font-14 mb-0'>
+                                    <p className='text-grey font-14 d-none d-xl-block'>
                                       {item.collectionDescription}
                                     </p>
                                   </div>
-                                  <Button className='mx-3' variant="danger" size="md" onClick={() => withdrawNFTCollection(item)}>
-                                    WITHDRAW
-                                  </Button>
                                 </div>
+                                <p className='text-grey font-14 d-block d-xl-none'>
+                                  {item.collectionDescription}
+                                </p>
+                                <Button className='mw-50' variant="danger" size="sm" onClick={() => withdrawNFTCollection(item)}>
+                                  WITHDRAW
+                                </Button>
                               </div>
                             </Card.Body>
                           </Card>
