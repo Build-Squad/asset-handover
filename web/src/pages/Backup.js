@@ -70,6 +70,7 @@ export default function Backup() {
   const [selectedNFT, setSelectedNFT] = useState([]);
   const [selectAll_checked, setSelectAllChecked] = useState(false);
   const [coinCanBeLockup, setCoinCanBeLockup] = useState(false);
+  const [collectionCanbeLockup, setCollectionCanbeLockup] = useState(false);
 
   const [ownCollection, setOwnCollection] = useState(null);
   const [editFlowAmount, setEditFlowAmount] = useState("");
@@ -101,6 +102,7 @@ export default function Backup() {
     setNFTIDs([]);
     setWithdrawNFTIDs([]);
     setTxStatus(null);
+    
   }, []);
 
   useEffect(() => {
@@ -585,6 +587,7 @@ export default function Backup() {
 
   const getAllNFTCollectionInfo = () => {
     let isShowCollection = [];
+    let isCollectionCanbelockup = false;
     collection.map((item, index) => {
       let length = 0;
 
@@ -602,6 +605,9 @@ export default function Backup() {
 
       isShowCollection.push(length)
     });
+
+    isShowCollection.map((item) => { if (item > 0) isCollectionCanbelockup = true; });
+    setCollectionCanbeLockup(isCollectionCanbelockup);
     console.log("getAllNFT --- isShowCollection", isShowCollection);
     setShowNFTCollection(isShowCollection);
     setStep("nftcollection")
@@ -1729,7 +1735,7 @@ export default function Backup() {
 
                   <div className='row'>
                     {collection && collection.map((item, index) => (
-                      showNFTCollection[index] && (
+                      showNFTCollection[index] > 0 && collectionCanbeLockup && (
                         <div className='col-md-4 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => selectNFTCollection(item)}>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
@@ -1753,10 +1759,11 @@ export default function Backup() {
                           </Card>
                         </div>)
                     ))}
-                  </div>
-
-                  <div className='row'>
-
+                    {!collectionCanbeLockup && (
+                      <><h5 className='text-warning'>
+                        <FaInfo /> You have no NFT collection to lockup!
+                      </h5></>
+                    )}
                   </div>
                 </Tab.Pane>
               }
