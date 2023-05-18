@@ -1230,7 +1230,7 @@ export default function Backup() {
                                 </>
                               }
 
-                              <Button variant="dark" size="sm" className='blue-bg me-5' onClick={(e) => editClick(e)}>
+                              <Button variant="dark" size="sm" className='blue-bg me-1' onClick={(e) => editClick(e)}>
                                 Edit
                               </Button>
 
