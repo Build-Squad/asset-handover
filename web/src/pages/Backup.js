@@ -2056,7 +2056,7 @@ export default function Backup() {
                   {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
                     <div className='row'>
                       {pledgeCollection && pledgeCollection.map((item, index) =>
-                        <div className='col-md-6 col-sm-12 pt-2' key={index}>
+                        <div className='col-md-3 col-sm-6 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer'>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
                             <Card.Body className='pb-0'>
@@ -2064,9 +2064,7 @@ export default function Backup() {
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
                                   <NftId lockUp={pledgeItem} item={item} />
-                                  <Button className='mx-3' variant="danger" size="sm" onClick={() => withdrawNFTCollection(item)}>
-                                    WITHDRAW
-                                  </Button>
+
                                 </div>
 
                                 <div className='col-9'>
@@ -2076,6 +2074,9 @@ export default function Backup() {
                                       {item.collectionDescription}
                                     </p>
                                   </div>
+                                  <Button className='mx-3' variant="danger" size="md" onClick={() => withdrawNFTCollection(item)}>
+                                    WITHDRAW
+                                  </Button>
                                 </div>
                               </div>
                             </Card.Body>
