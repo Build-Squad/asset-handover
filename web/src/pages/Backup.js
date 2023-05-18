@@ -479,6 +479,18 @@ export default function Backup() {
   }
 
   const addFT = async () => {
+    if (flowSelect) {
+      if (parseFloat(flowAmount) > tokenHoldAmount.FLOW) {
+        toast.error("The lockup token amount cannot bigger than you hold");
+        return;
+      }
+    }
+    if (blpSelect) {
+      if (parseFloat(blpAmount) > tokenHoldAmount.BLP) {
+        toast.error("The lockup token amount cannot bigger than you hold");
+        return;
+      }
+    }
     setTxProgress(true);
     setTxType("addFT");
 
