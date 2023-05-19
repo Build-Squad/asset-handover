@@ -37,7 +37,8 @@ export default function Header() {
       <Navbar.Collapse id="basic-navbar-nav" className="flex-reverse">
         <Nav >
           {user.loggedIn ?
-            <>
+            <div className='d-flex gap-2'>
+
               <Button variant="light" className="connect-wallet" onClick={onHandleClickWalletConnectedButton}>
                 WALLET CONNECTED
               </Button>
@@ -45,7 +46,7 @@ export default function Header() {
                 fcl.unauthenticate();
                 navigate("/");
               }}><FaSignOutAlt /></Button>
-            </>
+            </div>
             :
             <Button variant="light" className="connect-wallet" onClick={fcl.logIn}>
               CONNECT WALLET

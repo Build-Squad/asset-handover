@@ -102,7 +102,7 @@ export default function Backup() {
     setNFTIDs([]);
     setWithdrawNFTIDs([]);
     setTxStatus(null);
-    
+
   }, []);
 
   useEffect(() => {
@@ -1615,16 +1615,16 @@ export default function Backup() {
                           {item.identifier.includes("FlowToken") ?
                             <>
                               {!isRemoveFlow &&
-                                <div className='col-lg-6 col-xl-4 pt-2'>
+                                <div className='col-sm-6 col-xl-4 pt-2'>
                                   <div className='grey-border p-2'>
                                     <div className='row'>
-                                      <div className='col-md-3'>
-                                        <img src="flowcoin.png" width="100%" height="auto" />
+                                      <div className='col-md-3 text-center'>
+                                        <img src="flowcoin.png" className='w-md-full w-75 m-auto text-center' height="auto" />
 
                                         {item.balance ?
-                                          <h5 className='text-center'>({parseFloat(item.balance)})</h5>
+                                          <h6 className='text-center'>({tokenHoldAmount.FLOW}<br className='d-md-block d-none'/>/<span className="text-danger">{parseFloat(item.balance)}</span>)</h6>
                                           :
-                                          <h5 className='text-center'>(All)</h5>
+                                          <h6 className='text-center'>(All)</h6>
                                         }
                                       </div>
 
