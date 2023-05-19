@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Nav, Navbar, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as fcl from "@onflow/fcl";
-import { FaBars } from 'react-icons/fa';
+import { FaBars, FaSignOutAlt } from 'react-icons/fa';
 
 export default function Header() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -16,7 +17,11 @@ export default function Header() {
     user.loggedIn ? navigate("/safe") : navigate("/");
   }, [user]);
 
-  return(
+  const onHandleClickWalletConnectedButton = (e) => {
+    navigate("/safe")
+  }
+
+  return (
     <Navbar expand="lg">
       <Navbar.Brand>
         <Link to="/" className="d-flex text-decoration-none">
@@ -32,16 +37,22 @@ export default function Header() {
       <Navbar.Collapse id="basic-navbar-nav" className="flex-reverse">
         <Nav >
           {user.loggedIn ?
-          <Button variant="light" className="connect-wallet">
-            WALLET CONNECTED
-          </Button>
-          :
-          <Button variant="light" className="connect-wallet" onClick={fcl.logIn}>
-            CONNECT WALLET
-          </Button>
+            <>
+              <Button variant="light" className="connect-wallet" onClick={onHandleClickWalletConnectedButton}>
+                WALLET CONNECTED
+              </Button>
+              <Button variant="Danger" className="disconnect-wallet" onClick={(e) => {
+                fcl.unauthenticate();
+                navigate("/");
+              }}><FaSignOutAlt /></Button>
+            </>
+            :
+            <Button variant="light" className="connect-wallet" onClick={fcl.logIn}>
+              CONNECT WALLET
+            </Button>
           }
         </Nav>
-      </Navbar.Collapse>
-    </Navbar>
+      </Navbar.Collapse >
+    </Navbar >
   )
 }
