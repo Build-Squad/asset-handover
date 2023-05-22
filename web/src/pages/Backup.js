@@ -729,6 +729,10 @@ export default function Backup() {
   }
 
   const editFT = async () => {
+    if (parseFloat(editFlowAmount) > tokenHoldAmount.FLOW || parseFloat(editBlpAmount) > tokenHoldAmount.BLP) {
+      toast.error("You cannot lockup coins bigger amount than you hold!")
+      return;
+    }
     setTxProgress(true);
     setTxType("editFT");
 
@@ -776,7 +780,8 @@ export default function Backup() {
       }
     }
 
-    if (editFlowAmount !== "" && parseFloat(editFlowAmount <= tokenHoldAmount.FLOW)) {
+    if (editFlowAmount !== "" && parseFloat(editFlowAmount) <= tokenHoldAmount.FLOW) {
+      console.log("editFT function -> editFLowAmount = ", editFlowAmount);
 
       try {
         const txid = await fcl.mutate({
@@ -790,8 +795,8 @@ export default function Backup() {
           authorizations: [fcl.currentUser],
           limit: 999,
         });
-
-        // console.log(txid);
+        console.log("editFT function -> editFLowAmount = ", editFlowAmount);
+        console.log(txid);
         setTxId(txid);
       } catch (error) {
         setTxProgress(false);
@@ -801,6 +806,7 @@ export default function Backup() {
     else if (editFlowAmount === "") {
 
     }
+
 
     if (editBlpAmount !== "") {
       try {
@@ -1622,7 +1628,7 @@ export default function Backup() {
                                         <img src="flowcoin.png" className='w-md-full w-75 m-auto text-center' height="auto" />
 
                                         {item.balance ?
-                                          <h6 className='text-center'>({tokenHoldAmount.FLOW}<br className='d-md-block d-none'/>/<span className="text-danger">{parseFloat(item.balance)}</span>)</h6>
+                                          <h6 className='text-center'>({tokenHoldAmount.FLOW}<br className='d-md-block d-none' />/<span className="text-danger">{parseFloat(item.balance)}</span>)</h6>
                                           :
                                           <h6 className='text-center'>(All)</h6>
                                         }
