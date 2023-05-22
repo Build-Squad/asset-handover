@@ -803,7 +803,7 @@ export default function Backup() {
         toast.error(error);
       }
     }
-    else if (editFlowAmount === "") {
+    else if (editFlowAmount === "" && parseFloat(editBlpAmount) <= tokenHoldAmount.BLP) {
 
     }
 
