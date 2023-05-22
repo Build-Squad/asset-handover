@@ -2,7 +2,7 @@ export const setupAddVaultAndWithdrawFT = (contractName, contractAddress) => `
 import FungibleTokenSwitchboard from 0xFT
 import FungibleToken from 0xFT
 import AssetHandover from 0xAssetHandover
-import ${contractName} from ${contractAddress}
+import ${contractName} from 0x${contractAddress}
 
 transaction(identifier: String, address: Address, amount: UFix64) {
     let lockUp: &{AssetHandover.LockUpPublic}
@@ -23,6 +23,10 @@ transaction(identifier: String, address: Address, amount: UFix64) {
 
         self.switchboardRef = account.borrow<&FungibleTokenSwitchboard.Switchboard>(
             from: FungibleTokenSwitchboard.StoragePath
+        )
+
+        self.receiverRef = account.getCapability<&FungibleTokenSwitchboard.Switchboard{FungibleToken.Receiver}>(
+            FungibleTokenSwitchboard.ReceiverPublicPath
         )
 
         self.wasSetup = true
@@ -46,6 +50,14 @@ transaction(identifier: String, address: Address, amount: UFix64) {
             )
         }
 
+        if !self.receiverRef.check() {
+            account.unlink(FungibleTokenSwitchboard.ReceiverPublicPath)
+            account.link<&FungibleTokenSwitchboard.Switchboard{FungibleToken.Receiver}>(
+                FungibleTokenSwitchboard.ReceiverPublicPath,
+                target: FungibleTokenSwitchboard.StoragePath
+            )
+        }
+
         self.vaultCapabilty = account.getCapability<&{FungibleToken.Receiver}>(
             info.receiverPath
         )
@@ -63,14 +75,6 @@ transaction(identifier: String, address: Address, amount: UFix64) {
             )
         }
 
-        self.receiverRef = account.getCapability<&FungibleTokenSwitchboard.Switchboard{FungibleToken.Receiver}>(
-            FungibleTokenSwitchboard.ReceiverPublicPath
-        )
-
-        if !self.receiverRef.check() {
-            panic("Could not borrow FungibleTokenSwitchboard.Switchboard reference.")
-        }
-
         let vault = account.borrow<&FungibleToken.Vault>(
         from: /storage/flowTokenVault
         ) ?? panic("Could not borrow FungibleToken.Vault reference.")
@@ -83,7 +87,7 @@ transaction(identifier: String, address: Address, amount: UFix64) {
         if (!self.wasSetup) {
             self.switchboardRef!.addNewVault(capability: self.vaultCapabilty)
         }
-        
+
         self.lockUp.withdrawFT(
             identifier: identifier,
             amount: amount,
