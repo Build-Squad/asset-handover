@@ -398,7 +398,9 @@ export default function Backup() {
   }
 
   const createBackup = async () => {
-    const releaseDate = maturity.getTime().toString();
+    // in seconds
+    const releaseDate = Math.floor(maturity.getTime() / 1000).toString();
+    console.log(releaseDate)
     setTxProgress(true);
     setTxType("createLockup");
 
@@ -982,6 +984,10 @@ export default function Backup() {
   }
 
   const withdrawFlow = async (identifier, holder, item) => {
+    console.log(item)
+    const [_, contractAddress, contractName] = item.identifier.split('.');
+    console.log(contractAddress)
+    console.log(contractName)
 
     setTxProgress(true);
     setTxType("withdrawFlow");
@@ -997,7 +1003,7 @@ export default function Backup() {
     // console.log("holder+identifier", holder,)
     try {
       const txid = await fcl.mutate({
-        cadence: setupAddVaultAndWithdrawFT("FlowToken", "0xAssetHandover"),
+        cadence: setupAddVaultAndWithdrawFT(contractName, contractAddress),
         args: (arg, t) => [
           arg(identifier, t.String),
           arg(holder, t.Address),
@@ -1228,7 +1234,7 @@ export default function Backup() {
                                     Maturity Date
                                   </p>
                                   <p className='text-success'>
-                                    {convertDate(Math.floor(lockUp.releasedAt))}
+                                    {convertDate(Math.floor(lockUp.releasedAt * 1000))}
                                   </p>
                                 </>
                                 :
@@ -1237,7 +1243,7 @@ export default function Backup() {
                                     Maturity Date
                                   </p>
                                   <p className='red-font'>
-                                    {convertDate(Math.floor(lockUp.releasedAt))}
+                                    {convertDate(Math.floor(lockUp.releasedAt * 1000))}
                                   </p>
                                 </>
                               }
@@ -1319,7 +1325,7 @@ export default function Backup() {
                           <Form.Label>
                             Maturity Date <span className='text-danger'>*</span>
                           </Form.Label>
-                          <DatePicker className='form-control' selected={maturity} onChange={(date) => setMaturity(date)} />
+                          <DatePicker className='form-control' selected={maturity} minDate={new Date()}  excludeDates={[new Date()]} onChange={(date) => setMaturity(date)} />
                         </Form.Group>
 
                         <Form.Group className="mb-3">
@@ -1377,7 +1383,7 @@ export default function Backup() {
                       </p>
 
                       <p className='font-bold maturity-date blue-bg border-none'>
-                        MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt))}
+                        MATURITY DATE: {convertDate(Math.floor(lockUp.releasedAt * 1000))}
                       </p>
                     </div>
                   </div>
@@ -1621,16 +1627,16 @@ export default function Backup() {
                           {item.identifier.includes("FlowToken") ?
                             <>
                               {!isRemoveFlow &&
-                                <div className='col-sm-6 col-xl-4 pt-2'>
+                                <div className='col-lg-6 col-xl-4 pt-2'>
                                   <div className='grey-border p-2'>
                                     <div className='row'>
-                                      <div className='col-md-3 text-center'>
-                                        <img src="flowcoin.png" className='w-md-full w-75 m-auto text-center' height="auto" />
+                                      <div className='col-md-3'>
+                                        <img src="flowcoin.png" width="100%" height="auto" />
 
                                         {item.balance ?
-                                          <h6 className='text-center'>({tokenHoldAmount.FLOW}<br className='d-md-block d-none' />/<span className="text-danger">{parseFloat(item.balance)}</span>)</h6>
+                                          <h5 className='text-center'>({parseFloat(item.balance)})</h5>
                                           :
-                                          <h6 className='text-center'>(All)</h6>
+                                          <h5 className='text-center'>(All)</h5>
                                         }
                                       </div>
 
@@ -1968,7 +1974,7 @@ export default function Backup() {
                                   Maturity Date
                                 </p>
                                 <p className='text-success'>
-                                  {convertDate(Math.floor(item.releasedAt))}
+                                  {convertDate(Math.floor(item.releasedAt * 1000))}
                                 </p>
                               </>
                               :
@@ -1977,7 +1983,7 @@ export default function Backup() {
                                   Maturity Date
                                 </p>
                                 <p className='red-font'>
-                                  {convertDate(Math.floor(item.releasedAt))}
+                                  {convertDate(Math.floor(item.releasedAt * 1000))}
                                 </p>
                               </>
                             }
@@ -2014,7 +2020,7 @@ export default function Backup() {
 
                     <div className='col-md-6 text-webkit-right'>
                       <p className='font-bold maturity-date blue-bg border-none'>
-                        MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt))}
+                        MATURITY DATE: {convertDate(Math.floor(pledgeItem.releasedAt * 1000))}
                       </p>
                     </div>
                   </div>
