@@ -475,7 +475,7 @@ export default function Backup() {
   }
   const getFTContractName = (identifier) => {
     const [, contractAddress, contractName] = identifier.split(".");
-    return contractName;
+    return { contractAddress, contractName };
   }
 
   const getBackup = async () => {
@@ -1565,7 +1565,7 @@ export default function Backup() {
                       {lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
                           <div className='col-md-1 col-3'>
-                            <img src={logoURI[getFTContractName(item.identifier)]} width="100%" height="auto" />
+                            <img src={logoURI[getFTContractName(item.identifier).contractName]} width="100%" height="auto" />
 
                             {item.balance === null ?
                               <p className='blue-font font-bold text-center'>
@@ -1678,17 +1678,10 @@ export default function Backup() {
                           <div className='grey-border p-2'>
                             <div className='row'>
                               <div className='col-md-3'>
-                                {ft[key].name === 'FLOW' ?
-                                  <>
-                                    <img src="flowcoin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>{tokenHoldAmount.FLOW - flowBalance}</h5>
-                                  </>
-                                  :
-                                  <>
-                                    <img src="coin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>{tokenHoldAmount.BLP - blpBalance}</h5>
-                                  </>
-                                }
+                                <>
+                                  <img src={logoURI[getFTContractName(key).contractName]} width="100%" height="auto" />
+                                  <h5 className='text-center'>{tokenHoldAmount.FLOW - flowBalance}</h5>
+                                </>
                               </div>
 
                               <div className='col-md-9'>
@@ -1697,7 +1690,7 @@ export default function Backup() {
                                   <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)} />
                                 </div>
 
-                                <p className='text-grey mb-1 font-14'>{key}</p>
+                                <p className='text-grey mb-1 font-14'>{getFTContractName(key).contractAddress}</p>
                                 {ft[key].name === "FLOW" ?
                                   <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                                     value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
