@@ -19,7 +19,6 @@ import { destroyLockup } from '../cadence/transaction/destroyLockup';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
 import { getAccountBalance } from '../cadence/script/getAccountBalance';
-// import { getStoragePaths } from '../cadence/script/getStoragePaths';
 
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
 import { lockFungibleTokens } from '../cadence/transaction/lockFungibleTokens';
@@ -39,6 +38,10 @@ import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFung
 import NftId from '../components/NftId';
 import AddNftId from '../components/AddNftId';
 
+/* 
+* @dev Getting TokenList for Users functions
+* start
+*/
 const getStoragePaths = async (address) => {
   let code = await (await fetch("/get_storage_paths.cdc")).text()
   code = code.replace("__OUTDATED_PATHS__", outdatedPathsTestnet.storage)
@@ -98,6 +101,12 @@ const bulkGetStoredItems = async (address) => {
   return items
 }
 
+/* 
+* @dev Getting TokenList for Users functions
+* End
+*/
+
+
 
 
 export default function Backup() {
@@ -113,7 +122,7 @@ export default function Backup() {
   const [tokenRegistry, setTokenRegistry] = useState([]);
   const [currentStoredItems, setCurrentStoredItems] = useState([])
   const [balanceData, setBalanceData] = useState(null)
-
+  const [logoURI, setLogoURI] = useState({});
 
 
   //lockups
@@ -169,6 +178,66 @@ export default function Backup() {
   const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
   const [changeSelection, setChangeSelection] = useState([]);
   const [checkWithdrawAllNFT, setCheckWithdrawAllNFT] = useState(false);
+
+
+  /*
+  * @dev Getting TokenList on Flow Test network
+  * Start
+  */
+  const getAllTokenList = () => {
+    new TokenListProvider().resolve(Strategy.GitHub, ENV.Testnet).then(tokens => {
+      const tokenList = tokens.getList().map((token) => {
+        token.id = `${token.address.replace("0x", "A.")}.${token.contractName}`
+        return token
+      })
+      setTokenRegistry(tokenList)
+      console.log("tokenList---", tokenList);
+      return tokenList;
+    })
+      .then((tokenList) => {
+        getLogoURI(tokenList);
+      })
+  }
+  /*
+  * @dev Getting TokenList on Flow Test network
+  * End
+  */
+
+  const getLogoURI = (tokenList) => {
+    // console.log("getLogoURI -> ", tokenList);
+    // let logURI = tokenList.reduce((acc, obj) => {
+    //   const [, contractAddress, contractName] = obj.id.split(".");
+    //   return acc[contractName] = obj.logoURI.toString()
+    // }, {})
+    let logURI = {};
+    tokenList.map((item) => {
+      const [, contractAddress, contractName] = item.id.split(".");
+      logURI[contractName] = item.logoURI;
+    })
+    setLogoURI(logURI);
+    console.log("getLogoURI --- ", logURI);
+  }
+
+  /*
+  * @dev Getting account's TokenList
+  * Start
+  */
+  const getAccountTokenList = () => {
+    if (user.addr) {
+      bulkGetStoredItems(user.addr).then((items) => {
+        const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
+        console.log("orderedItems", orderedItems)
+        setCurrentStoredItems(orderedItems)
+        console.log("balanceData", orderedItems.filter((item) => item.isVault))
+        setBalanceData(orderedItems.filter((item) => item.isVault))
+      });
+    }
+  }
+  /*
+  * @dev Getting account's TokenList
+  * End
+  */
+
   useEffect(() => {
     fcl.currentUser.subscribe(setUser);
     setStep("default");
@@ -176,35 +245,13 @@ export default function Backup() {
     setNFTIDs([]);
     setWithdrawNFTIDs([]);
     setTxStatus(null);
-    // let env = ENV.Testnet;
-
-    new TokenListProvider().resolve(Strategy.GitHub, ENV.Testnet).then(tokens => {
-      const tokenList = tokens.getList().map((token) => {
-        token.id = `${token.address.replace("0x", "A.")}.${token.contractName}`
-        return token
-      })
-      setTokenRegistry(tokenList)
-      console.log("tokenList", tokenList);
-    })
-
   }, []);
 
   useEffect(() => {
-    // if (user.addr && isValidFlowAddress(user.addr)) {
-    if (user.addr) {
-      bulkGetStoredItems(user.addr).then((items) => {
-        const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
-        console.log("orderedItems", orderedItems)
-        setCurrentStoredItems(orderedItems)
-        console.log("balanceData", currentStoredItems.filter((item) => item.isVault))
-        setBalanceData(currentStoredItems.filter((item) => item.isVault))
-      });
-    }
-
     getBackup();
-    if (txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-      getBackup();
-    }
+    // if (txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+    //   getBackup();
+    // }
   }, [user, txStatus]);
 
   useEffect(() => {
@@ -426,15 +473,25 @@ export default function Backup() {
 
     return formattedDate;
   }
+  const getFTContractName = (identifier) => {
+    const [, contractAddress, contractName] = identifier.split(".");
+    return contractName;
+  }
 
   const getBackup = async () => {
+    getAllTokenList();
+    // getLogoURI(tokenRegistry);
     if (user.addr) {
+      /* ----------- Getting Account's TokenList --------- */
+      getAccountTokenList();
+
+      /* ----------- Getting Account's lockup Data --------- */
       const res = await fcl.query({
         cadence: getAccountLockUp,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
       setLockUp(res);
-      // console.log('lockup - ', res);
+      console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -448,7 +505,7 @@ export default function Backup() {
       setTokenHoldAmount({ FLOW: parseFloat(account_flow_amount), BLP: 0 });
 
       setFT(ftinfo);
-      // console.log("ftinfo - ", ftinfo);
+      console.log("ftinfo - ", ftinfo);
 
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
@@ -1078,6 +1135,8 @@ export default function Backup() {
     }
   }
 
+
+
   const withdrawFlow = async (identifier, holder, item) => {
     console.log(item)
     const [_, contractAddress, contractName] = item.identifier.split('.');
@@ -1505,37 +1564,19 @@ export default function Backup() {
                     <div className='row mt-2'>
                       {lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
-                          {item.identifier.includes("FlowToken") &&
-                            <div className='col-md-1 col-3'>
-                              <img src="flowcoin.png" width="100%" height="auto" />
+                          <div className='col-md-1 col-3'>
+                            <img src={logoURI[getFTContractName(item.identifier)]} width="100%" height="auto" />
 
-                              {item.balance === null ?
-                                <p className='blue-font font-bold text-center'>
-                                  (All)
-                                </p>
-                                :
-                                <p className='blue-font font-bold text-center'>
-                                  ({parseInt(item.balance)})
-                                </p>
-                              }
-                            </div>
-                          }
-
-                          {item.identifier.includes("BlpToken") &&
-                            <div className='col-md-1 col-3'>
-                              <img src="coin.png" width="100%" height="auto" />
-
-                              {item.balance === null ?
-                                <p className='blue-font font-bold text-center'>
-                                  (All)
-                                </p>
-                                :
-                                <p className='blue-font font-bold text-center'>
-                                  ({parseInt(item.balance)})
-                                </p>
-                              }
-                            </div>
-                          }
+                            {item.balance === null ?
+                              <p className='blue-font font-bold text-center'>
+                                (All)
+                              </p>
+                              :
+                              <p className='blue-font font-bold text-center'>
+                                ({parseInt(item.balance)})
+                              </p>
+                            }
+                          </div>
                         </React.Fragment>
                       )
                       )}
