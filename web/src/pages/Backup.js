@@ -19,6 +19,7 @@ import { destroyLockup } from '../cadence/transaction/destroyLockup';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
 import { getAccountBalance } from '../cadence/script/getAccountBalance';
+// import { getStoragePaths } from '../cadence/script/getStoragePaths';
 
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
 import { lockFungibleTokens } from '../cadence/transaction/lockFungibleTokens';
@@ -38,20 +39,9 @@ import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFung
 import NftId from '../components/NftId';
 import AddNftId from '../components/AddNftId';
 
-// const isValidFlowAddress = (address) => {
-//   if (!address.startsWith("0x") || address.length != 18) {
-//     return false
-//   }
-
-//   const bytes = Buffer.from(address.replace("0x", ""), "hex")
-//   if (bytes.length !== 8) { return false }
-//   return true
-// }
-
 const getStoragePaths = async (address) => {
-  let code = await (await fetch("../tokens/get_storage_paths.cdc")).text()
+  let code = await (await fetch("/get_storage_paths.cdc")).text()
   code = code.replace("__OUTDATED_PATHS__", outdatedPathsTestnet.storage)
-
   const paths = await fcl.query({
     cadence: code,
     args: (arg, t) => [
@@ -59,6 +49,7 @@ const getStoragePaths = async (address) => {
     ]
   })
 
+  console.log("getStoreagePaths-- ", paths);
   return paths
 }
 
@@ -78,8 +69,8 @@ const splitList = (list, chunkSize) => {
 }
 
 const getStoredItems = async (address, paths) => {
-  const code = await (await fetch("../tokens/get_stored_items.cdc")).text()
-
+  const code = await (await fetch("/get_stored_items.cdc")).text()
+  console.log("getStoredItems--->paths,", address, paths);
   const items = await fcl.query({
     cadence: code,
     args: (arg, t) => [
@@ -88,20 +79,22 @@ const getStoredItems = async (address, paths) => {
     ]
   })
 
+  console.log("getStoredItems ---> items", items);
   return items
 }
 
 const bulkGetStoredItems = async (address) => {
   const paths = await getStoragePaths(address)
+  // console.log("bulkgetstoredItems");
   const groups = splitList(paths.map((p) => p.identifier), 30)
   const promises = groups.map((group) => {
     return getStoredItems(address, group)
   })
-
   const itemGroups = await Promise.all(promises)
   const items = itemGroups.reduce((acc, curr) => {
     return acc.concat(curr)
   }, [])
+  console.log("bulkGetStoredItems---", items);
   return items
 }
 
@@ -201,18 +194,11 @@ export default function Backup() {
     if (user.addr) {
       console.log("herehehrehrehr", user.addr);
       console.log("currentStoredItems", currentStoredItems)
-      if (!currentStoredItems || (currentStoredItems.length > 0 && currentStoredItems[0].address !== user.addr)) {
-
-        setCurrentStoredItems(null)
-        bulkGetStoredItems(user.addr).then((items) => {
-          const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
-          console.log("orderedItems", orderedItems)
-          setCurrentStoredItems(orderedItems)
-        })
-      } else {
-        setBalanceData(currentStoredItems.filter((item) => item.isVault));
-        // console.log("currentStoredItem---", currentStoredItems.filter((item) => item.isVault));
-      }
+      bulkGetStoredItems(user.addr).then((items) => {
+        const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
+        console.log("orderedItems", orderedItems)
+        setCurrentStoredItems(orderedItems)
+      });
     }
 
     getBackup();
