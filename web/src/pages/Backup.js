@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { atom, useRecoilState } from "recoil";
 import * as fcl from "@onflow/fcl";
+import { TokenListProvider, ENV, Strategy } from 'flow-native-token-registry'
 import { Tab, Nav, Card, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaArrowLeft, FaInfo } from 'react-icons/fa';
@@ -29,8 +31,10 @@ import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVaultAndWithdrawFT';
 import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFungibleToken';
 
+
 import NftId from '../components/NftId';
 import AddNftId from '../components/AddNftId';
+
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null, addr: '' });
@@ -41,6 +45,9 @@ export default function Backup() {
   const [txStatus, setTxStatus] = useState(null);
   const [txType, setTxType] = useState(null);
   const [txProgress, setTxProgress] = useState(false);
+
+  const [tokenRegistry, setTokenRegistry] = useState([]);
+
 
   //lockups
   const [backupName, setBackupName] = useState('');
@@ -102,6 +109,16 @@ export default function Backup() {
     setNFTIDs([]);
     setWithdrawNFTIDs([]);
     setTxStatus(null);
+    // let env = ENV.Testnet;
+
+    new TokenListProvider().resolve(Strategy.GitHub, ENV.Testnet).then(tokens => {
+      const tokenList = tokens.getList().map((token) => {
+        token.id = `${token.address.replace("0x", "A.")}.${token.contractName}`
+        return token
+      })
+      setTokenRegistry(tokenList)
+      console.log("tokenList", tokenList);
+    })
 
   }, []);
 
@@ -1325,7 +1342,7 @@ export default function Backup() {
                           <Form.Label>
                             Maturity Date <span className='text-danger'>*</span>
                           </Form.Label>
-                          <DatePicker className='form-control' selected={maturity} minDate={new Date()}  excludeDates={[new Date()]} onChange={(date) => setMaturity(date)} />
+                          <DatePicker className='form-control' selected={maturity} minDate={new Date()} excludeDates={[new Date()]} onChange={(date) => setMaturity(date)} />
                         </Form.Group>
 
                         <Form.Group className="mb-3">
