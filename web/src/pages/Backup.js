@@ -192,12 +192,12 @@ export default function Backup() {
   useEffect(() => {
     // if (user.addr && isValidFlowAddress(user.addr)) {
     if (user.addr) {
-      console.log("herehehrehrehr", user.addr);
-      console.log("currentStoredItems", currentStoredItems)
       bulkGetStoredItems(user.addr).then((items) => {
         const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
         console.log("orderedItems", orderedItems)
         setCurrentStoredItems(orderedItems)
+        console.log("balanceData", currentStoredItems.filter((item) => item.isVault))
+        setBalanceData(currentStoredItems.filter((item) => item.isVault))
       });
     }
 
