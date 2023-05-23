@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { atom, useRecoilState } from "recoil";
 import * as fcl from "@onflow/fcl";
+
 import { TokenListProvider, ENV, Strategy } from 'flow-native-token-registry'
+import { outdatedPathsTestnet } from '../tokens/testnet';
+
 import { Tab, Nav, Card, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaArrowLeft, FaInfo } from 'react-icons/fa';
@@ -35,6 +38,74 @@ import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFung
 import NftId from '../components/NftId';
 import AddNftId from '../components/AddNftId';
 
+// const isValidFlowAddress = (address) => {
+//   if (!address.startsWith("0x") || address.length != 18) {
+//     return false
+//   }
+
+//   const bytes = Buffer.from(address.replace("0x", ""), "hex")
+//   if (bytes.length !== 8) { return false }
+//   return true
+// }
+
+const getStoragePaths = async (address) => {
+  let code = await (await fetch("../tokens/get_storage_paths.cdc")).text()
+  code = code.replace("__OUTDATED_PATHS__", outdatedPathsTestnet.storage)
+
+  const paths = await fcl.query({
+    cadence: code,
+    args: (arg, t) => [
+      arg(address, t.Address)
+    ]
+  })
+
+  return paths
+}
+
+const splitList = (list, chunkSize) => {
+  const groups = []
+  let currentGroup = []
+  for (let i = 0; i < list.length; i++) {
+    const collectionID = list[i]
+    if (currentGroup.length >= chunkSize) {
+      groups.push([...currentGroup])
+      currentGroup = []
+    }
+    currentGroup.push(collectionID)
+  }
+  groups.push([...currentGroup])
+  return groups
+}
+
+const getStoredItems = async (address, paths) => {
+  const code = await (await fetch("../tokens/get_stored_items.cdc")).text()
+
+  const items = await fcl.query({
+    cadence: code,
+    args: (arg, t) => [
+      arg(address, t.Address),
+      arg(paths, t.Array(t.String))
+    ]
+  })
+
+  return items
+}
+
+const bulkGetStoredItems = async (address) => {
+  const paths = await getStoragePaths(address)
+  const groups = splitList(paths.map((p) => p.identifier), 30)
+  const promises = groups.map((group) => {
+    return getStoredItems(address, group)
+  })
+
+  const itemGroups = await Promise.all(promises)
+  const items = itemGroups.reduce((acc, curr) => {
+    return acc.concat(curr)
+  }, [])
+  return items
+}
+
+
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null, addr: '' });
@@ -47,6 +118,9 @@ export default function Backup() {
   const [txProgress, setTxProgress] = useState(false);
 
   const [tokenRegistry, setTokenRegistry] = useState([]);
+  const [currentStoredItems, setCurrentStoredItems] = useState([])
+  const [balanceData, setBalanceData] = useState(null)
+
 
 
   //lockups
@@ -123,6 +197,24 @@ export default function Backup() {
   }, []);
 
   useEffect(() => {
+    // if (user.addr && isValidFlowAddress(user.addr)) {
+    if (user.addr) {
+      console.log("herehehrehrehr", user.addr);
+      console.log("currentStoredItems", currentStoredItems)
+      if (!currentStoredItems || (currentStoredItems.length > 0 && currentStoredItems[0].address !== user.addr)) {
+
+        setCurrentStoredItems(null)
+        bulkGetStoredItems(user.addr).then((items) => {
+          const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
+          console.log("orderedItems", orderedItems)
+          setCurrentStoredItems(orderedItems)
+        })
+      } else {
+        setBalanceData(currentStoredItems.filter((item) => item.isVault));
+        // console.log("currentStoredItem---", currentStoredItems.filter((item) => item.isVault));
+      }
+    }
+
     getBackup();
     if (txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
       getBackup();
