@@ -217,8 +217,18 @@ export default function Backup() {
   * @dev Getting account's TokenList
   * Start
   */
+  const isValidFlowAddress = (address) => {
+    if (!address.startsWith("0x") || address.length !== 18) {
+      return false
+    }
+
+    const bytes = Buffer.from(address.replace("0x", ""), "hex")
+    if (bytes.length !== 8) { return false }
+    return true
+  }
+
   const getAccountTokenList = () => {
-    if (user.addr) {
+    if (user.addr && isValidFlowAddress(user.addr)) {
       bulkGetStoredItems(user.addr).then((items) => {
         const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
         console.log("orderedItems", orderedItems)
