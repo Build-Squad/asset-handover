@@ -157,12 +157,6 @@ export default function Backup() {
   const [collectionCanbeLockup, setCollectionCanbeLockup] = useState(false);
 
   const [ownCollection, setOwnCollection] = useState(null);
-  const [editFlowAmount, setEditFlowAmount] = useState("");
-  const [editBlpAmount, setEditBlpAmount] = useState("");
-  const [isRemoveFlow, setIsRemoveFlow] = useState(false);
-  const [isRemoveBlp, setIsRemoveBlp] = useState(false);
-  const [flowBalance, setFlowBalance] = useState(null);
-  const [blpBalance, setBlpBalance] = useState(null);
   const [editNFTIDs, setEditNFTIDs] = useState([]);
   const [showNFT, setShowNFT] = useState(null);
   const [currentNFTIDs, setCurrentNFTIDs] = useState(null);
@@ -484,8 +478,8 @@ export default function Backup() {
   }, [nft]);
 
   useEffect(() => {
-    setIsRemoveBlp(false);
-    setIsRemoveFlow(false);
+
+
   }, [step])
 
   const logout = () => {
@@ -880,7 +874,6 @@ export default function Backup() {
     const remainItem = lockUp.fungibleTokens;
     Object.keys(editLockupTokenAmount).map((key, index) => {
       if (parseFloat(editLockupTokenAmount[key]) !== parseFloat(lockupTokenList[key])) {
-        console.log("a;lsdkfj;alskdjf;laksjdf;lkajsd;flkjas;ldfkj;laskdjf;lkasjdf");
         isDataEdited = true;
       }
     })
@@ -913,7 +906,6 @@ export default function Backup() {
         } catch (error) {
           toast.error(error);
           setTxProgress(false);
-          setIsRemoveFlow(false);
         }
       }
 
@@ -962,13 +954,6 @@ export default function Backup() {
     }
   }
 
-  const removeFlow = () => {
-    setIsRemoveFlow(true);
-  }
-
-  const removeBlp = () => {
-    setIsRemoveBlp(true);
-  }
 
   const editNFTCollection = async (item) => {
     // console.log("collection - ", item);
@@ -1681,7 +1666,7 @@ export default function Backup() {
                               <div className='col-md-3'>
                                 <>
                                   <img src={logoURI[key]} key={index} width="100%" height="auto" alt="TokenLogo" />
-                                  <h5 className='text-center'>{tokenHoldAmount[key] - flowBalance}</h5>
+                                  <h5 className='text-center'>{tokenHoldAmount[key]}</h5>
                                 </>
                               </div>
 
