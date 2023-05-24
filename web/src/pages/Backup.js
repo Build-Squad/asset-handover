@@ -136,8 +136,6 @@ export default function Backup() {
   const [ft, setFT] = useState(null);
   const [lockupTokenAmount, setLockupTokenAmount] = useState({});
   const [lockupTokensSelect, setLockupTokensSelect] = useState({});
-  const [flowID, setFlowID] = useState(null);
-  const [blpID, setBLPID] = useState(null);
   const [tokenID, setTokenID] = useState({});
   const [tokenHoldAmount, setTokenHoldAmount] = useState({});
   const [lockupTokenList, setLockupTokenList] = useState({});
