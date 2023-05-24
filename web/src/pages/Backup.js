@@ -135,6 +135,7 @@ export default function Backup() {
   const [editLockUp, setEditLockUp] = useState(false);
   const [ft, setFT] = useState(null);
   const [lockupTokenAmount, setLockupTokenAmount] = useState({});
+  const [lockupTokensSelect, setLockupTokensSelect] = useState({});
   const [flowID, setFlowID] = useState(null);
   const [blpID, setBLPID] = useState(null);
   const [flowAmount, setFlowAmount] = useState("");
@@ -505,11 +506,11 @@ export default function Backup() {
     return { contractAddress, contractName };
   }
 
-  const onHandleChangeLockupTokenAmount = ({target: {name, value}}) => {
+  const onHandleChangeLockupTokenAmount = ({ target: { name, value } }) => {
     console.log("onHandleChangeLockupTokenAmount - > ", name, value);
-    setLockupTokenAmount(prev => ({...prev, [name]: value}));
+    setLockupTokenAmount(prev => ({ ...prev, [name]: value }));
   }
-  
+
   const getBackup = async () => {
     getAllTokenList();
     // getLogoURI(tokenRegistry);
@@ -652,12 +653,10 @@ export default function Backup() {
     }
   }
 
-  const selectFT = (e, id) => {
-    if (id === 0) {
-      setFlowSelect(e.target.checked);
-    } else if (id === 1) {
-      setBLPSelect(e.target.checked);
-    }
+  const selectFT = (e, key) => {
+    console.log("SelectFt -> key ", key, e.target.checked);
+
+    setLockupTokensSelect(prev => ({ ...prev, [key]: e.target.checked }))
   }
 
   const addFT = async () => {
@@ -1122,6 +1121,7 @@ export default function Backup() {
     setWithdrawNFTIDs([]);
     setCoinCanBeLockup(isCoinCanBeLockup);
     // console.log("onClickHandleAddCoinsToSafe -- Lockup", lockUp);
+    setLockupTokensSelect({});
     setStep("coins")
   }
 
@@ -1705,7 +1705,7 @@ export default function Backup() {
                             <div className='row'>
                               <div className='col-md-3'>
                                 <>
-                                  <img src={logoURI[getFTContractNameAddress(key).contractName]} width="100%" height="auto" />
+                                  <img src={logoURI[getFTContractNameAddress(key).contractName]} key={index} width="100%" height="auto" alt="TokenLogo" />
                                   <h5 className='text-center'>{tokenHoldAmount[getFTContractNameAddress(key).contractName] - flowBalance}</h5>
                                 </>
                               </div>
@@ -1713,11 +1713,11 @@ export default function Backup() {
                               <div className='col-md-9'>
                                 <div className='d-flex justify-content-between'>
                                   <h5 className='blue-font mb-0'>{ft[key].name}</h5>
-                                  <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)} />
+                                  <Form.Check className='mx-2' checked={lockupTokensSelect[getFTContractNameAddress(key).contractName] || false} type="checkbox" onChange={(e) => selectFT(e, getFTContractNameAddress(key).contractName)} />
                                 </div>
 
                                 <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(key).contractAddress}</p>
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' name={getFTContractNameAddress(key).contractName}
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' name={getFTContractNameAddress(key).contractName} disabled={!lockupTokensSelect[getFTContractNameAddress(key).contractName]}
                                   onChange={onHandleChangeLockupTokenAmount} />
                               </div>
                             </div>
@@ -1739,25 +1739,19 @@ export default function Backup() {
                     </div>
 
                     <div className='col-md-4'>
-                      {(!flowSelect && !blpSelect) ?
-                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                          ADD COINS TO SAFE
-                        </Button>
-                        :
-                        <>
-                          {txProgress && txType === "addFT" ?
-                            <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                              <Spinner animation="border" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                              </Spinner>
-                            </Button>
-                            :
-                            <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
-                              ADD COINS TO SAFE
-                            </Button>
-                          }
-                        </>
-                      }
+                      <>
+                        {txProgress && txType === "addFT" ?
+                          <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                            <Spinner animation="border" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                          </Button>
+                          :
+                          <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()} disabled={Object.values(lockupTokensSelect).every(value => !value)}>
+                            ADD COINS TO SAFE
+                          </Button>
+                        }
+                      </>
                     </div>
                   </div>
                 </Tab.Pane>
