@@ -134,6 +134,7 @@ export default function Backup() {
   const [lockUp, setLockUp] = useState(null);
   const [editLockUp, setEditLockUp] = useState(false);
   const [ft, setFT] = useState(null);
+  const [lockupTokenAmount, setLockupTokenAmount] = useState({});
   const [flowID, setFlowID] = useState(null);
   const [blpID, setBLPID] = useState(null);
   const [flowAmount, setFlowAmount] = useState("");
@@ -498,11 +499,17 @@ export default function Backup() {
 
     return formattedDate;
   }
+
   const getFTContractNameAddress = (identifier) => {
     const [, contractAddress, contractName] = identifier.split(".");
     return { contractAddress, contractName };
   }
 
+  const onHandleChangeLockupTokenAmount = ({target: {name, value}}) => {
+    console.log("onHandleChangeLockupTokenAmount - > ", name, value);
+    setLockupTokenAmount(prev => ({...prev, [name]: value}));
+  }
+  
   const getBackup = async () => {
     getAllTokenList();
     // getLogoURI(tokenRegistry);
@@ -1710,13 +1717,8 @@ export default function Backup() {
                                 </div>
 
                                 <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(key).contractAddress}</p>
-                                {ft[key].name === "FLOW" ?
-                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                    value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
-                                  :
-                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                    value={blpAmount} onChange={(e) => setBlpAmount(e.target.value)} />
-                                }
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' name={getFTContractNameAddress(key).contractName}
+                                  onChange={onHandleChangeLockupTokenAmount} />
                               </div>
                             </div>
                           </div>
