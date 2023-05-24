@@ -141,7 +141,7 @@ export default function Backup() {
   const [lockupTokenList, setLockupTokenList] = useState({});
   const [addSafeTokenList, setAddSafeTokenList] = useState({});
   const [editLockupTokenAmount, setEditLockupTokenAmount] = useState({});
-  const [removeLockupTokensList, setRemoveLockupTokensList] = useState({});
+  // const [removeLockupTokensList, setRemoveLockupTokensList] = useState({});
 
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
@@ -876,17 +876,31 @@ export default function Backup() {
   }
 
   const editFT = async () => {
-    setTxProgress(true);
-    setTxType("editFT");
+    let isDataEdited = false;
+    const remainItem = lockUp.fungibleTokens;
+    Object.keys(editLockupTokenAmount).map((key, index) => {
+      if (parseFloat(editLockupTokenAmount[key]) !== parseFloat(lockupTokenList[key])) {
+        console.log("a;lsdkfj;alskdjf;laksjdf;lkajsd;flkjas;ldfkj;laskdjf;lkasjdf");
+        isDataEdited = true;
+      }
+    })
+    if (isDataEdited === false) {
+      toast.error("No data changed!");
+      return;
+    }
 
-    if (Object.keys(removeLockupTokensList).length > 0) {
+    console.log("editFT ---> updateLockupData", lockUp);
+    if (remainItem.length > 0) {
       console.log("here--------------------------");
-      Object.keys(removeLockupTokensList).map(async (key, index) => {
+      remainItem.map(async (item, index) => {
+        setTxProgress(true);
+        setTxType("editFT");
+        const key = getFTContractNameAddress(item.identifier).contractName;
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleTokens,
             args: (arg, t) => [
-              arg([{ key: tokenID[key], value: removeLockupTokensList[key] }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
+              arg([{ key: tokenID[key], value: parseFloat(item.balance) }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
             ],
             proposer: fcl.currentUser,
             payer: fcl.currentUser,
@@ -894,7 +908,7 @@ export default function Backup() {
             limit: 999,
           });
 
-          // console.log(txid);
+          console.log("removeLockup Token transaction -------------", txid);
           setTxId(txid);
         } catch (error) {
           toast.error(error);
@@ -907,6 +921,8 @@ export default function Backup() {
     }
 
     if (Object.keys(editLockupTokenAmount).length > 0) {
+
+      console.log("editFT -------- > editLockupTokenAmount", editLockupTokenAmount);
       Object.keys(editLockupTokenAmount).map(async (key, index) => {
         let _Amount = 0;
         if (editLockupTokenAmount[key] === '') {
@@ -916,6 +932,8 @@ export default function Backup() {
 
         if (parseFloat(_Amount) !== parseFloat(lockupTokenList[key]) && parseFloat(_Amount) <= parseFloat(tokenHoldAmount[key])) {
           console.log("edit FT -> this token changed ----------", key);
+          setTxProgress(true);
+          setTxType("editFT");
           try {
             const txid = await fcl.mutate({
               cadence: setLockUpBalance,
@@ -937,6 +955,8 @@ export default function Backup() {
         }
         else if (parseFloat(_Amount) > parseFloat(tokenHoldAmount[key])) {
           toast.error("You cannot lockup bigger than you hold!");
+          setTxProgress(false);
+          setTxType('');
         }
       });
     }
@@ -1042,11 +1062,15 @@ export default function Backup() {
   }
 
   const onHandleClickRemoveLockupToken = (e, key) => {
-    const data = removeLockupTokensList;
+    // const data = removeLockupTokensList;
 
-    data[getFTContractNameAddress(key).contractName] = lockupTokenList[getFTContractNameAddress(key).contractName];
-    console.log("removeTokenList ----- > ", data);
-    setRemoveLockupTokensList(data);
+    // data[getFTContractNameAddress(key).contractName] = lockupTokenList[getFTContractNameAddress(key).contractName];
+    // console.log("removeTokenList ----- > ", data);
+    // setRemoveLockupTokensList(data);
+    if (lockUp.fungibleTokens.length <= 1) {
+      toast.error("Cannot Delete! You have at least 1 coin in lockup! ");
+      return;
+    }
     setLockUp(prev => ({
       ...prev,
       fungibleTokens: prev.fungibleTokens.filter(({ identifier }) => identifier !== key)
