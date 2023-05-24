@@ -143,6 +143,7 @@ export default function Backup() {
   const [flowSelect, setFlowSelect] = useState(false);
   const [blpSelect, setBLPSelect] = useState(false);
   const [tokenHoldAmount, setTokenHoldAmount] = useState({});
+  const [tokenID, setTokenID] = useState({});
 
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
@@ -282,12 +283,14 @@ export default function Backup() {
   }, [user, txStatus]);
 
   useEffect(() => {
+    const data = {};
     if (ft !== null) {
       Object.keys(ft).map((key) => {
-        if (key.includes("FlowToken")) setFlowID(key);
-        if (key.includes("BlpToken")) setBLPID(key);
+        data[getFTContractNameAddress(key).contractName] = key;
+        setTokenID(data);
       });
     }
+    console.log("getTokenId --> ", data)
   }, [ft]);
 
   useEffect(() => {
@@ -655,114 +658,71 @@ export default function Backup() {
 
   const selectFT = (e, key) => {
     console.log("SelectFt -> key ", key, e.target.checked);
-
     setLockupTokensSelect(prev => ({ ...prev, [key]: e.target.checked }))
   }
 
+  /*
+  *@dev add fungible token to lockup
+  *Start
+  */
   const addFT = async () => {
-    if (flowSelect) {
-      if (parseFloat(flowAmount) > tokenHoldAmount.FLOW) {
-        toast.error("The lockup token amount cannot bigger than you hold");
-        return;
-      }
-    }
-    if (blpSelect) {
-      if (parseFloat(blpAmount) > tokenHoldAmount.BLP) {
-        toast.error("The lockup token amount cannot bigger than you hold");
-        return;
-      }
-    }
     setTxProgress(true);
     setTxType("addFT");
-
-    if (flowSelect) {
-      if (flowAmount !== "" && parseFloat(flowAmount) <= tokenHoldAmount.FLOW) {
-        try {
-          const txid = await fcl.mutate({
-            cadence: lockFungibleToken,
-            args: (arg, t) => [
-              arg(flowID, t.String),
-              arg(parseFloat(flowAmount), t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-
-          // console.log(txid);
-          setTxId(txid);
-        } catch (error) {
+    Object.keys(lockupTokensSelect).map(async (key) => {
+      if (lockupTokensSelect[key]) {
+        if (tokenHoldAmount[key] < lockupTokenAmount[key]) {
+          toast.error({ key } + " lockup amount cannot bigger than you hold!");
           setTxProgress(false);
-          toast.error(error);
         }
-      } else if (flowAmount === "") {
-        try {
-          const txid = await fcl.mutate({
-            cadence: lockFungibleToken,
-            args: (arg, t) => [
-              arg(flowID, t.String),
-              arg(tokenHoldAmount.FLOW, t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-
-          // console.log(txid);
-          setTxId(txid);
-        } catch (error) {
-          setTxProgress(false);
-          toast.error(error);
+        else if (lockupTokenAmount[key] === "") {
+          toast.success({ key } + "'s ownership will be locked up!");
+          try {
+            const txid = await fcl.mutate({
+              cadence: lockFungibleToken,
+              args: (arg, t) => [
+                arg(tokenID[key], t.String),
+                arg(parseFloat(tokenHoldAmount[key]), t.UFix64)
+              ],
+              proposer: fcl.currentUser,
+              payer: fcl.currentUser,
+              authorizations: [fcl.currentUser],
+              limit: 999,
+            });
+            console.log(txid);
+            setTxId(txid);
+          } catch (error) {
+            setTxProgress(false);
+            toast.error(error);
+          }
         }
-      }
-    }
+        else {
+          try {
+            const txid = await fcl.mutate({
+              cadence: lockFungibleToken,
+              args: (arg, t) => [
+                arg(tokenID[key], t.String),
+                arg(parseFloat(lockupTokenAmount[key]), t.UFix64)
+              ],
+              proposer: fcl.currentUser,
+              payer: fcl.currentUser,
+              authorizations: [fcl.currentUser],
+              limit: 999,
+            });
 
-    if (blpSelect) {
-      if (blpAmount !== "" && parseFloat(blpAmount) <= tokenHoldAmount.BLP) {
-        try {
-          const txid = await fcl.mutate({
-            cadence: lockFungibleToken,
-            args: (arg, t) => [
-              arg(blpID, t.String),
-              arg(blpAmount + ".0", t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-
-          // console.log(txid);
-          setTxId(txid);
-        } catch (error) {
-          setTxProgress(false);
-          toast.error(error);
-        }
-      } else if (blpAmount === "") {
-        try {
-          const txid = await fcl.mutate({
-            cadence: lockFungibleToken,
-            args: (arg, t) => [
-              arg(blpID, t.String),
-              arg(tokenHoldAmount.BLP, t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-
-          // console.log(txid);
-          setTxId(txid);
-        } catch (error) {
-          setTxProgress(false);
-          toast.error(error);
+            console.log("token added txid ->", txid);
+            setTxId(txid);
+          } catch (error) {
+            setTxProgress(false);
+            toast.error(error);
+          }
         }
       }
-    }
+    })
   }
+  /*
+  *@dev add fungible token to lockup
+  *End
+  */
 
   const getAllNFTCollectionInfo = () => {
     let isShowCollection = [];
