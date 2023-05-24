@@ -140,7 +140,7 @@ export default function Backup() {
   const [blpAmount, setBlpAmount] = useState("");
   const [flowSelect, setFlowSelect] = useState(false);
   const [blpSelect, setBLPSelect] = useState(false);
-  const [tokenHoldAmount, setTokenHoldAmount] = useState({ FLOW: 0, BLP: 0 });
+  const [tokenHoldAmount, setTokenHoldAmount] = useState({});
 
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
@@ -235,6 +235,31 @@ export default function Backup() {
   }
   /*
   * @dev Getting account's TokenList
+  * End
+  */
+
+  /*
+  * @dev Getting account's TokenHoldAmount
+  * Start
+  */
+  const getAccountTokenHoldAmount = () => {
+    if (!balanceData) {
+      return;
+    }
+
+    const data = balanceData.reduce((data, { balance, type: { typeID } }) => {
+      const [, , tokenName] = typeID.split(".");
+      data[tokenName] = balance;
+      return data;
+    }, {});
+    setTokenHoldAmount(data);
+    console.log("setTokenHoldAmount--- ", data);
+  }
+
+  useEffect(getAccountTokenHoldAmount, [balanceData]);
+
+  /*
+  * @dev Getting account's TokenHoldAmount
   * End
   */
 
@@ -473,7 +498,7 @@ export default function Backup() {
 
     return formattedDate;
   }
-  const getFTContractName = (identifier) => {
+  const getFTContractNameAddress = (identifier) => {
     const [, contractAddress, contractName] = identifier.split(".");
     return { contractAddress, contractName };
   }
@@ -496,13 +521,7 @@ export default function Backup() {
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
       });
-      const account_flow_amount = await fcl.query({
-        cadence: getAccountBalance,
-        args: (arg, t) => [arg(user.addr, t.Address)],
-      });
 
-      // console.log("account_flow_amount---", parseFloat(account_flow_amount));
-      setTokenHoldAmount({ FLOW: parseFloat(account_flow_amount), BLP: 0 });
 
       setFT(ftinfo);
       console.log("ftinfo - ", ftinfo);
@@ -1565,7 +1584,7 @@ export default function Backup() {
                       {lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
                           <div className='col-md-1 col-3'>
-                            <img src={logoURI[getFTContractName(item.identifier).contractName]} width="100%" height="auto" />
+                            <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
 
                             {item.balance === null ?
                               <p className='blue-font font-bold text-center'>
@@ -1673,14 +1692,14 @@ export default function Backup() {
                   <div className='row p-3'>
                     {ft !== null && coinCanBeLockup &&
                       Object.keys(ft).map((key, index) => (
-                        tokenHoldAmount[ft[key].name] > 0 &&
+                        tokenHoldAmount[getFTContractNameAddress(key).contractName] > 0 &&
                         (<div className='col-lg-6 col-xl-4 pt-2' key={index}>
                           <div className='grey-border p-2'>
                             <div className='row'>
                               <div className='col-md-3'>
                                 <>
-                                  <img src={logoURI[getFTContractName(key).contractName]} width="100%" height="auto" />
-                                  <h5 className='text-center'>{tokenHoldAmount.FLOW - flowBalance}</h5>
+                                  <img src={logoURI[getFTContractNameAddress(key).contractName]} width="100%" height="auto" />
+                                  <h5 className='text-center'>{tokenHoldAmount[getFTContractNameAddress(key).contractName] - flowBalance}</h5>
                                 </>
                               </div>
 
@@ -1690,7 +1709,7 @@ export default function Backup() {
                                   <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)} />
                                 </div>
 
-                                <p className='text-grey mb-1 font-14'>{getFTContractName(key).contractAddress}</p>
+                                <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(key).contractAddress}</p>
                                 {ft[key].name === "FLOW" ?
                                   <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                                     value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
