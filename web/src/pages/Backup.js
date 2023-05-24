@@ -881,7 +881,8 @@ export default function Backup() {
     setTxProgress(true);
     setTxType("editFT");
 
-    if (!removeLockupTokensList) {
+    if (Object.keys(removeLockupTokensList).length > 0) {
+      console.log("here--------------------------");
       Object.keys(removeLockupTokensList).map(async (key, index) => {
         try {
           const txid = await fcl.mutate({
@@ -907,7 +908,7 @@ export default function Backup() {
       );
     }
 
-    if (!editLockupTokenAmount) {
+    if (Object.keys(editLockupTokenAmount).length > 0) {
       Object.keys(editLockupTokenAmount).map(async (key, index) => {
         let _Amount = 0;
         if (editLockupTokenAmount[key] === '') {
@@ -1046,6 +1047,7 @@ export default function Backup() {
     const data = removeLockupTokensList;
 
     data[getFTContractNameAddress(key).contractName] = lockupTokenList[getFTContractNameAddress(key).contractName];
+    console.log("removeTokenList ----- > ", data);
     setRemoveLockupTokensList(data);
     setLockUp(prev => ({
       ...prev,
