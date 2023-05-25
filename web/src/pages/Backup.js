@@ -228,7 +228,8 @@ export default function Backup() {
   }
 
   const getAccountTokenList = () => {
-    if (user.addr && isValidFlowAddress(user.addr)) {
+    // if (user.addr) {// isValidFlowAddress(user.addr)) {
+    if (user.addr) {// && isValidFlowAddress(user.addr)) {
       bulkGetStoredItems(user.addr).then((items) => {
         const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
         console.log("orderedItems", orderedItems)
@@ -520,10 +521,7 @@ export default function Backup() {
   }
 
   const onHandleChangeEditLockupTokenAmount = (e, key) => {
-    const data = editLockupTokenAmount;
-    data[key] = e.target.value;
-    console.log("onHandleChangeEditLockupTokenAmount -> data ", data);
-    setEditLockupTokenAmount(data);
+    setEditLockupTokenAmount(prev => ({ ...prev, [key]: e.target.value }));
   }
 
   const getBackup = async () => {
@@ -900,18 +898,29 @@ export default function Backup() {
       return;
     }
 
-    console.log("editFT ---> updateLockupData", lockUp);
+    // console.log("editFT ---> updateLockupData", lockUp);
+    console.log("editFT ---> remainItem", remainItem);
     if (remainItem.length > 0) {
-      console.log("here--------------------------");
-      remainItem.map(async (item, index) => {
-        setTxProgress(true);
-        setTxType("editFT");
+      console.log("here--------------remainItem------");
+      setTxProgress(true);
+      setTxType("editFT");
+      for (const item of remainItem) {
         const key = getFTContractNameAddress(item.identifier).contractName;
+        let balance;
+        console.log("editFT -> remainItem -> key, editLockupTokenAmount", key, editLockupTokenAmount);
+        if (key in editLockupTokenAmount) {
+          console.log("key in editLockupTokenAmount ", editLockupTokenAmount[key]);
+          balance = editLockupTokenAmount[key];
+        }
+        else {
+          balance = item.balance;
+        }
+        if (balance === "") { balance = tokenHoldAmount[key]; }
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleTokens,
             args: (arg, t) => [
-              arg([{ key: tokenID[key], value: parseFloat(item.balance) }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
+              arg([{ key: tokenID[key], value: parseFloat(balance) }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
             ],
             proposer: fcl.currentUser,
             payer: fcl.currentUser,
@@ -927,43 +936,43 @@ export default function Backup() {
         }
       }
 
-      );
-    }
-    setTxProgress(true);
-    setTxType("editFT");
-    if (Object.keys(editLockupTokenAmount).length > 0) {
 
-      console.log("editFT -------- > editLockupTokenAmount", editLockupTokenAmount);
-      for (const key in editLockupTokenAmount) {
-        let _Amount = 0;
-        if (editLockupTokenAmount[key] === '') {
-          _Amount = tokenHoldAmount[key];
-        }
-        else _Amount = editLockupTokenAmount[key];
-
-        if (parseFloat(_Amount) !== parseFloat(lockupTokenList[key]) && parseFloat(_Amount) <= parseFloat(tokenHoldAmount[key])) {
-          console.log("edit FT -> this token changed ----------", key);
-          try {
-            const txid = await fcl.mutate({
-              cadence: setLockUpBalance,
-              args: (arg, t) => [
-                arg(tokenID[key], t.String),
-                arg(parseFloat(editLockupTokenAmount[key]), t.UFix64)
-              ],
-              proposer: fcl.currentUser,
-              payer: fcl.currentUser,
-              authorizations: [fcl.currentUser],
-              limit: 999,
-            });
-            console.log(txid);
-            setTxId(txid);
-          } catch (error) {
-            setTxProgress(false);
-            toast.error(error);
-          }
-        }
-      }
     }
+
+    // if (Object.keys(editLockupTokenAmount).length > 0) {
+    //   setTxProgress(true);
+    //   setTxType("editFT");
+    //   console.log("editFT -------- > editLockupTokenAmount", editLockupTokenAmount);
+    //   for (const key in editLockupTokenAmount) {
+    //     let _Amount = 0;
+    //     if (editLockupTokenAmount[key] === '') {
+    //       _Amount = tokenHoldAmount[key];
+    //     }
+    //     else _Amount = editLockupTokenAmount[key];
+
+    //     if (parseFloat(_Amount) !== parseFloat(lockupTokenList[key]) && parseFloat(_Amount) <= parseFloat(tokenHoldAmount[key])) {
+    //       console.log("edit FT -> this token changed ----------", key);
+    //       try {
+    //         const txid = await fcl.mutate({
+    //           cadence: setLockUpBalance,
+    //           args: (arg, t) => [
+    //             arg(tokenID[key], t.String),
+    //             arg(parseFloat(editLockupTokenAmount[key]), t.UFix64)
+    //           ],
+    //           proposer: fcl.currentUser,
+    //           payer: fcl.currentUser,
+    //           authorizations: [fcl.currentUser],
+    //           limit: 999,
+    //         });
+    //         console.log("editLockupToken transaction -> ", txid);
+    //         setTxId(txid);
+    //       } catch (error) {
+    //         setTxProgress(false);
+    //         toast.error(error);
+    //       }
+    //     }
+    //   }
+    // }
   }
 
 
@@ -1058,6 +1067,10 @@ export default function Backup() {
 
   }
 
+  const onHandleClickEditCoins = (e) => {
+    setEditLockupTokenAmount(lockupTokenList);
+    setStep("removecoins")
+  }
   const onHandleClickRemoveLockupToken = (e, key) => {
     const data = removeLockupTokensList;
 
@@ -1065,7 +1078,7 @@ export default function Backup() {
     console.log("removeTokenList ----- > ", data);
     setRemoveLockupTokensList(data);
     if (lockUp.fungibleTokens.length <= 1) {
-      toast.error("Cannot Delete! You have at least 1 coin in lockup! ");
+      toast.error("Cannot Delete! You should have at least 1 coin in lockup! ");
       return;
     }
     setLockUp(prev => ({
@@ -1545,7 +1558,7 @@ export default function Backup() {
                       COIN(S)
                       {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
                         <Button className='mx-3' variant="danger" size="sm"
-                          onClick={() => { setStep("removecoins") }}>
+                          onClick={onHandleClickEditCoins}>
                           Edit
                         </Button>
                         :
@@ -1762,7 +1775,7 @@ export default function Backup() {
 
                                     <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(item.identifier).contractAddress}</p>
 
-                                    <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                    <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName] || ""}
                                       onChange={(e) => onHandleChangeEditLockupTokenAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
                                   </div>
                                 </div>
