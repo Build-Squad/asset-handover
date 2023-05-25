@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { atom, useRecoilState } from "recoil";
+// import { atom, useRecoilState } from "recoil";
 import * as fcl from "@onflow/fcl";
 
 import { TokenListProvider, ENV, Strategy } from 'flow-native-token-registry'
@@ -34,7 +34,7 @@ import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVaultAndWithdrawFT';
 import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFungibleToken';
 
-
+import { isValidFlowAddress } from '../utils/utils';
 import NftId from '../components/NftId';
 import AddNftId from '../components/AddNftId';
 
@@ -114,6 +114,7 @@ const isInteger = (balance) => {
 const makeBalance = (balance) => {
   return isInteger(balance) ? balance + ".0" : balance;
 }
+
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null, addr: '' });
@@ -223,19 +224,11 @@ export default function Backup() {
   * @dev Getting account's TokenList
   * Start
   */
-  const isValidFlowAddress = (address) => {
-    if (!address.startsWith("0x") || address.length !== 18) {
-      return false
-    }
 
-    const bytes = Buffer.from(address.replace("0x", ""), "hex")
-    if (bytes.length !== 8) { return false }
-    return true
-  }
 
   const getAccountTokenList = () => {
-    // if (user.addr) {// isValidFlowAddress(user.addr)) {
     if (user.addr) {// && isValidFlowAddress(user.addr)) {
+      console.log("address----------------", user.addr);
       bulkGetStoredItems(user.addr).then((items) => {
         const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
         console.log("orderedItems", orderedItems)
@@ -286,18 +279,21 @@ export default function Backup() {
 
   useEffect(() => {
     getBackup();
-    // if (txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-    //   getBackup();
-    // }
+    /* ----------- Getting Account's TokenList --------- */
+    getAccountTokenList();
+
+    if (txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+      getBackup();
+    }
   }, [user, txStatus]);
 
   useEffect(() => {
     const data = {};
     if (ft !== null) {
-      Object.keys(ft).map((key) => {
+      for (const key in ft) {
         data[getFTContractNameAddress(key).contractName] = key;
         setTokenID(data);
-      });
+      };
     }
     console.log("getTokenId --> ", data)
   }, [ft]);
@@ -534,8 +530,7 @@ export default function Backup() {
     getAllTokenList();
     // getLogoURI(tokenRegistry);
     if (user.addr) {
-      /* ----------- Getting Account's TokenList --------- */
-      getAccountTokenList();
+
 
       /* ----------- Getting Account's lockup Data --------- */
       const res = await fcl.query({
@@ -599,6 +594,10 @@ export default function Backup() {
     // in seconds
     const releaseDate = Math.floor(maturity.getTime() / 1000).toString();
     console.log(releaseDate)
+    if (!isValidFlowAddress(recipient)) {
+      toast.error("Please input correct flow address!");
+      return;
+    }
     setTxProgress(true);
     setTxType("createLockup");
 
