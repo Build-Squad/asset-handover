@@ -107,7 +107,13 @@ const bulkGetStoredItems = async (address) => {
 */
 
 
+const isInteger = (balance) => {
+  return parseFloat(balance) === Math.floor(balance);
+}
 
+const makeBalance = (balance) => {
+  return isInteger(balance) ? balance + ".0" : balance;
+}
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null, addr: '' });
@@ -686,32 +692,36 @@ export default function Backup() {
         }
         else if (lockupTokenAmount[key] === "") {
           toast.success({ key } + "'s ownership will be locked up!");
-          try {
-            const txid = await fcl.mutate({
-              cadence: lockFungibleToken,
-              args: (arg, t) => [
-                arg(tokenID[key], t.String),
-                arg(parseFloat(tokenHoldAmount[key]), t.UFix64)
-              ],
-              proposer: fcl.currentUser,
-              payer: fcl.currentUser,
-              authorizations: [fcl.currentUser],
-              limit: 999,
-            });
-            console.log(txid);
-            setTxId(txid);
-          } catch (error) {
-            setTxProgress(false);
-            toast.error(error);
-          }
+          let balance = makeBalance(tokenHoldAmount[key]);
+          if (parseFloat())
+            try {
+              const txid = await fcl.mutate({
+                cadence: lockFungibleToken,
+                args: (arg, t) => [
+                  arg(tokenID[key], t.String),
+                  arg(balance, t.UFix64)
+                ],
+                proposer: fcl.currentUser,
+                payer: fcl.currentUser,
+                authorizations: [fcl.currentUser],
+                limit: 999,
+              });
+              console.log(txid);
+              setTxId(txid);
+            } catch (error) {
+              setTxProgress(false);
+              toast.error(error);
+            }
         }
         else {
           try {
+            let balance = makeBalance(lockupTokenAmount[key]);
+
             const txid = await fcl.mutate({
               cadence: lockFungibleToken,
               args: (arg, t) => [
                 arg(tokenID[key], t.String),
-                arg(parseFloat(lockupTokenAmount[key]), t.UFix64)
+                arg(balance, t.UFix64)
               ],
               proposer: fcl.currentUser,
               payer: fcl.currentUser,
@@ -899,15 +909,15 @@ export default function Backup() {
     }
 
     // console.log("editFT ---> updateLockupData", lockUp);
-    console.log("editFT ---> remainItem", remainItem);
+    // console.log("editFT ---> remainItem", remainItem);
     if (remainItem.length > 0) {
-      console.log("here--------------remainItem------");
+      // console.log("here--------------remainItem------");
       setTxProgress(true);
       setTxType("editFT");
       for (const item of remainItem) {
         const key = getFTContractNameAddress(item.identifier).contractName;
         let balance;
-        console.log("editFT -> remainItem -> key, editLockupTokenAmount", key, editLockupTokenAmount);
+        // console.log("editFT -> remainItem -> key, editLockupTokenAmount", key, editLockupTokenAmount);
         if (key in editLockupTokenAmount) {
           console.log("key in editLockupTokenAmount ", editLockupTokenAmount[key]);
           balance = editLockupTokenAmount[key];
@@ -916,11 +926,12 @@ export default function Backup() {
           balance = item.balance;
         }
         if (balance === "") { balance = tokenHoldAmount[key]; }
+        balance = makeBalance(balance);
         try {
           const txid = await fcl.mutate({
             cadence: lockFungibleTokens,
             args: (arg, t) => [
-              arg([{ key: tokenID[key], value: parseFloat(balance) }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
+              arg([{ key: tokenID[key], value: balance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
             ],
             proposer: fcl.currentUser,
             payer: fcl.currentUser,
