@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
+// import { atom, useRecoilState } from "recoil";
 import * as fcl from "@onflow/fcl";
+
+import { TokenListProvider, ENV, Strategy } from 'flow-native-token-registry'
+import { outdatedPathsTestnet } from '../tokens/testnet';
+
 import { Tab, Nav, Card, Button, Form, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaArrowLeft, FaInfo } from 'react-icons/fa';
@@ -29,8 +34,87 @@ import { getLockUpsByRecipient } from '../cadence/script/getLockUpsByRecipient';
 import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVaultAndWithdrawFT';
 import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFungibleToken';
 
+import { isValidFlowAddress } from '../utils/utils';
 import NftId from '../components/NftId';
 import AddNftId from '../components/AddNftId';
+
+/* 
+* @dev Getting TokenList for Users functions
+* start
+*/
+const getStoragePaths = async (address) => {
+  let code = await (await fetch("/get_storage_paths.cdc")).text()
+  code = code.replace("__OUTDATED_PATHS__", outdatedPathsTestnet.storage)
+  const paths = await fcl.query({
+    cadence: code,
+    args: (arg, t) => [
+      arg(address, t.Address)
+    ]
+  })
+
+  console.log("getStoreagePaths-- ", paths);
+  return paths
+}
+
+const splitList = (list, chunkSize) => {
+  const groups = []
+  let currentGroup = []
+  for (let i = 0; i < list.length; i++) {
+    const collectionID = list[i]
+    if (currentGroup.length >= chunkSize) {
+      groups.push([...currentGroup])
+      currentGroup = []
+    }
+    currentGroup.push(collectionID)
+  }
+  groups.push([...currentGroup])
+  return groups
+}
+
+const getStoredItems = async (address, paths) => {
+  const code = await (await fetch("/get_stored_items.cdc")).text()
+  console.log("getStoredItems--->paths,", address, paths);
+  const items = await fcl.query({
+    cadence: code,
+    args: (arg, t) => [
+      arg(address, t.Address),
+      arg(paths, t.Array(t.String))
+    ]
+  })
+
+  console.log("getStoredItems ---> items", items);
+  return items
+}
+
+const bulkGetStoredItems = async (address) => {
+  const paths = await getStoragePaths(address)
+  // console.log("bulkgetstoredItems");
+  const groups = splitList(paths.map((p) => p.identifier), 30)
+  const promises = groups.map((group) => {
+    return getStoredItems(address, group)
+  })
+  const itemGroups = await Promise.all(promises)
+  const items = itemGroups.reduce((acc, curr) => {
+    return acc.concat(curr)
+  }, [])
+  console.log("bulkGetStoredItems---", items);
+  return items
+}
+
+/* 
+* @dev Getting TokenList for Users functions
+* End
+*/
+
+
+const isInteger = (balance) => {
+  return parseFloat(balance) === Math.floor(balance);
+}
+
+const makeBalance = (balance) => {
+  return isInteger(balance) ? balance + ".0" : balance;
+}
+
 
 export default function Backup() {
   const [user, setUser] = useState({ loggedIn: null, addr: '' });
@@ -42,6 +126,12 @@ export default function Backup() {
   const [txType, setTxType] = useState(null);
   const [txProgress, setTxProgress] = useState(false);
 
+  const [tokenRegistry, setTokenRegistry] = useState([]);
+  const [currentStoredItems, setCurrentStoredItems] = useState([])
+  const [balanceData, setBalanceData] = useState(null)
+  const [logoURI, setLogoURI] = useState({});
+
+
   //lockups
   const [backupName, setBackupName] = useState('');
   const [recipient, setRecipient] = useState('');
@@ -51,13 +141,14 @@ export default function Backup() {
   const [lockUp, setLockUp] = useState(null);
   const [editLockUp, setEditLockUp] = useState(false);
   const [ft, setFT] = useState(null);
-  const [flowID, setFlowID] = useState(null);
-  const [blpID, setBLPID] = useState(null);
-  const [flowAmount, setFlowAmount] = useState("");
-  const [blpAmount, setBlpAmount] = useState("");
-  const [flowSelect, setFlowSelect] = useState(false);
-  const [blpSelect, setBLPSelect] = useState(false);
-  const [tokenHoldAmount, setTokenHoldAmount] = useState({ FLOW: 0, BLP: 0 });
+  const [lockupTokenAmount, setLockupTokenAmount] = useState({});
+  const [lockupTokensSelect, setLockupTokensSelect] = useState({});
+  const [tokenID, setTokenID] = useState({});
+  const [tokenHoldAmount, setTokenHoldAmount] = useState({});
+  const [lockupTokenList, setLockupTokenList] = useState({});
+  const [addSafeTokenList, setAddSafeTokenList] = useState({});
+  const [editLockupTokenAmount, setEditLockupTokenAmount] = useState({});
+  const [removeLockupTokensList, setRemoveLockupTokensList] = useState({});
 
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
@@ -73,12 +164,6 @@ export default function Backup() {
   const [collectionCanbeLockup, setCollectionCanbeLockup] = useState(false);
 
   const [ownCollection, setOwnCollection] = useState(null);
-  const [editFlowAmount, setEditFlowAmount] = useState("");
-  const [editBlpAmount, setEditBlpAmount] = useState("");
-  const [isRemoveFlow, setIsRemoveFlow] = useState(false);
-  const [isRemoveBlp, setIsRemoveBlp] = useState(false);
-  const [flowBalance, setFlowBalance] = useState(null);
-  const [blpBalance, setBlpBalance] = useState(null);
   const [editNFTIDs, setEditNFTIDs] = useState([]);
   const [showNFT, setShowNFT] = useState(null);
   const [currentNFTIDs, setCurrentNFTIDs] = useState(null);
@@ -95,6 +180,94 @@ export default function Backup() {
   const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
   const [changeSelection, setChangeSelection] = useState([]);
   const [checkWithdrawAllNFT, setCheckWithdrawAllNFT] = useState(false);
+
+
+  /*
+  * @dev Getting TokenList on Flow Test network
+  * Start
+  */
+  const getAllTokenList = () => {
+    new TokenListProvider().resolve(Strategy.GitHub, ENV.Testnet).then(tokens => {
+      const tokenList = tokens.getList().map((token) => {
+        token.id = `${token.address.replace("0x", "A.")}.${token.contractName}`
+        return token
+      })
+      setTokenRegistry(tokenList)
+      console.log("tokenList---", tokenList);
+      return tokenList;
+    })
+      .then((tokenList) => {
+        getLogoURI(tokenList);
+      })
+  }
+  /*
+  * @dev Getting TokenList on Flow Test network
+  * End
+  */
+
+  const getLogoURI = (tokenList) => {
+    // console.log("getLogoURI -> ", tokenList);
+    // let logURI = tokenList.reduce((acc, obj) => {
+    //   const [, contractAddress, contractName] = obj.id.split(".");
+    //   return acc[contractName] = obj.logoURI.toString()
+    // }, {})
+    let logURI = {};
+    tokenList.map((item) => {
+      const [, contractAddress, contractName] = item.id.split(".");
+      logURI[contractName] = item.logoURI;
+    })
+    setLogoURI(logURI);
+    console.log("getLogoURI --- ", logURI);
+  }
+
+  /*
+  * @dev Getting account's TokenList
+  * Start
+  */
+
+
+  const getAccountTokenList = () => {
+    if (user.addr) {// && isValidFlowAddress(user.addr)) {
+      console.log("address----------------", user.addr);
+      bulkGetStoredItems(user.addr).then((items) => {
+        const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
+        console.log("orderedItems", orderedItems)
+        setCurrentStoredItems(orderedItems)
+        console.log("balanceData", orderedItems.filter((item) => item.isVault))
+        setBalanceData(orderedItems.filter((item) => item.isVault))
+      });
+    }
+  }
+  /*
+  * @dev Getting account's TokenList
+  * End
+  */
+
+  /*
+  * @dev Getting account's TokenHoldAmount
+  * Start
+  */
+  const getAccountTokenHoldAmount = () => {
+    if (!balanceData) {
+      return;
+    }
+
+    const data = balanceData.reduce((data, { balance, type: { typeID } }) => {
+      const [, , tokenName] = typeID.split(".");
+      data[tokenName] = balance;
+      return data;
+    }, {});
+    setTokenHoldAmount(data);
+    console.log("setTokenHoldAmount--- ", data);
+  }
+
+  useEffect(getAccountTokenHoldAmount, [balanceData]);
+
+  /*
+  * @dev Getting account's TokenHoldAmount
+  * End
+  */
+
   useEffect(() => {
     fcl.currentUser.subscribe(setUser);
     setStep("default");
@@ -102,23 +275,27 @@ export default function Backup() {
     setNFTIDs([]);
     setWithdrawNFTIDs([]);
     setTxStatus(null);
-
   }, []);
 
   useEffect(() => {
     getBackup();
+    /* ----------- Getting Account's TokenList --------- */
+    getAccountTokenList();
+
     if (txStatus && txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
       getBackup();
     }
   }, [user, txStatus]);
 
   useEffect(() => {
+    const data = {};
     if (ft !== null) {
-      Object.keys(ft).map((key) => {
-        if (key.includes("FlowToken")) setFlowID(key);
-        if (key.includes("BlpToken")) setBLPID(key);
-      });
+      for (const key in ft) {
+        data[getFTContractNameAddress(key).contractName] = key;
+        setTokenID(data);
+      };
     }
+    console.log("getTokenId --> ", data)
   }, [ft]);
 
   useEffect(() => {
@@ -135,14 +312,17 @@ export default function Backup() {
       setOwnCollection(tempOwnCollection);
     }
 
-    // // console.log("ownCollection - ", ownCollection);
+    console.log("ownCollection - ", ownCollection);
 
     if (lockUp && lockUp.fungibleTokens.length > 0) {
-      lockUp.fungibleTokens.map((item) => {
-        if (item.identifier === "A.7e60df042a9c0868.FlowToken" && item.balance > 0) setFlowBalance(item.balance);
-        if (item.identifier === "A.5d649d473cc7fa83.BlpToken" && item.balance > 0) setBlpBalance(item.balance);
-      })
+      const data = {};
+      for (const { balance, identifier } of lockUp.fungibleTokens) {
+        data[getFTContractNameAddress(identifier).contractName] = balance;
+      }
+      setLockupTokenList(data);
+      console.log("lockupTokenList -> data", data);
     }
+
 
   }, [lockUp, collection])
 
@@ -311,8 +491,8 @@ export default function Backup() {
   }, [nft]);
 
   useEffect(() => {
-    setIsRemoveBlp(false);
-    setIsRemoveFlow(false);
+
+
   }, [step])
 
   const logout = () => {
@@ -332,28 +512,41 @@ export default function Backup() {
     return formattedDate;
   }
 
+  const getFTContractNameAddress = (identifier) => {
+    const [, contractAddress, contractName] = identifier.split(".");
+    return { contractAddress, contractName };
+  }
+
+  const onHandleChangeLockupTokenAmount = ({ target: { name, value } }) => {
+    console.log("onHandleChangeLockupTokenAmount - > ", name, value);
+    setLockupTokenAmount(prev => ({ ...prev, [name]: value }));
+  }
+
+  const onHandleChangeEditLockupTokenAmount = (e, key) => {
+    setEditLockupTokenAmount(prev => ({ ...prev, [key]: e.target.value }));
+  }
+
   const getBackup = async () => {
+    getAllTokenList();
+    // getLogoURI(tokenRegistry);
     if (user.addr) {
+
+
+      /* ----------- Getting Account's lockup Data --------- */
       const res = await fcl.query({
         cadence: getAccountLockUp,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
       setLockUp(res);
-      // console.log('lockup - ', res);
+      console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
       });
-      const account_flow_amount = await fcl.query({
-        cadence: getAccountBalance,
-        args: (arg, t) => [arg(user.addr, t.Address)],
-      });
 
-      // console.log("account_flow_amount---", parseFloat(account_flow_amount));
-      setTokenHoldAmount({ FLOW: parseFloat(account_flow_amount), BLP: 0 });
 
       setFT(ftinfo);
-      // console.log("ftinfo - ", ftinfo);
+      console.log("ftinfo - ", ftinfo);
 
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
@@ -401,6 +594,10 @@ export default function Backup() {
     // in seconds
     const releaseDate = Math.floor(maturity.getTime() / 1000).toString();
     console.log(releaseDate)
+    if (!isValidFlowAddress(recipient)) {
+      toast.error("Please input correct flow address!");
+      return;
+    }
     setTxProgress(true);
     setTxType("createLockup");
 
@@ -474,118 +671,77 @@ export default function Backup() {
     }
   }
 
-  const selectFT = (e, id) => {
-    if (id === 0) {
-      setFlowSelect(e.target.checked);
-    } else if (id === 1) {
-      setBLPSelect(e.target.checked);
-    }
+  const selectFT = (e, key) => {
+    console.log("SelectFt -> key ", key, e.target.checked);
+    setLockupTokensSelect(prev => ({ ...prev, [key]: e.target.checked }))
   }
 
+  /*
+  *@dev add fungible token to lockup
+  *Start
+  */
   const addFT = async () => {
-    if (flowSelect) {
-      if (parseFloat(flowAmount) > tokenHoldAmount.FLOW) {
-        toast.error("The lockup token amount cannot bigger than you hold");
-        return;
-      }
-    }
-    if (blpSelect) {
-      if (parseFloat(blpAmount) > tokenHoldAmount.BLP) {
-        toast.error("The lockup token amount cannot bigger than you hold");
-        return;
-      }
-    }
     setTxProgress(true);
     setTxType("addFT");
-
-    if (flowSelect) {
-      if (flowAmount !== "" && parseFloat(flowAmount) <= tokenHoldAmount.FLOW) {
-        try {
-          const txid = await fcl.mutate({
-            cadence: lockFungibleToken,
-            args: (arg, t) => [
-              arg(flowID, t.String),
-              arg(parseFloat(flowAmount), t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-
-          // console.log(txid);
-          setTxId(txid);
-        } catch (error) {
+    Object.keys(lockupTokensSelect).map(async (key) => {
+      if (lockupTokensSelect[key]) {
+        if (tokenHoldAmount[key] < lockupTokenAmount[key]) {
+          toast.error({ key } + " lockup amount cannot bigger than you hold!");
           setTxProgress(false);
-          toast.error(error);
         }
-      } else if (flowAmount === "") {
-        try {
-          const txid = await fcl.mutate({
-            cadence: lockFungibleToken,
-            args: (arg, t) => [
-              arg(flowID, t.String),
-              arg(tokenHoldAmount.FLOW, t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-
-          // console.log(txid);
-          setTxId(txid);
-        } catch (error) {
-          setTxProgress(false);
-          toast.error(error);
+        else if (lockupTokenAmount[key] === "") {
+          toast.success({ key } + "'s ownership will be locked up!");
+          let balance = makeBalance(tokenHoldAmount[key]);
+          if (parseFloat())
+            try {
+              const txid = await fcl.mutate({
+                cadence: lockFungibleToken,
+                args: (arg, t) => [
+                  arg(tokenID[key], t.String),
+                  arg(balance, t.UFix64)
+                ],
+                proposer: fcl.currentUser,
+                payer: fcl.currentUser,
+                authorizations: [fcl.currentUser],
+                limit: 999,
+              });
+              console.log(txid);
+              setTxId(txid);
+            } catch (error) {
+              setTxProgress(false);
+              toast.error(error);
+            }
         }
-      }
-    }
+        else {
+          try {
+            let balance = makeBalance(lockupTokenAmount[key]);
 
-    if (blpSelect) {
-      if (blpAmount !== "" && parseFloat(blpAmount) <= tokenHoldAmount.BLP) {
-        try {
-          const txid = await fcl.mutate({
-            cadence: lockFungibleToken,
-            args: (arg, t) => [
-              arg(blpID, t.String),
-              arg(blpAmount + ".0", t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
+            const txid = await fcl.mutate({
+              cadence: lockFungibleToken,
+              args: (arg, t) => [
+                arg(tokenID[key], t.String),
+                arg(balance, t.UFix64)
+              ],
+              proposer: fcl.currentUser,
+              payer: fcl.currentUser,
+              authorizations: [fcl.currentUser],
+              limit: 999,
+            });
 
-          // console.log(txid);
-          setTxId(txid);
-        } catch (error) {
-          setTxProgress(false);
-          toast.error(error);
-        }
-      } else if (blpAmount === "") {
-        try {
-          const txid = await fcl.mutate({
-            cadence: lockFungibleToken,
-            args: (arg, t) => [
-              arg(blpID, t.String),
-              arg(tokenHoldAmount.BLP, t.UFix64)
-            ],
-            proposer: fcl.currentUser,
-            payer: fcl.currentUser,
-            authorizations: [fcl.currentUser],
-            limit: 999,
-          });
-
-          // console.log(txid);
-          setTxId(txid);
-        } catch (error) {
-          setTxProgress(false);
-          toast.error(error);
+            console.log("token added txid ->", txid);
+            setTxId(txid);
+          } catch (error) {
+            setTxProgress(false);
+            toast.error(error);
+          }
         }
       }
-    }
+    })
   }
+  /*
+  *@dev add fungible token to lockup
+  *End
+  */
 
   const getAllNFTCollectionInfo = () => {
     let isShowCollection = [];
@@ -731,115 +887,104 @@ export default function Backup() {
   }
 
   const editFT = async () => {
-    if (parseFloat(editFlowAmount) > tokenHoldAmount.FLOW || parseFloat(editBlpAmount) > tokenHoldAmount.BLP) {
-      toast.error("You cannot lockup coins bigger amount than you hold!")
+    let isDataEdited = false;
+    const remainItem = lockUp.fungibleTokens;
+
+    for (const key in editLockupTokenAmount) {
+      if (parseFloat(editLockupTokenAmount[key]) > parseFloat(tokenHoldAmount[key])) {
+        toast.error("You cannot lockup bigger than you hold!");
+        return;
+      }
+      else if (parseFloat(editLockupTokenAmount[key]) !== parseFloat(lockupTokenList[key])) {
+        isDataEdited = true;
+      }
+    }
+
+    if (Object.keys(removeLockupTokensList).length > 0)
+      isDataEdited = true;
+    if (isDataEdited === false) {
+      toast.error("No data changed!");
       return;
     }
-    setTxProgress(true);
-    setTxType("editFT");
 
-    if (isRemoveBlp) {
-      try {
-        const txid = await fcl.mutate({
-          cadence: lockFungibleTokens,
-          args: (arg, t) => [
-            arg([{ key: blpID, value: blpBalance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
-          ],
-          proposer: fcl.currentUser,
-          payer: fcl.currentUser,
-          authorizations: [fcl.currentUser],
-          limit: 999,
-        });
+    // console.log("editFT ---> updateLockupData", lockUp);
+    // console.log("editFT ---> remainItem", remainItem);
+    if (remainItem.length > 0) {
+      // console.log("here--------------remainItem------");
+      setTxProgress(true);
+      setTxType("editFT");
+      for (const item of remainItem) {
+        const key = getFTContractNameAddress(item.identifier).contractName;
+        let balance;
+        // console.log("editFT -> remainItem -> key, editLockupTokenAmount", key, editLockupTokenAmount);
+        if (key in editLockupTokenAmount) {
+          console.log("key in editLockupTokenAmount ", editLockupTokenAmount[key]);
+          balance = editLockupTokenAmount[key];
+        }
+        else {
+          balance = item.balance;
+        }
+        if (balance === "") { balance = tokenHoldAmount[key]; }
+        balance = makeBalance(balance);
+        try {
+          const txid = await fcl.mutate({
+            cadence: lockFungibleTokens,
+            args: (arg, t) => [
+              arg([{ key: tokenID[key], value: balance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
+            ],
+            proposer: fcl.currentUser,
+            payer: fcl.currentUser,
+            authorizations: [fcl.currentUser],
+            limit: 999,
+          });
 
-        // console.log(txid);
-        setTxId(txid);
-      } catch (error) {
-        toast.error(error);
-        setTxProgress(false);
-        setIsRemoveFlow(false);
+          console.log("removeLockup Token transaction -------------", txid);
+          setTxId(txid);
+        } catch (error) {
+          toast.error(error);
+          setTxProgress(false);
+        }
       }
-    }
 
-    if (isRemoveFlow) {
-      try {
-        const txid = await fcl.mutate({
-          cadence: lockFungibleTokens,
-          args: (arg, t) => [
-            arg([{ key: flowID, value: flowBalance }], t.Dictionary({ key: t.String, value: t.Optional(t.UFix64) }))
-          ],
-          proposer: fcl.currentUser,
-          payer: fcl.currentUser,
-          authorizations: [fcl.currentUser],
-          limit: 999,
-        });
-
-        // console.log(txid);
-        setTxId(txid);
-      } catch (error) {
-        toast.error(error);
-        setTxProgress(false);
-        setIsRemoveBlp(false);
-      }
-    }
-
-    if (editFlowAmount !== "" && parseFloat(editFlowAmount) <= tokenHoldAmount.FLOW) {
-      console.log("editFT function -> editFLowAmount = ", editFlowAmount);
-
-      try {
-        const txid = await fcl.mutate({
-          cadence: setLockUpBalance,
-          args: (arg, t) => [
-            arg(flowID, t.String),
-            arg(parseFloat(editFlowAmount), t.UFix64)
-          ],
-          proposer: fcl.currentUser,
-          payer: fcl.currentUser,
-          authorizations: [fcl.currentUser],
-          limit: 999,
-        });
-        console.log("editFT function -> editFLowAmount = ", editFlowAmount);
-        console.log(txid);
-        setTxId(txid);
-      } catch (error) {
-        setTxProgress(false);
-        toast.error(error);
-      }
-    }
-    else if (editFlowAmount === "" && parseFloat(editBlpAmount) <= tokenHoldAmount.BLP) {
 
     }
 
+    // if (Object.keys(editLockupTokenAmount).length > 0) {
+    //   setTxProgress(true);
+    //   setTxType("editFT");
+    //   console.log("editFT -------- > editLockupTokenAmount", editLockupTokenAmount);
+    //   for (const key in editLockupTokenAmount) {
+    //     let _Amount = 0;
+    //     if (editLockupTokenAmount[key] === '') {
+    //       _Amount = tokenHoldAmount[key];
+    //     }
+    //     else _Amount = editLockupTokenAmount[key];
 
-    if (editBlpAmount !== "") {
-      try {
-        const txid = await fcl.mutate({
-          cadence: setLockUpBalance,
-          args: (arg, t) => [
-            arg(blpID, t.String),
-            arg(parseFloat(editBlpAmount), t.UFix64)
-          ],
-          proposer: fcl.currentUser,
-          payer: fcl.currentUser,
-          authorizations: [fcl.currentUser],
-          limit: 999,
-        });
-
-        // console.log(txid);
-        setTxId(txid);
-      } catch (error) {
-        setTxProgress(false);
-        toast.error(error);
-      }
-    }
+    //     if (parseFloat(_Amount) !== parseFloat(lockupTokenList[key]) && parseFloat(_Amount) <= parseFloat(tokenHoldAmount[key])) {
+    //       console.log("edit FT -> this token changed ----------", key);
+    //       try {
+    //         const txid = await fcl.mutate({
+    //           cadence: setLockUpBalance,
+    //           args: (arg, t) => [
+    //             arg(tokenID[key], t.String),
+    //             arg(parseFloat(editLockupTokenAmount[key]), t.UFix64)
+    //           ],
+    //           proposer: fcl.currentUser,
+    //           payer: fcl.currentUser,
+    //           authorizations: [fcl.currentUser],
+    //           limit: 999,
+    //         });
+    //         console.log("editLockupToken transaction -> ", txid);
+    //         setTxId(txid);
+    //       } catch (error) {
+    //         setTxProgress(false);
+    //         toast.error(error);
+    //       }
+    //     }
+    //   }
+    // }
   }
 
-  const removeFlow = () => {
-    setIsRemoveFlow(true);
-  }
-
-  const removeBlp = () => {
-    setIsRemoveBlp(true);
-  }
 
   const editNFTCollection = async (item) => {
     // console.log("collection - ", item);
@@ -932,11 +1077,38 @@ export default function Backup() {
 
   }
 
+  const onHandleClickEditCoins = (e) => {
+    setEditLockupTokenAmount(lockupTokenList);
+    setStep("removecoins")
+  }
+  const onHandleClickRemoveLockupToken = (e, key) => {
+    const data = removeLockupTokensList;
+
+    data[getFTContractNameAddress(key).contractName] = lockupTokenList[getFTContractNameAddress(key).contractName];
+    console.log("removeTokenList ----- > ", data);
+    setRemoveLockupTokensList(data);
+    if (lockUp.fungibleTokens.length <= 1) {
+      toast.error("Cannot Delete! You should have at least 1 coin in lockup! ");
+      return;
+    }
+    setLockUp(prev => ({
+      ...prev,
+      fungibleTokens: prev.fungibleTokens.filter(({ identifier }) => identifier !== key)
+    }));
+  }
   const onClickHandleAddCoinsToSafe = (e) => {
-    getBackup();
+    // getBackup();
+
+    const data = { ...tokenHoldAmount };
+    for (const key in lockupTokenList) {
+      delete data[key];
+    }
+
+    setAddSafeTokenList(data);
+    console.log("addsafeTokenList - > data", data)
     let isCoinCanBeLockup = false;
-    Object.keys(tokenHoldAmount).map((key, index) => {
-      if (tokenHoldAmount[key] > 0) {
+    Object.keys(data).map((key, index) => {
+      if (parseFloat(data[key]) > 0) {
         isCoinCanBeLockup = true;
       }
     });
@@ -944,6 +1116,7 @@ export default function Backup() {
     setWithdrawNFTIDs([]);
     setCoinCanBeLockup(isCoinCanBeLockup);
     // console.log("onClickHandleAddCoinsToSafe -- Lockup", lockUp);
+    setLockupTokensSelect({});
     setStep("coins")
   }
 
@@ -982,6 +1155,8 @@ export default function Backup() {
       setPledgeStep("coins");
     }
   }
+
+
 
   const withdrawFlow = async (identifier, holder, item) => {
     console.log(item)
@@ -1211,7 +1386,7 @@ export default function Backup() {
                     <div className='center-pad'>
                       <div className='row justify-content-center'>
                         <div className='col-xl-3 col-lg-5'>
-                          <Card className="text-center cursor-pointer" onClick={() => setStep("detail")}>
+                          <Card className="text-center cursor-pointer" onClick={() => { getBackup(); setStep("detail") }}>
                             <Card.Img className='item-img' variant="top" src="safe.png" />
                             <Card.Body>
                               <Card.Title className="blue-font">
@@ -1325,7 +1500,7 @@ export default function Backup() {
                           <Form.Label>
                             Maturity Date <span className='text-danger'>*</span>
                           </Form.Label>
-                          <DatePicker className='form-control' selected={maturity} minDate={new Date()}  excludeDates={[new Date()]} onChange={(date) => setMaturity(date)} />
+                          <DatePicker className='form-control' selected={maturity} minDate={new Date()} excludeDates={[new Date()]} onChange={(date) => setMaturity(date)} />
                         </Form.Group>
 
                         <Form.Group className="mb-3">
@@ -1393,7 +1568,7 @@ export default function Backup() {
                       COIN(S)
                       {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
                         <Button className='mx-3' variant="danger" size="sm"
-                          onClick={() => setStep("removecoins")}>
+                          onClick={onHandleClickEditCoins}>
                           Edit
                         </Button>
                         :
@@ -1410,37 +1585,19 @@ export default function Backup() {
                     <div className='row mt-2'>
                       {lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
-                          {item.identifier.includes("FlowToken") &&
-                            <div className='col-md-1 col-3'>
-                              <img src="flowcoin.png" width="100%" height="auto" />
+                          <div className='col-md-1 col-3'>
+                            <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
 
-                              {item.balance === null ?
-                                <p className='blue-font font-bold text-center'>
-                                  (All)
-                                </p>
-                                :
-                                <p className='blue-font font-bold text-center'>
-                                  ({parseInt(item.balance)})
-                                </p>
-                              }
-                            </div>
-                          }
-
-                          {item.identifier.includes("BlpToken") &&
-                            <div className='col-md-1 col-3'>
-                              <img src="coin.png" width="100%" height="auto" />
-
-                              {item.balance === null ?
-                                <p className='blue-font font-bold text-center'>
-                                  (All)
-                                </p>
-                                :
-                                <p className='blue-font font-bold text-center'>
-                                  ({parseInt(item.balance)})
-                                </p>
-                              }
-                            </div>
-                          }
+                            {item.balance === null ?
+                              <p className='blue-font font-bold text-center'>
+                                (All)
+                              </p>
+                              :
+                              <p className='blue-font font-bold text-center'>
+                                ({parseInt(item.balance)})
+                              </p>
+                            }
+                          </div>
                         </React.Fragment>
                       )
                       )}
@@ -1535,40 +1692,28 @@ export default function Backup() {
                   </div>
 
                   <div className='row p-3'>
-                    {ft !== null && coinCanBeLockup &&
-                      Object.keys(ft).map((key, index) => (
-                        tokenHoldAmount[ft[key].name] > 0 &&
+                    {coinCanBeLockup &&
+                      Object.keys(addSafeTokenList).map((key, index) => (
+                        addSafeTokenList[key] > 0 &&
                         (<div className='col-lg-6 col-xl-4 pt-2' key={index}>
                           <div className='grey-border p-2'>
                             <div className='row'>
                               <div className='col-md-3'>
-                                {ft[key].name === 'FLOW' ?
-                                  <>
-                                    <img src="flowcoin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>{tokenHoldAmount.FLOW - flowBalance}</h5>
-                                  </>
-                                  :
-                                  <>
-                                    <img src="coin.png" width="100%" height="auto" />
-                                    <h5 className='text-center'>{tokenHoldAmount.BLP - blpBalance}</h5>
-                                  </>
-                                }
+                                <>
+                                  <img src={logoURI[key]} key={index} width="100%" height="auto" alt="TokenLogo" />
+                                  <h5 className='text-center'>{tokenHoldAmount[key]}</h5>
+                                </>
                               </div>
 
                               <div className='col-md-9'>
                                 <div className='d-flex justify-content-between'>
-                                  <h5 className='blue-font mb-0'>{ft[key].name}</h5>
-                                  <Form.Check className='mx-2' type="checkbox" onClick={(e) => selectFT(e, index)} />
+                                  <h5 className='blue-font mb-0'>{key}</h5>
+                                  <Form.Check className='mx-2' checked={lockupTokensSelect[key] || false} type="checkbox" onChange={(e) => selectFT(e, key)} />
                                 </div>
 
-                                <p className='text-grey mb-1 font-14'>{key}</p>
-                                {ft[key].name === "FLOW" ?
-                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                    value={flowAmount} onChange={(e) => setFlowAmount(e.target.value)} />
-                                  :
-                                  <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                    value={blpAmount} onChange={(e) => setBlpAmount(e.target.value)} />
-                                }
+                                <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(key).contractAddress}</p>
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' name={key} disabled={!lockupTokensSelect[key]}
+                                  onChange={onHandleChangeLockupTokenAmount} />
                               </div>
                             </div>
                           </div>
@@ -1589,25 +1734,19 @@ export default function Backup() {
                     </div>
 
                     <div className='col-md-4'>
-                      {(!flowSelect && !blpSelect) ?
-                        <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                          ADD COINS TO SAFE
-                        </Button>
-                        :
-                        <>
-                          {txProgress && txType === "addFT" ?
-                            <Button className='blue-bg border-none border-radius-none mt-3' disabled>
-                              <Spinner animation="border" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                              </Spinner>
-                            </Button>
-                            :
-                            <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()}>
-                              ADD COINS TO SAFE
-                            </Button>
-                          }
-                        </>
-                      }
+                      <>
+                        {txProgress && txType === "addFT" ?
+                          <Button className='blue-bg border-none border-radius-none mt-3' disabled>
+                            <Spinner animation="border" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                          </Button>
+                          :
+                          <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => addFT()} disabled={Object.values(lockupTokensSelect).every(value => !value)}>
+                            ADD COINS TO SAFE
+                          </Button>
+                        }
+                      </>
                     </div>
                   </div>
                 </Tab.Pane>
@@ -1624,90 +1763,47 @@ export default function Backup() {
                     {lockUp !== null &&
                       lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
-                          {item.identifier.includes("FlowToken") ?
-                            <>
-                              {!isRemoveFlow &&
-                                <div className='col-lg-6 col-xl-4 pt-2'>
-                                  <div className='grey-border p-2'>
-                                    <div className='row'>
-                                      <div className='col-md-3'>
-                                        <img src="flowcoin.png" width="100%" height="auto" />
+                          <>
+                            <div className='col-lg-6 col-xl-4 pt-2'>
+                              <div className='grey-border p-2'>
+                                <div className='row'>
+                                  <div className='col-md-3'>
+                                    <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
+                                    {item.balance ?
+                                      <h5 className='text-center'>({parseFloat(item.balance)})</h5>
+                                      :
+                                      <h5 className='text-center'>(All)</h5>
+                                    }
+                                  </div>
 
-                                        {item.balance ?
-                                          <h5 className='text-center'>({parseFloat(item.balance)})</h5>
-                                          :
-                                          <h5 className='text-center'>(All)</h5>
-                                        }
-                                      </div>
-
-                                      <div className='col-md-9'>
-                                        <div className='d-flex justify-content-between'>
-                                          <h5 className='blue-font mb-0'>FLOW</h5>
-
-                                          {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
-                                            <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                              onClick={() => removeFlow()} />
-                                          }
-                                        </div>
-
-                                        <p className='text-grey mb-1 font-14'>{item.identifier}</p>
-
-                                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                          value={editFlowAmount} onChange={(e) => setEditFlowAmount(e.target.value)} />
-                                      </div>
+                                  <div className='col-md-9'>
+                                    <div className='d-flex justify-content-between'>
+                                      <h5 className='blue-font mb-0'>{getFTContractNameAddress(item.identifier).contractName}</h5>
+                                      <img className='cursor-pointer' onClick={(e) => onHandleClickRemoveLockupToken(e, item.identifier)} src="remove-button.png" alt="" width="20px" height="20px"
+                                      />
                                     </div>
+
+                                    <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(item.identifier).contractAddress}</p>
+
+                                    <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName] || ""}
+                                      onChange={(e) => onHandleChangeEditLockupTokenAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
                                   </div>
                                 </div>
-                              }
-                            </>
-                            :
-                            <>
-                              {!isRemoveBlp &&
-                                <div className='col-lg-6 col-xl-4 pt-2'>
-                                  <div className='grey-border p-2'>
-                                    <div className='row'>
-                                      <div className='col-md-3'>
-                                        <img src="coin.png" width="100%" height="auto" />
+                              </div>
+                            </div>
 
-                                        {item.balance ?
-                                          <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                                          :
-                                          <h5 className='text-center'>(All)</h5>
-                                        }
-                                      </div>
-
-                                      <div className='col-md-9'>
-                                        <div className='d-flex justify-content-between'>
-                                          <h5 className='blue-font mb-0'>BLP</h5>
-
-                                          {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
-                                            <img className='cursor-pointer' src="remove-button.png" alt="" width="20px" height="20px"
-                                              onClick={() => removeBlp()} />
-                                          }
-                                        </div>
-
-                                        <p className='text-grey mb-1 font-14'>{item.identifier}</p>
-
-                                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                          value={editBlpAmount} onChange={(e) => setEditBlpAmount(e.target.value)} />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              }
-                            </>
-                          }
+                          </>
                         </React.Fragment>
                       ))
                     }
                   </div>
 
-                  {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
+                  {/* {!isRemoveFlow && !isRemoveBlp && lockUp.fungibleTokens.length > 1 &&
                     <div className='d-flex p-2 mt-5'>
                       <img className='mx-2 mt-1' src="remove-button.png" alt="" width="20px" height="20px" />
                       <h5>= Remove Coin(s) from Safe</h5>
                     </div>
-                  }
+                  } */}
 
                   <div className='row p-3 pt-0'>
                     <div className='col-md-8'>
