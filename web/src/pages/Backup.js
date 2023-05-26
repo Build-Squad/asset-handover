@@ -52,7 +52,7 @@ const getStoragePaths = async (address) => {
     ]
   })
 
-  console.log("getStoreagePaths-- ", paths);
+  // console.log("getStoreagePaths-- ", paths);
   return paths
 }
 
@@ -73,7 +73,7 @@ const splitList = (list, chunkSize) => {
 
 const getStoredItems = async (address, paths) => {
   const code = await (await fetch("/get_stored_items.cdc")).text()
-  console.log("getStoredItems--->paths,", address, paths);
+  // console.log("getStoredItems--->paths,", address, paths);
   const items = await fcl.query({
     cadence: code,
     args: (arg, t) => [
@@ -82,13 +82,13 @@ const getStoredItems = async (address, paths) => {
     ]
   })
 
-  console.log("getStoredItems ---> items", items);
+  // console.log("getStoredItems ---> items", items);
   return items
 }
 
 const bulkGetStoredItems = async (address) => {
   const paths = await getStoragePaths(address)
-  // console.log("bulkgetstoredItems");
+  // // console.log("bulkgetstoredItems");
   const groups = splitList(paths.map((p) => p.identifier), 30)
   const promises = groups.map((group) => {
     return getStoredItems(address, group)
@@ -97,7 +97,7 @@ const bulkGetStoredItems = async (address) => {
   const items = itemGroups.reduce((acc, curr) => {
     return acc.concat(curr)
   }, [])
-  console.log("bulkGetStoredItems---", items);
+  // console.log("bulkGetStoredItems---", items);
   return items
 }
 
@@ -196,7 +196,7 @@ export default function Backup() {
         return token
       })
       setTokenRegistry(tokenList)
-      console.log("tokenList---", tokenList);
+      // console.log("tokenList---", tokenList);
       return tokenList;
     })
       .then((tokenList) => {
@@ -209,7 +209,7 @@ export default function Backup() {
   */
 
   const getLogoURI = (tokenList) => {
-    // console.log("getLogoURI -> ", tokenList);
+    // // console.log("getLogoURI -> ", tokenList);
     // let logURI = tokenList.reduce((acc, obj) => {
     //   const [, contractAddress, contractName] = obj.id.split(".");
     //   return acc[contractName] = obj.logoURI.toString()
@@ -220,7 +220,7 @@ export default function Backup() {
       logURI[contractName] = item.logoURI;
     })
     setLogoURI(logURI);
-    console.log("getLogoURI --- ", logURI);
+    // console.log("getLogoURI --- ", logURI);
   }
 
   /*
@@ -231,12 +231,12 @@ export default function Backup() {
 
   const getAccountTokenList = () => {
     if (user.addr) {// && isValidFlowAddress(user.addr)) {
-      console.log("address----------------", user.addr);
+      // console.log("address----------------", user.addr);
       bulkGetStoredItems(user.addr).then((items) => {
         const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
-        console.log("orderedItems", orderedItems)
+        // console.log("orderedItems", orderedItems)
         setCurrentStoredItems(orderedItems)
-        console.log("balanceData", orderedItems.filter((item) => item.isVault))
+        // console.log("balanceData", orderedItems.filter((item) => item.isVault))
         setBalanceData(orderedItems.filter((item) => item.isVault))
       });
     }
@@ -261,7 +261,7 @@ export default function Backup() {
       return data;
     }, {});
     setTokenHoldAmount(data);
-    console.log("setTokenHoldAmount--- ", data);
+    // console.log("setTokenHoldAmount--- ", data);
   }
 
   useEffect(getAccountTokenHoldAmount, [balanceData]);
@@ -298,7 +298,7 @@ export default function Backup() {
         setTokenID(data);
       };
     }
-    console.log("getTokenId --> ", data)
+    // console.log("getTokenId --> ", data)
   }, [ft]);
 
   useEffect(() => {
@@ -315,7 +315,7 @@ export default function Backup() {
       setOwnCollection(tempOwnCollection);
     }
 
-    console.log("ownCollection - ", ownCollection);
+    // console.log("ownCollection - ", ownCollection);
 
     if (lockUp && lockUp.fungibleTokens.length > 0) {
       const data = {};
@@ -323,7 +323,7 @@ export default function Backup() {
         data[getFTContractNameAddress(identifier).contractName] = balance;
       }
       setLockupTokenList(data);
-      console.log("lockupTokenList -> data", data);
+      // console.log("lockupTokenList -> data", data);
     }
 
 
@@ -521,7 +521,7 @@ export default function Backup() {
   }
 
   const onHandleChangeLockupTokenAmount = ({ target: { name, value } }) => {
-    console.log("onHandleChangeLockupTokenAmount - > ", name, value);
+    // console.log("onHandleChangeLockupTokenAmount - > ", name, value);
     setLockupTokenAmount(prev => ({ ...prev, [name]: value }));
   }
 
@@ -541,7 +541,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
       setLockUp(res);
-      console.log('lockup - ', res);
+      // console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -549,24 +549,24 @@ export default function Backup() {
 
 
       setFT(ftinfo);
-      console.log("ftinfo - ", ftinfo);
+      // console.log("ftinfo - ", ftinfo);
 
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
       });
-      // // console.log("nftinfo - ", nftinfo);
+      // // // console.log("nftinfo - ", nftinfo);
       const collection = await fcl.query({
         cadence: getCollectionsForAccount,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
-      // // console.log('collection - ', collection);
+      // // // console.log('collection - ', collection);
       const nftCollection = [];
       Object.keys(nftinfo).map((info) => {
         collection.map((item) => {
           if (item.nftType.includes(info)) nftCollection.push(item);
         })
       });
-      // console.log("nftCollection - ", nftCollection);
+      // // console.log("nftCollection - ", nftCollection);
       setCollection(nftCollection);
 
 
@@ -576,7 +576,7 @@ export default function Backup() {
           arg(user.addr, t.Address),
         ],
       });
-      // console.log('pledge - ', pledge);
+      console.log('pledge - ', pledge);
       setPledge(pledge);
     }
   }
@@ -596,7 +596,7 @@ export default function Backup() {
   const createBackup = async () => {
     // in seconds
     const releaseDate = Math.floor(maturity.getTime() / 1000).toString();
-    console.log(releaseDate)
+    // console.log(releaseDate)
     if (!isValidFlowAddress(recipient)) {
       toast.error("Please input correct flow address!");
       return;
@@ -621,7 +621,7 @@ export default function Backup() {
           limit: 999,
         });
 
-        // console.log(txid);
+        // // console.log(txid);
         setTxId(txid);
       } catch (error) {
         setTxProgress(false);
@@ -643,7 +643,7 @@ export default function Backup() {
           limit: 999,
         });
 
-        // console.log(txid);
+        // // console.log(txid);
         setTxId(txid);
       } catch (error) {
         setTxProgress(false);
@@ -666,7 +666,7 @@ export default function Backup() {
         limit: 999,
       });
 
-      // console.log(txid);
+      // // console.log(txid);
       setTxId(txid);
       setStep("default");
     } catch (error) {
@@ -676,7 +676,7 @@ export default function Backup() {
   }
 
   const selectFT = (e, key) => {
-    console.log("SelectFt -> key ", key, e.target.checked);
+    // console.log("SelectFt -> key ", key, e.target.checked);
     setLockupTokensSelect(prev => ({ ...prev, [key]: e.target.checked }))
   }
 
@@ -685,16 +685,17 @@ export default function Backup() {
   *Start
   */
   const addFT = async () => {
-    console.log("addFT - > here");
+    // console.log("addFT - > here");
     for (const key in lockupTokensSelect) {
       setTxProgress(true);
       setTxType("addFT");
       if (lockupTokensSelect[key]) {
+        console.log("addFT -> lockupTokenAmount[key]", lockupTokenAmount);
         if (parseFloat(tokenHoldAmount[key]) < parseFloat(lockupTokenAmount[key])) {
           toast.error(key + " lockup amount cannot bigger than you hold!");
           setTxProgress(false);
         }
-        else if (lockupTokenAmount[key] === "") {
+        else if (lockupTokenAmount[key] === "" || lockupTokenAmount[key] === undefined) {
           toast.success(key + "'s ownership will be locked up!");
           let balance = makeBalance(tokenHoldAmount[key]);
           try {
@@ -709,7 +710,7 @@ export default function Backup() {
               authorizations: [fcl.currentUser],
               limit: 999,
             });
-            console.log(txid);
+            // console.log(txid);
             setTxId(txid);
           } catch (error) {
             setTxProgress(false);
@@ -732,7 +733,7 @@ export default function Backup() {
               limit: 999,
             });
 
-            console.log("token added txid ->", txid);
+            // console.log("token added txid ->", txid);
             setTxId(txid);
           } catch (error) {
             setTxProgress(false);
@@ -770,7 +771,7 @@ export default function Backup() {
 
     isShowCollection.map((item) => { if (item > 0) isCollectionCanbelockup = true; });
     setCollectionCanbeLockup(isCollectionCanbelockup);
-    // console.log("getAllNFT --- isShowCollection", isShowCollection);
+    // // console.log("getAllNFT --- isShowCollection", isShowCollection);
     setShowNFTCollection(isShowCollection);
     setStep("nftcollection")
   }
@@ -784,7 +785,7 @@ export default function Backup() {
         arg(item.collectionIdentifier, t.String)
       ],
     });
-    // console.log('nftRes - ', nftRes);
+    // // console.log('nftRes - ', nftRes);
 
     if (lockUp.nonFungibleTokens.length === 0) {
       setNFT(nftRes);
@@ -799,7 +800,7 @@ export default function Backup() {
           setNFT(availableNFT);
         }
       });
-      // console.log("available nft - ", availableNFT);
+      // // console.log("available nft - ", availableNFT);
     }
 
     setContractName(item.contractName);
@@ -814,9 +815,9 @@ export default function Backup() {
   const selectNFT = (e, id) => {
     let ids = [...nftIDs];
     let selected_ids = [...selectedNFT];
-    // console.log(ids, id);
-    // console.log("id---", id);
-    // console.log(ids.indexOf(id));
+    // // console.log(ids, id);
+    // // console.log("id---", id);
+    // // console.log(ids.indexOf(id));
     let nftallids = [];
 
     nft.map((item) => {
@@ -881,7 +882,7 @@ export default function Backup() {
         limit: 999,
       });
 
-      // console.log(txid);
+      // // console.log(txid);
       setTxId(txid);
     } catch (error) {
       setTxProgress(false);
@@ -911,18 +912,18 @@ export default function Backup() {
       return;
     }
 
-    // console.log("editFT ---> updateLockupData", lockUp);
-    // console.log("editFT ---> remainItem", remainItem);
+    // // console.log("editFT ---> updateLockupData", lockUp);
+    // // console.log("editFT ---> remainItem", remainItem);
     if (remainItem.length > 0) {
-      // console.log("here--------------remainItem------");
+      // // console.log("here--------------remainItem------");
       setTxProgress(true);
       setTxType("editFT");
       for (const item of remainItem) {
         const key = getFTContractNameAddress(item.identifier).contractName;
         let balance;
-        // console.log("editFT -> remainItem -> key, editLockupTokenAmount", key, editLockupTokenAmount);
+        // // console.log("editFT -> remainItem -> key, editLockupTokenAmount", key, editLockupTokenAmount);
         if (key in editLockupTokenAmount) {
-          console.log("key in editLockupTokenAmount ", editLockupTokenAmount[key]);
+          // console.log("key in editLockupTokenAmount ", editLockupTokenAmount[key]);
           balance = editLockupTokenAmount[key];
         }
         else {
@@ -942,7 +943,7 @@ export default function Backup() {
             limit: 999,
           });
 
-          console.log("removeLockup Token transaction -------------", txid);
+          // console.log("removeLockup Token transaction -------------", txid);
           setTxId(txid);
         } catch (error) {
           toast.error(error);
@@ -956,7 +957,7 @@ export default function Backup() {
     // if (Object.keys(editLockupTokenAmount).length > 0) {
     //   setTxProgress(true);
     //   setTxType("editFT");
-    //   console.log("editFT -------- > editLockupTokenAmount", editLockupTokenAmount);
+    //   // console.log("editFT -------- > editLockupTokenAmount", editLockupTokenAmount);
     //   for (const key in editLockupTokenAmount) {
     //     let _Amount = 0;
     //     if (editLockupTokenAmount[key] === '') {
@@ -965,7 +966,7 @@ export default function Backup() {
     //     else _Amount = editLockupTokenAmount[key];
 
     //     if (parseFloat(_Amount) !== parseFloat(lockupTokenList[key]) && parseFloat(_Amount) <= parseFloat(tokenHoldAmount[key])) {
-    //       console.log("edit FT -> this token changed ----------", key);
+    //       // console.log("edit FT -> this token changed ----------", key);
     //       try {
     //         const txid = await fcl.mutate({
     //           cadence: setLockUpBalance,
@@ -978,7 +979,7 @@ export default function Backup() {
     //           authorizations: [fcl.currentUser],
     //           limit: 999,
     //         });
-    //         console.log("editLockupToken transaction -> ", txid);
+    //         // console.log("editLockupToken transaction -> ", txid);
     //         setTxId(txid);
     //       } catch (error) {
     //         setTxProgress(false);
@@ -991,7 +992,7 @@ export default function Backup() {
 
 
   const editNFTCollection = async (item) => {
-    // console.log("collection - ", item);
+    // // console.log("collection - ", item);
 
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
@@ -1012,7 +1013,7 @@ export default function Backup() {
     });
 
     setNFT(ownNFT);
-    // console.log('ownnft - ', ownNFT);
+    // // console.log('ownnft - ', ownNFT);
     setCollectionID(item.nftType);
 
     setStep("removenfts");
@@ -1024,7 +1025,7 @@ export default function Backup() {
     setShowNFT(newShowNFT);
 
 
-    // console.log("currentNFTIDs", currentNFTIDs);
+    // // console.log("currentNFTIDs", currentNFTIDs);
 
     currentNFTIDs.forEach((item, index) => {
       if (item === id) currentNFTIDs.splice(index, 1);
@@ -1051,7 +1052,7 @@ export default function Backup() {
           limit: 999,
         });
 
-        // console.log(txid);
+        // // console.log(txid);
         setTxId(txid);
       } catch (error) {
         setTxProgress(false);
@@ -1071,7 +1072,7 @@ export default function Backup() {
           limit: 999,
         });
 
-        // console.log(txid);
+        // // console.log(txid);
         setTxId(txid);
       } catch (error) {
         setTxProgress(false);
@@ -1089,7 +1090,7 @@ export default function Backup() {
     const data = removeLockupTokensList;
 
     data[getFTContractNameAddress(key).contractName] = lockupTokenList[getFTContractNameAddress(key).contractName];
-    console.log("removeTokenList ----- > ", data);
+    // console.log("removeTokenList ----- > ", data);
     setRemoveLockupTokensList(data);
     if (lockUp.fungibleTokens.length <= 1) {
       toast.error("Cannot Delete! You should have at least 1 coin in lockup! ");
@@ -1109,17 +1110,17 @@ export default function Backup() {
     }
 
     setAddSafeTokenList(data);
-    console.log("addsafeTokenList - > data", data)
+    // console.log("addsafeTokenList - > data", data)
     let isCoinCanBeLockup = false;
     Object.keys(data).map((key, index) => {
       if (parseFloat(data[key]) > 0) {
         isCoinCanBeLockup = true;
       }
     });
-    // console.log("onClickHandleAddCoinsToSafe - isCoinCanBeLockup ->", isCoinCanBeLockup);
+    // // console.log("onClickHandleAddCoinsToSafe - isCoinCanBeLockup ->", isCoinCanBeLockup);
     setWithdrawNFTIDs([]);
     setCoinCanBeLockup(isCoinCanBeLockup);
-    // console.log("onClickHandleAddCoinsToSafe -- Lockup", lockUp);
+    // // console.log("onClickHandleAddCoinsToSafe -- Lockup", lockUp);
     setLockupTokensSelect({});
     setStep("coins")
   }
@@ -1127,7 +1128,7 @@ export default function Backup() {
   //Pledges
   const clickPledge = async (item) => {
     setPledgeItem(item);
-    // console.log("pledge - ", item);
+    // // console.log("pledge - ", item);
     setPledgeStep("item");
     setHolder(item.holder);
     setFlowWithdraw();
@@ -1135,7 +1136,7 @@ export default function Backup() {
       cadence: getCollectionsForAccount,
       args: (arg, t) => [arg(item.holder, t.Address)]
     });
-    // // console.log("pledgeCollection - ", pledgeCollection);
+    // // // console.log("pledgeCollection - ", pledgeCollection);
     const nftinfo = await fcl.query({
       cadence: getNonFungibleTokenInfoMapping
     });
@@ -1145,13 +1146,13 @@ export default function Backup() {
         if (item.nftType.includes(info)) nftCollection.push(item);
       })
     });
-    // // console.log("nftCollection - ", nftCollection);
+    // // // console.log("nftCollection - ", nftCollection);
     setPledgeCollection(nftCollection);
   }
 
   const widthdrawCoins = () => {
     const currentDate = parseInt(Date.now());
-    // console.log(currentDate);
+    // // console.log(currentDate);
 
     if (currentDate <= pledgeItem.releasedAt) {
       toast.error("The assets are still in lock-up period");
@@ -1163,10 +1164,10 @@ export default function Backup() {
 
 
   const withdrawFlow = async (identifier, holder, item) => {
-    console.log(item)
+    // console.log(item)
     const [_, contractAddress, contractName] = item.identifier.split('.');
-    console.log(contractAddress)
-    console.log(contractName)
+    // console.log(contractAddress)
+    // console.log(contractName)
 
     setTxProgress(true);
     setTxType("withdrawFlow");
@@ -1178,8 +1179,8 @@ export default function Backup() {
       withdrawAmount = flowWithdraw;
 
     }
-    // console.log("FlowWithdraw--- ", withdrawAmount);
-    // console.log("holder+identifier", holder,)
+    // // console.log("FlowWithdraw--- ", withdrawAmount);
+    // // console.log("holder+identifier", holder,)
     try {
       const txid = await fcl.mutate({
         cadence: setupAddVaultAndWithdrawFT(contractName, contractAddress),
@@ -1194,10 +1195,10 @@ export default function Backup() {
         limit: 999,
       });
 
-      // console.log(txid);
+      // // console.log(txid);
       setTxId(txid);
     } catch (error) {
-      // console.log(error)
+      // // console.log(error)
       toast.error(error);
       setTxProgress(false);
     }
@@ -1214,7 +1215,7 @@ export default function Backup() {
       withdrawAmount = blpWithdraw;
 
     }
-    // console.log("blpWithdraw--- ", withdrawAmount);
+    // // console.log("blpWithdraw--- ", withdrawAmount);
 
     try {
       const txid = await fcl.mutate({
@@ -1230,7 +1231,7 @@ export default function Backup() {
         limit: 999,
       });
 
-      // console.log(txid);
+      // // console.log(txid);
       setTxId(txid);
     } catch (error) {
       toast.error(error);
@@ -1254,14 +1255,14 @@ export default function Backup() {
       let temp = Array(changeSelection.length).fill(false);
       setChangeSelection(temp);
     }
-    // console.log("selectAllWithdrawNFT---", changeSelection);
+    // // console.log("selectAllWithdrawNFT---", changeSelection);
     setWithdrawNFTIDs(selectIDs);
 
   }
   const withdrawNFTCollection = async (item) => {
 
     const currentDate = parseInt(Date.now());
-    // console.log(currentDate);
+    // // console.log(currentDate);
 
     if (currentDate <= pledgeItem.releasedAt) {
       toast.error("The assets are still in lock-up period");
@@ -1286,7 +1287,7 @@ export default function Backup() {
     });
 
     setPledgeNFT(ownNFT);
-    // console.log('nft - ', ownNFT);
+    // // console.log('nft - ', ownNFT);
     let selectionFlag_NFTWithdraw = Array(ownNFT.length).fill(false);
     setChangeSelection(selectionFlag_NFTWithdraw);
     setCollectionID(item.nftType);
@@ -1338,14 +1339,14 @@ export default function Backup() {
         limit: 999,
       });
 
-      // console.log(txid);
+      // // console.log(txid);
       setTxId(txid);
       // setWithdrawNFTIDs([]);
     } catch (error) {
       setTxProgress(false);
-      // console.log("withdrawNFT---", "Here is 0-0-00909iu09u0u");
+      // // console.log("withdrawNFT---", "Here is 0-0-00909iu09u0u");
       toast.error(error);
-      // console.log("asdfasdf =--- ", error);
+      // // console.log("asdfasdf =--- ", error);
       // setWithdrawNFTIDs([]);
     }
   }
