@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Nav, Navbar, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as fcl from "@onflow/fcl";
 import { FaBars, FaSignOutAlt } from 'react-icons/fa';
 
