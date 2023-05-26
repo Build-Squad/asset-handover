@@ -175,9 +175,9 @@ export default function Backup() {
   //pledges
   const [pledge, setPledge] = useState(null);
   const [pledgeItem, setPledgeItem] = useState(null);
+
+  const [withdrawCoinsAmount, setWithdrawCoinsAmount] = useState({});
   const [holder, setHolder] = useState(null);
-  const [flowWithdraw, setFlowWithdraw] = useState("");
-  const [blpWithdraw, setBlpWithdraw] = useState("");
   const [pledgeCollection, setPledgeCollection] = useState(null);
   const [pledgeNFT, setPledgeNFT] = useState(null);
   const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
@@ -215,10 +215,11 @@ export default function Backup() {
     //   return acc[contractName] = obj.logoURI.toString()
     // }, {})
     let logURI = {};
-    tokenList.map((item) => {
+    for (const item of tokenList) {
       const [, contractAddress, contractName] = item.id.split(".");
       logURI[contractName] = item.logoURI;
-    })
+    }
+
     setLogoURI(logURI);
     // console.log("getLogoURI --- ", logURI);
   }
@@ -443,24 +444,13 @@ export default function Backup() {
       }
     }
 
-    else if (txStatus && txType === "withdrawFlow") {
+    else if (txStatus && txType === "withDrawFT") {
       if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
         toast.error(txStatus.errorMessage);
         setTxProgress(false);
         setTxStatus(null);
       } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Flow token is successfully withdrawed!");
-        setTxProgress(false);
-        setTxStatus(null);
-      }
-    }
-    else if (txStatus && txType === "withdrawBlp") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Blp token is successfully withdrawed!");
+        toast.success("Fungible Token is successfully withdrawed!");
         setTxProgress(false);
         setTxStatus(null);
       }
@@ -529,6 +519,12 @@ export default function Backup() {
     setEditLockupTokenAmount(prev => ({ ...prev, [key]: e.target.value }));
   }
 
+
+  // -------------------------------- Pledge -> Withdraw functions ----------------
+  const onHandleChangeWithdrawCoinsAmount = (e, key) => {
+    setWithdrawCoinsAmount(prev => ({ ...prev, [key]: e.target.value }));
+  }
+
   const getBackup = async () => {
     getAllTokenList();
     // getLogoURI(tokenRegistry);
@@ -589,7 +585,7 @@ export default function Backup() {
     setBackupName(lockUp.name);
     setRecipient(lockUp.recipient);
     setDescription(lockUp.description);
-    const dateObject = new Date(parseInt(lockUp.releasedAt));
+    const dateObject = new Date(convertDate(Math.floor(lockUp.releasedAt * 1000)));
     setMaturity(dateObject);
   }
 
@@ -690,7 +686,7 @@ export default function Backup() {
       setTxProgress(true);
       setTxType("addFT");
       if (lockupTokensSelect[key]) {
-        console.log("addFT -> lockupTokenAmount[key]", lockupTokenAmount);
+        // console.log("addFT -> lockupTokenAmount[key]", lockupTokenAmount);
         if (parseFloat(tokenHoldAmount[key]) < parseFloat(lockupTokenAmount[key])) {
           toast.error(key + " lockup amount cannot bigger than you hold!");
           setTxProgress(false);
@@ -1131,7 +1127,6 @@ export default function Backup() {
     // // console.log("pledge - ", item);
     setPledgeStep("item");
     setHolder(item.holder);
-    setFlowWithdraw();
     const pledgeCollection = await fcl.query({
       cadence: getCollectionsForAccount,
       args: (arg, t) => [arg(item.holder, t.Address)]
@@ -1150,44 +1145,50 @@ export default function Backup() {
     setPledgeCollection(nftCollection);
   }
 
-  const widthdrawCoins = () => {
-    const currentDate = parseInt(Date.now());
-    // // console.log(currentDate);
+  const withdrawCoins = () => {
+    const currentDate = Math.floor(Date.now() / 1000);
+    // console.log("withdrawCoins -> currentDate", currentDate);
 
     if (currentDate <= pledgeItem.releasedAt) {
       toast.error("The assets are still in lock-up period");
     } else {
       setPledgeStep("coins");
     }
+
+    console.log("withdrawCoins -> tokenHoldAmount", tokenHoldAmount.FlowToken);
   }
 
-
-
-  const withdrawFlow = async (identifier, holder, item) => {
+  const withDrawFT = async (holder, item) => {
     // console.log(item)
     const [_, contractAddress, contractName] = item.identifier.split('.');
     // console.log(contractAddress)
     // console.log(contractName)
 
-    setTxProgress(true);
-    setTxType("withdrawFlow");
     let withdrawAmount;
-    if (flowWithdraw === "" || flowWithdraw === null || flowWithdraw === undefined) {
-      withdrawAmount = Math.floor(item.balance);
+    if (withdrawCoinsAmount[contractName] === "" || withdrawCoinsAmount[contractName] === undefined) {
+      withdrawAmount = makeBalance(item.balance);
+      toast.warning("You will withdraw all amounts lockedup!");
     }
     else {
-      withdrawAmount = flowWithdraw;
-
+      withdrawAmount = makeBalance(withdrawCoinsAmount[contractName]);
     }
+
+    if (parseFloat(withdrawAmount) > parseFloat(item.balance)) {
+      toast.error("You cannot withdraw coins bigger amount than locked!");
+      return;
+    }
+
+    setTxProgress(true);
+    setTxType("withDrawFT");
     // // console.log("FlowWithdraw--- ", withdrawAmount);
     // // console.log("holder+identifier", holder,)
     try {
       const txid = await fcl.mutate({
         cadence: setupAddVaultAndWithdrawFT(contractName, contractAddress),
         args: (arg, t) => [
-          arg(identifier, t.String),
+          arg(item.identifier, t.String),
           arg(holder, t.Address),
-          arg(withdrawAmount + ".0", t.UFix64)
+          arg(parseFloat(withdrawAmount), t.UFix64)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
@@ -1204,40 +1205,6 @@ export default function Backup() {
     }
   }
 
-  const withdrawBlp = async (identifier, holder, item) => {
-    setTxProgress(true);
-    setTxType("withdrawBlp");
-    let withdrawAmount;
-    if (blpWithdraw === "" || blpWithdraw === null || blpWithdraw === undefined) {
-      withdrawAmount = Math.floor(item.balance);
-    }
-    else {
-      withdrawAmount = blpWithdraw;
-
-    }
-    // // console.log("blpWithdraw--- ", withdrawAmount);
-
-    try {
-      const txid = await fcl.mutate({
-        cadence: setupAddVaultAndWithdrawFT("BlpToken", "0xAssetHandover"),
-        args: (arg, t) => [
-          arg(identifier, t.String),
-          arg(holder, t.Address),
-          arg(withdrawAmount + ".0", t.UFix64)
-        ],
-        proposer: fcl.currentUser,
-        payer: fcl.currentUser,
-        authorizations: [fcl.currentUser],
-        limit: 999,
-      });
-
-      // // console.log(txid);
-      setTxId(txid);
-    } catch (error) {
-      toast.error(error);
-      setTxProgress(false);
-    }
-  }
 
   const selectAllWithdrawNFT = async (e) => {
     let selectIDs = [];
@@ -1406,7 +1373,6 @@ export default function Backup() {
                               <p className='mb-1 blue-font'>
                                 {convertDate(Math.floor(lockUp.createdAt * 1000))}
                               </p>
-
 
                               {Math.floor(Date.now() / 1000) >= lockUp.releasedAt ?
                                 <>
@@ -2129,7 +2095,7 @@ export default function Backup() {
                   <div className='d-flex justify-content-between border-bottom-green'>
                     <h4 className='p-2 blue-font mb-0'>
                       COIN(S)
-                      <Button className='mx-3' variant="danger" size="sm" onClick={() => widthdrawCoins()}>
+                      <Button className='mx-3' variant="danger" size="sm" onClick={() => withdrawCoins()}>
                         WITHDRAW
                       </Button>
                     </h4>
@@ -2143,35 +2109,18 @@ export default function Backup() {
                     <div className='row mt-2'>
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
-                          {item.identifier.includes("FlowToken") &&
-                            <div className='col-md-1 col-3'>
-                              <img src="flowcoin.png" width="100%" height="auto" />
-                              {item.balance === null ?
-                                <p className='blue-font font-bold text-center'>
-                                  (All)
-                                </p>
-                                :
-                                <p className='blue-font font-bold text-center'>
-                                  ({parseInt(item.balance)})
-                                </p>
-                              }
-                            </div>
-                          }
-
-                          {item.identifier.includes("BlpToken") &&
-                            <div className='col-md-1 col-3'>
-                              <img src="coin.png" width="100%" height="auto" />
-                              {item.balance === null ?
-                                <p className='blue-font font-bold text-center'>
-                                  (All)
-                                </p>
-                                :
-                                <p className='blue-font font-bold text-center'>
-                                  ({parseInt(item.balance)})
-                                </p>
-                              }
-                            </div>
-                          }
+                          <div className='col-md-1 col-3'>
+                            <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" alt="token Logo" />
+                            {parseFloat(item.balance) === parseFloat(tokenHoldAmount[getFTContractNameAddress(item.identifier).contractName]) ?
+                              <p className='blue-font font-bold text-center'>
+                                (All)
+                              </p>
+                              :
+                              <p className='blue-font font-bold text-center'>
+                                ({parseInt(item.balance)})
+                              </p>
+                            }
+                          </div>
                         </React.Fragment>
                       )
                       )}
@@ -2245,95 +2194,41 @@ export default function Backup() {
                     <div className='row p-3'>
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <>
-                          {item.identifier.includes("FlowToken") &&
-                            <div className='col-md-4' key={index}>
-                              <div className='grey-border p-2'>
-                                <div className='row'>
+                          <div className='col-md-4' key={index}>
+                            <div className='grey-border p-2'>
+                              <div className='row'>
 
-                                  <div className='col-md-3'>
-                                    <img src="flowcoin.png" width="100%" height="auto" />
-                                    {item.balance === null ?
-                                      <h5 className='text-center'>
-                                        (All)
-                                      </h5>
-                                      :
-                                      <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                                    }
-                                  </div>
+                                <div className='col-md-3'>
+                                  <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
+                                  <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                                </div>
 
-                                  <div className='col-md-9'>
-                                    <h5 className='blue-font mb-0'>FLOW</h5>
-                                    <p className='text-grey mb-1'>{pledgeItem.holder}</p>
+                                <div className='col-md-9'>
+                                  <h5 className='blue-font mb-0'>FLOW</h5>
+                                  <p className='text-grey mb-1'>{pledgeItem.holder}</p>
 
-                                    <div className='row'>
-                                      <div className='col-9 pr-0'>
-                                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                          value={flowWithdraw} onChange={(e) => {
-                                            setFlowWithdraw(e.target.value);
-                                          }} />
-                                      </div>
+                                  <div className='row'>
+                                    <div className='col-9 pr-0'>
+                                      <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                        value={withdrawCoinsAmount[getFTContractNameAddress(item.identifier).contractName] || ""} onChange={(e) => onHandleChangeWithdrawCoinsAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
+                                    </div>
 
-                                      <div className='col-3'>
-                                        {txProgress && txType === "withdrawFlow" ?
-                                          <Spinner animation="border" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                          </Spinner>
-                                          :
-                                          <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                            onClick={() => withdrawFlow(item.identifier, pledgeItem.holder, item)} />
-                                        }
-                                      </div>
+                                    <div className='col-3'>
+                                      {txProgress && txType === "withDrawFT" ?
+                                        <Spinner animation="border" role="status">
+                                          <span className="visually-hidden">Loading...</span>
+                                        </Spinner>
+                                        :
+                                        <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
+                                          onClick={() => withDrawFT(pledgeItem.holder, item)} />
+                                      }
                                     </div>
                                   </div>
-
                                 </div>
+
                               </div>
                             </div>
-                          }
-
-                          {item.identifier.includes("BlpToken") &&
-                            <div className='col-md-4' key={index}>
-                              <div className='grey-border p-2'>
-                                <div className='row'>
-
-                                  <div className='col-md-3'>
-                                    <img src="coin.png" width="100%" height="auto" />
-                                    {item.balance === null ?
-                                      <h5 className='text-center'>
-                                        (All)
-                                      </h5>
-                                      :
-                                      <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                                    }
-                                  </div>
-
-                                  <div className='col-md-9'>
-                                    <h5 className='blue-font mb-0'>BLP</h5>
-                                    <p className='text-grey mb-1'>{pledgeItem.holder}</p>
-
-                                    <div className='row'>
-                                      <div className='col-9 pr-0'>
-                                        <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                          value={blpWithdraw} onChange={(e) => setBlpWithdraw(e.target.value)} />
-                                      </div>
-
-                                      <div className='col-3'>
-                                        {txProgress && txType === "withdrawBlp" ?
-                                          <Spinner animation="border" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                          </Spinner>
-                                          :
-                                          <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                            onClick={() => withdrawBlp(item.identifier, pledgeItem.holder, item)} />
-                                        }
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                </div>
-                              </div>
-                            </div>
-                          }
+                          </div>
                         </>
                       )
                       )}
