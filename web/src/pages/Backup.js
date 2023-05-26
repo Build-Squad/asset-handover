@@ -1406,7 +1406,7 @@ export default function Backup() {
                               </p>
 
 
-                              {parseInt(Date.now()) >= lockUp.releasedAt ?
+                              {Math.floor(Date.now() / 1000) >= lockUp.releasedAt ?
                                 <>
                                   <p className='text-success font-14 mb-0'>
                                     Maturity Date
@@ -2067,7 +2067,7 @@ export default function Backup() {
                               {convertDate(Math.floor(item.createdAt * 1000))}
                             </p>
 
-                            {parseInt(Date.now()) >= item.releasedAt ?
+                            {Math.floor(Date.now() / 1000) >= item.releasedAt ?
                               <>
                                 <p className='text-success font-14 mb-0'>
                                   Maturity Date
