@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 export const isValidFlowAddress = (address) => {
     if (!address.startsWith("0x") || address.length !== 18) {
         return false
