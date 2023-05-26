@@ -175,9 +175,9 @@ export default function Backup() {
   //pledges
   const [pledge, setPledge] = useState(null);
   const [pledgeItem, setPledgeItem] = useState(null);
-
   const [withdrawCoinsAmount, setWithdrawCoinsAmount] = useState({});
   const [holder, setHolder] = useState(null);
+
   const [pledgeCollection, setPledgeCollection] = useState(null);
   const [pledgeNFT, setPledgeNFT] = useState(null);
   const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
@@ -1228,7 +1228,7 @@ export default function Backup() {
   }
   const withdrawNFTCollection = async (item) => {
 
-    const currentDate = parseInt(Date.now());
+    const currentDate = Math.floor(Date.now() / 1000);
     // // console.log(currentDate);
 
     if (currentDate <= pledgeItem.releasedAt) {
