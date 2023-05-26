@@ -135,7 +135,10 @@ export default function Backup() {
   //lockups
   const [backupName, setBackupName] = useState('');
   const [recipient, setRecipient] = useState('');
-  const [maturity, setMaturity] = useState(new Date());
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const [maturity, setMaturity] = useState(tomorrow);
   const [description, setDescription] = useState('');
 
   const [lockUp, setLockUp] = useState(null);
