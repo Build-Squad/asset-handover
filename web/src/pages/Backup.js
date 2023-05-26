@@ -135,7 +135,10 @@ export default function Backup() {
   //lockups
   const [backupName, setBackupName] = useState('');
   const [recipient, setRecipient] = useState('');
-  const [maturity, setMaturity] = useState(new Date());
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  const [maturity, setMaturity] = useState(tomorrow);
   const [description, setDescription] = useState('');
 
   const [lockUp, setLockUp] = useState(null);
@@ -1404,7 +1407,7 @@ export default function Backup() {
                               </p>
 
 
-                              {parseInt(Date.now()) >= lockUp.releasedAt ?
+                              {Math.floor(Date.now() / 1000) >= lockUp.releasedAt ?
                                 <>
                                   <p className='text-success font-14 mb-0'>
                                     Maturity Date
@@ -2065,7 +2068,7 @@ export default function Backup() {
                               {convertDate(Math.floor(item.createdAt * 1000))}
                             </p>
 
-                            {parseInt(Date.now()) >= item.releasedAt ?
+                            {Math.floor(Date.now() / 1000) >= item.releasedAt ?
                               <>
                                 <p className='text-success font-14 mb-0'>
                                   Maturity Date
