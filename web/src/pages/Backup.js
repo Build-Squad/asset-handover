@@ -594,10 +594,11 @@ export default function Backup() {
     // in seconds
     const releaseDate = Math.floor(maturity.getTime() / 1000).toString();
     console.log(releaseDate)
-    if (!isValidFlowAddress(recipient)) {
-      toast.error("Please input correct flow address!");
-      return;
-    }
+    // if (!isValidFlowAddress(recipient)) {
+    //   toast.error("Please input correct flow address!");
+    //   return;
+    // }
+
     setTxProgress(true);
     setTxType("createLockup");
 
@@ -681,36 +682,36 @@ export default function Backup() {
   *Start
   */
   const addFT = async () => {
-    setTxProgress(true);
-    setTxType("addFT");
-    Object.keys(lockupTokensSelect).map(async (key) => {
+    console.log("addFT - > here");
+    for (const key in lockupTokensSelect) {
+      setTxProgress(true);
+      setTxType("addFT");
       if (lockupTokensSelect[key]) {
-        if (tokenHoldAmount[key] < lockupTokenAmount[key]) {
-          toast.error({ key } + " lockup amount cannot bigger than you hold!");
+        if (parseFloat(tokenHoldAmount[key]) < parseFloat(lockupTokenAmount[key])) {
+          toast.error(key + " lockup amount cannot bigger than you hold!");
           setTxProgress(false);
         }
         else if (lockupTokenAmount[key] === "") {
-          toast.success({ key } + "'s ownership will be locked up!");
+          toast.success(key + "'s ownership will be locked up!");
           let balance = makeBalance(tokenHoldAmount[key]);
-          if (parseFloat())
-            try {
-              const txid = await fcl.mutate({
-                cadence: lockFungibleToken,
-                args: (arg, t) => [
-                  arg(tokenID[key], t.String),
-                  arg(balance, t.UFix64)
-                ],
-                proposer: fcl.currentUser,
-                payer: fcl.currentUser,
-                authorizations: [fcl.currentUser],
-                limit: 999,
-              });
-              console.log(txid);
-              setTxId(txid);
-            } catch (error) {
-              setTxProgress(false);
-              toast.error(error);
-            }
+          try {
+            const txid = await fcl.mutate({
+              cadence: lockFungibleToken,
+              args: (arg, t) => [
+                arg(tokenID[key], t.String),
+                arg(balance, t.UFix64)
+              ],
+              proposer: fcl.currentUser,
+              payer: fcl.currentUser,
+              authorizations: [fcl.currentUser],
+              limit: 999,
+            });
+            console.log(txid);
+            setTxId(txid);
+          } catch (error) {
+            setTxProgress(false);
+            toast.error(error);
+          }
         }
         else {
           try {
@@ -736,7 +737,7 @@ export default function Backup() {
           }
         }
       }
-    })
+    }
   }
   /*
   *@dev add fungible token to lockup
@@ -1097,7 +1098,7 @@ export default function Backup() {
     }));
   }
   const onClickHandleAddCoinsToSafe = (e) => {
-    // getBackup();
+    getBackup();
 
     const data = { ...tokenHoldAmount };
     for (const key in lockupTokenList) {
