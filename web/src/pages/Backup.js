@@ -597,10 +597,10 @@ export default function Backup() {
     // in seconds
     const releaseDate = Math.floor(maturity.getTime() / 1000).toString();
     console.log(releaseDate)
-    // if (!isValidFlowAddress(recipient)) {
-    //   toast.error("Please input correct flow address!");
-    //   return;
-    // }
+    if (!isValidFlowAddress(recipient)) {
+      toast.error("Please input correct flow address!");
+      return;
+    }
 
     setTxProgress(true);
     setTxType("createLockup");

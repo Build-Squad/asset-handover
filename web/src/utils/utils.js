@@ -4,7 +4,7 @@ export const isValidFlowAddress = (address) => {
         return false
     }
 
-    const bytes = Buffer.from(address.replace("0x", ""), "hex")
-    if (bytes.length !== 8) { return false }
+    // const bytes = Buffer.from(address.replace("0x", ""), "hex")
+    // if (bytes.length !== 8) { return false }
     return true
 }
