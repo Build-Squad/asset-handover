@@ -32,10 +32,6 @@ export default function Home() {
       args: (arg, t) => [arg(searchAddress, t.Address)],
     });
     setClicked(true);
-    if (!res) {
-      toast.error("No Safe found for this account!");
-      return;
-    }
     setLockup(res);
 
   }
