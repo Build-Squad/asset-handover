@@ -36,6 +36,7 @@ import { setupAddVaultAndWithdrawFT } from '../cadence/transaction/setupAddVault
 import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFungibleToken';
 
 import { isValidFlowAddress } from '../utils/utils';
+import { convertDate } from '../utils/utils';
 import NftId from '../components/NftId';
 import AddNftId from '../components/AddNftId';
 
@@ -476,18 +477,6 @@ export default function Backup() {
   const logout = () => {
     fcl.unauthenticate();
     navigate("/");
-  }
-
-  const convertDate = (timeStamp) => {
-    const date = new Date(timeStamp);
-
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-
-    const formattedDate = `${month}-${day}-${year}`;
-
-    return formattedDate;
   }
 
   const getFTContractNameAddress = (identifier) => {
