@@ -22,7 +22,6 @@ try {
   const scriptCommand = `
     flow scripts execute ${scriptPath}  ${contractIdentifier} --network=emulator --output=json
   `;
-  console.log(scriptCommand);
 
   let publicType = '';
   let privateType = '';
@@ -68,7 +67,6 @@ try {
   const transactionCommand = `
     flow transactions send ${transactionPath} ${contractIdentifier} --network=emulator --signer=${signer}
   `;
-  console.log(transactionCommand);
 
   exec(transactionCommand, (err, output) => {
     if (err) {
@@ -76,7 +74,6 @@ try {
       return;
     }
 
-    console.log(output);
   });
 } catch (err) {
   console.error(err.message);
