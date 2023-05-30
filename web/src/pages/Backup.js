@@ -12,6 +12,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import _ from "lodash";
 
 import { createLockUp } from '../cadence/transaction/createLockUp';
 import { updateLockUp } from '../cadence/transaction/updateLockUp';
@@ -131,6 +132,8 @@ export default function Backup() {
   const [balanceData, setBalanceData] = useState(null)
   const [logoURI, setLogoURI] = useState({});
 
+  const [ftMappingInfo, setFTMappingInfo] = useState({});
+  const [nftMappingInfo, setNFTMappingInfo] = useState({});
 
   //lockups
   const [backupName, setBackupName] = useState('');
@@ -156,6 +159,7 @@ export default function Backup() {
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
   const [contractAddress, setContractAddress] = useState(null);
+  const [addNFTCollectionsToSafe, setAddNFTCollectionsToSafe] = useState([]);
   const [publicType, setPublicType] = useState(null);
   const [privateType, setPrivateType] = useState(null);
   const [collectionID, setCollectionID] = useState(null);
@@ -209,11 +213,6 @@ export default function Backup() {
   */
 
   const getLogoURI = (tokenList) => {
-    // // console.log("getLogoURI -> ", tokenList);
-    // let logURI = tokenList.reduce((acc, obj) => {
-    //   const [, contractAddress, contractName] = obj.id.split(".");
-    //   return acc[contractName] = obj.logoURI.toString()
-    // }, {})
     let logURI = {};
     for (const item of tokenList) {
       const [, contractAddress, contractName] = item.id.split(".");
@@ -235,7 +234,7 @@ export default function Backup() {
       // console.log("address----------------", user.addr);
       bulkGetStoredItems(user.addr).then((items) => {
         const orderedItems = items.sort((a, b) => a.path.localeCompare(b.path))
-        // console.log("orderedItems", orderedItems)
+        console.log("orderedItems", orderedItems)
         setCurrentStoredItems(orderedItems)
         // console.log("balanceData", orderedItems.filter((item) => item.isVault))
         setBalanceData(orderedItems.filter((item) => item.isVault))
@@ -262,7 +261,7 @@ export default function Backup() {
       return data;
     }, {});
     setTokenHoldAmount(data);
-    // console.log("setTokenHoldAmount--- ", data);
+    console.log("setTokenHoldAmount--- ", data);
   }
 
   useEffect(getAccountTokenHoldAmount, [balanceData]);
@@ -306,11 +305,11 @@ export default function Backup() {
     const tempOwnCollection = [];
     if (lockUp && lockUp.nonFungibleTokens.length > 0 && collection) {
       lockUp.nonFungibleTokens.map((item) => {
-        collection.map((col) => {
+        for (const col of collection) {
           if (col.nftType.includes(item.identifier)) {
             tempOwnCollection.push(col);
           }
-        })
+        }
       })
 
       setOwnCollection(tempOwnCollection);
@@ -537,7 +536,7 @@ export default function Backup() {
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
       setLockUp(res);
-      // console.log('lockup - ', res);
+      console.log('lockup - ', res);
 
       const ftinfo = await fcl.query({
         cadence: getFungibleTokenInfoMapping
@@ -545,24 +544,46 @@ export default function Backup() {
 
 
       setFT(ftinfo);
-      // console.log("ftinfo - ", ftinfo);
+      console.log("ftinfo - ", ftinfo);
 
+      /* ---------- Getting ft maping info ----------- */
+      let data = {};
+      for (const key in ftinfo) {
+        data[getFTContractNameAddress(key).contractName] = ftinfo[key].name;
+      }
+
+      setFTMappingInfo(data);
+      console.log("getBackup --> ft mapping info ----> ", data);
+
+      /* ---------- Getting NFT mapping info ----------- */
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
       });
-      // // // console.log("nftinfo - ", nftinfo);
+      console.log("nftinfo - ", nftinfo);
+
+      let nft_data = {};
+      for (const key in nftinfo) {
+        nft_data[getFTContractNameAddress(key).contractName] = nftinfo[key].name;
+      }
+
+      setNFTMappingInfo(nft_data);
+      console.log("getBackup -> nftmappinginfo --->", nft_data);
+
+      /* --------- Getting Account's NFT hold list ------------ */
       const collection = await fcl.query({
         cadence: getCollectionsForAccount,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
-      // // // console.log('collection - ', collection);
+      console.log('getBackup -> account hold nft collection - ', collection);
+
+      /* --------- Getting NFT collections which are in asset-hand-over registry --------- */
       const nftCollection = [];
       Object.keys(nftinfo).map((info) => {
         collection.map((item) => {
-          if (item.nftType.includes(info)) nftCollection.push(item);
+          if (item.nftType.includes(info)) { nftCollection.push(item); }
         })
       });
-      // // console.log("nftCollection - ", nftCollection);
+      console.log("getBackup -> allowed collectoins in asset-hand-over registry - ", nftCollection);
       setCollection(nftCollection);
 
 
@@ -572,7 +593,7 @@ export default function Backup() {
           arg(user.addr, t.Address),
         ],
       });
-      console.log('pledge - ', pledge);
+      // console.log('pledge - ', pledge);
       setPledge(pledge);
     }
   }
@@ -745,32 +766,17 @@ export default function Backup() {
   */
 
   const getAllNFTCollectionInfo = () => {
-    let isShowCollection = [];
-    let isCollectionCanbelockup = false;
-    collection.map((item, index) => {
-      let length = 0;
+    /* filter NFT collections from assets-hands-over */
+    const nftIdentifiers = lockUp.nonFungibleTokens.map(({ identifier }) => `${identifier}.NFT`);
+    const data = collection.filter(({ nftType }) => !nftIdentifiers.includes(nftType));
+    console.log("getAllNFTCollectionInfo -> addNFTCollectionsToSafe", data);
+    setAddNFTCollectionsToSafe(data);
 
-      if (lockUp.nonFungibleTokens.length === 0) {
-        length = item.nftsCount;
-      } else {
-        lockUp.nonFungibleTokens.forEach((nft) => {
-          if (item.nftType.replace(".NFT", "") === nft.identifier) {
-            length = item.nftsCount - nft.nftIDs.length;
-          }
-        });
-      }
-
-
-
-      isShowCollection.push(length)
-    });
-
-    isShowCollection.map((item) => { if (item > 0) isCollectionCanbelockup = true; });
-    setCollectionCanbeLockup(isCollectionCanbelockup);
+    setCollectionCanbeLockup(data.length > 0);
     // // console.log("getAllNFT --- isShowCollection", isShowCollection);
-    setShowNFTCollection(isShowCollection);
     setStep("nftcollection")
   }
+
   const selectNFTCollection = async (item) => {
     let availableNFT = [];
 
@@ -781,7 +787,10 @@ export default function Backup() {
         arg(item.collectionIdentifier, t.String)
       ],
     });
-    // // console.log('nftRes - ', nftRes);
+    // console.log('selectNFTCollection -> getNFTsForAccount ', nftRes);
+    // console.log('selectNFTCollection -> addNFTCollectionsToSafe', addNFTCollectionsToSafe);
+    // console.log('selectNFTCollection -> lockup.nonFungibleTokens', lockUp.nonFungibleTokens);
+
 
     if (lockUp.nonFungibleTokens.length === 0) {
       setNFT(nftRes);
@@ -988,7 +997,7 @@ export default function Backup() {
 
 
   const editNFTCollection = async (item) => {
-    // // console.log("collection - ", item);
+    console.log("collection - ", item);
 
     const nft = await fcl.query({
       cadence: getNFTsForAccountCollection,
@@ -1003,10 +1012,14 @@ export default function Backup() {
       if (item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
     });
 
+    console.log("editNFTCollection -> ownNFTIDs", ownNFTIDs);
+
     var ownNFT = [];
     nft.map((nftItem) => {
       if (ownNFTIDs.includes(nftItem.id)) ownNFT.push(nftItem);
     });
+
+    console.log("editNFTCollection -> ownNFT", ownNFT);
 
     setNFT(ownNFT);
     // // console.log('ownnft - ', ownNFT);
@@ -1023,17 +1036,20 @@ export default function Backup() {
 
     // // console.log("currentNFTIDs", currentNFTIDs);
 
-    currentNFTIDs.forEach((item, index) => {
-      if (item === id) currentNFTIDs.splice(index, 1);
+    let data = currentNFTIDs;
+    data.forEach((item, index) => {
+      if (item === id) data.splice(index, 1);
     })
 
-    setEditNFTIDs(currentNFTIDs);
+    console.log("toggleNFTVisibility -> editNFTIDs", editNFTIDs);
+    setEditNFTIDs(data);
   };
 
   const editNFT = async () => {
+    console.log("editNFT -> nft", nft);
     setTxProgress(true);
     setTxType("editNFT");
-
+    console.log("editNFT -> editNFTIDs", editNFTIDs);
     if (currentNFTIDs.length > 0) {
       try {
         const txid = await fcl.mutate({
@@ -1055,6 +1071,7 @@ export default function Backup() {
         toast.error(error);
       }
     } else {
+      toast.warning("Your collection ownership will be lock up!");
       try {
         const txid = await fcl.mutate({
           cadence: lockNonFungibleToken,
@@ -1097,22 +1114,29 @@ export default function Backup() {
       fungibleTokens: prev.fungibleTokens.filter(({ identifier }) => identifier !== key)
     }));
   }
+
   const onClickHandleAddCoinsToSafe = (e) => {
     getBackup();
 
-    const data = { ...tokenHoldAmount };
-    for (const key in lockupTokenList) {
-      delete data[key];
-    }
+    /* ------------- delete louptoken list from Account's token hold list ----------- */
+    const data = _.omit(tokenHoldAmount, Object.keys(lockupTokenList));
+    console.log("onClickHandleAddCoinsToSafe -> ", data);
 
-    setAddSafeTokenList(data);
+    /* ------------- Filter available token list from asset-hand-over-registry ----------- */
+    const filter_ft_data = _.pick(data, Object.keys(ftMappingInfo));
+    console.log("onClickHandleAddCoinToSafe -> filter_ft_data", filter_ft_data);
+
+    setAddSafeTokenList(filter_ft_data);
     // console.log("addsafeTokenList - > data", data)
     let isCoinCanBeLockup = false;
-    Object.keys(data).map((key, index) => {
-      if (parseFloat(data[key]) > 0) {
-        isCoinCanBeLockup = true;
+    if (!(_.isEmpty(filter_ft_data))) {
+      for (const key in filter_ft_data) {
+        if (parseFloat(filter_ft_data[key]) > 0) {
+          isCoinCanBeLockup = true;
+        }
       }
-    });
+    }
+
     // // console.log("onClickHandleAddCoinsToSafe - isCoinCanBeLockup ->", isCoinCanBeLockup);
     setWithdrawNFTIDs([]);
     setCoinCanBeLockup(isCoinCanBeLockup);
@@ -1672,7 +1696,7 @@ export default function Backup() {
                               <div className='col-md-3'>
                                 <>
                                   <img src={logoURI[key]} key={index} width="100%" height="auto" alt="TokenLogo" />
-                                  <h5 className='text-center'>{tokenHoldAmount[key]}</h5>
+                                  <h5 className='text-center'>{parseInt(tokenHoldAmount[key])}</h5>
                                 </>
                               </div>
 
@@ -1741,7 +1765,7 @@ export default function Backup() {
                                   <div className='col-md-3'>
                                     <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
                                     {item.balance ?
-                                      <h5 className='text-center'>({parseFloat(item.balance)})</h5>
+                                      <h5 className='text-center'>({parseInt(item.balance)})</h5>
                                       :
                                       <h5 className='text-center'>(All)</h5>
                                     }
@@ -1813,8 +1837,8 @@ export default function Backup() {
                   </div>
 
                   <div className='row'>
-                    {collection && collection.map((item, index) => (
-                      showNFTCollection[index] > 0 && collectionCanbeLockup && (
+                    {addNFTCollectionsToSafe.length > 0 && addNFTCollectionsToSafe.map((item, index) => (
+                      (
                         <div className='col-md-4 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => selectNFTCollection(item)}>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
@@ -2007,7 +2031,7 @@ export default function Backup() {
                         </Button>
                         :
                         <Button className='blue-bg border-none border-radius-none mt-3' onClick={() => editNFT()}>
-                          SAVE CHANGES TO COIN(S)
+                          SAVE CHANGES TO NFT(S)
                         </Button>
                       }
                     </div>
