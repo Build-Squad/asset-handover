@@ -1,7 +1,48 @@
+import { useEffect, useState } from "react";
 import { Form, Accordion } from "react-bootstrap";
+import { isValidFlowAddress } from "../utils/utils";
+import { getAccountLockUp } from "../cadence/script/getAccountLockUp";
+import * as fcl from "@onflow/fcl";
+import { ToastContainer, toast } from 'react-toastify';
+import { Table, Modal, Button } from "react-bootstrap";
+import { convertDate } from "../utils/utils";
 
-export default function Home(){
-  return(
+//const dateObject = new Date(convertDate(Math.floor(lockUp.releasedAt * 1000)));
+export default function Home() {
+  const [searchAddress, setSearchAddress] = useState("");
+  const [lockUp, setLockup] = useState(null);
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const onHandleChangeSearch = (e) => {
+    setSearchAddress(e.target.value);
+  }
+  useEffect(() => {
+  })
+
+  const onHandleSubmit = async (e) => {
+
+    e.preventDefault();
+
+    if (!isValidFlowAddress(searchAddress)) {
+      toast.error("Please input correct flow address!");
+      return;
+    }
+    const res = await fcl.query({
+      cadence: getAccountLockUp,
+      args: (arg, t) => [arg(searchAddress, t.Address)],
+    });
+    if (!res) {
+      toast.error("No Safe found for this account!");
+      return;
+    }
+    setLockup(res);
+    handleShow();
+
+  }
+  return (
     <div className="row mt-5">
       <div className="col-md-4">
         <img src="Banner-Image.png" width="100%" height="auto" />
@@ -25,7 +66,9 @@ export default function Home(){
             Search Safe By Account
           </h5>
           <div className="d-flex justify-content-center">
-            <Form.Control type="text" className="mt-2 search-input" />
+            <Form onSubmit={onHandleSubmit}>
+              <Form.Control name="search" type="text" className="mt-2 search-input" onChange={onHandleChangeSearch} />
+            </Form>
           </div>
         </div>
       </div>
@@ -45,7 +88,7 @@ export default function Home(){
 
         <Accordion.Item eventKey="1">
           <Accordion.Header>
-             How does FlowSafe work?
+            How does FlowSafe work?
           </Accordion.Header>
           <Accordion.Body>
             FlowSafe enables account holders to create a safe associated with their account.
@@ -64,29 +107,29 @@ export default function Home(){
             What are the advantages of using FlowSafe?
           </Accordion.Header>
           <Accordion.Body>
-              FlowSafe offers several key benefits:
-              <ul>
-                <li>
-                    <b>Security</b>: Assets stored in FlowSafe are protected on the Flow blockchain, ensuring a high level of security
-                    while minimizing the risk of funds disappearing due to the untrustworthiness of centralized entities.
-                </li>
-                  <li>
-                    <b>Accessibility</b>: Account holders have control over their safe and can modify or delete it as needed.
-                    The designated recipient can withdraw the assets once the maturity date has passed, this feature
-                    allows for the recovery of funds even if the primary key is lost, enhancing accessibility and reducing
-                    the potential for permanent loss of funds.
-                </li>
-                  <li>
-                    <b>Flexibility</b>: FlowSafe allows for the transfer of assets to designated recipients, providing flexibility for individuals
-                    to plan and manage their financial arrangements.
-                </li>
-              </ul>
+            FlowSafe offers several key benefits:
+            <ul>
+              <li>
+                <b>Security</b>: Assets stored in FlowSafe are protected on the Flow blockchain, ensuring a high level of security
+                while minimizing the risk of funds disappearing due to the untrustworthiness of centralized entities.
+              </li>
+              <li>
+                <b>Accessibility</b>: Account holders have control over their safe and can modify or delete it as needed.
+                The designated recipient can withdraw the assets once the maturity date has passed, this feature
+                allows for the recovery of funds even if the primary key is lost, enhancing accessibility and reducing
+                the potential for permanent loss of funds.
+              </li>
+              <li>
+                <b>Flexibility</b>: FlowSafe allows for the transfer of assets to designated recipients, providing flexibility for individuals
+                to plan and manage their financial arrangements.
+              </li>
+            </ul>
           </Accordion.Body>
         </Accordion.Item>
 
         <Accordion.Item eventKey="3">
           <Accordion.Header>
-             Can I transfer my assets to multiple recipients?
+            Can I transfer my assets to multiple recipients?
           </Accordion.Header>
           <Accordion.Body>
             FlowSafe currently supports the creation of one safe per account holder with a single designated recipient.
@@ -97,7 +140,7 @@ export default function Home(){
 
         <Accordion.Item eventKey="4">
           <Accordion.Header>
-             How do I create a new safe?
+            How do I create a new safe?
           </Accordion.Header>
           <Accordion.Body>
             To create a new safe in FlowSafe, navigate to the "Create New Safe" section and provide the necessary information such as the recipient's address,
@@ -107,7 +150,7 @@ export default function Home(){
 
         <Accordion.Item eventKey="5">
           <Accordion.Header>
-             How do I add assets to a safe?
+            How do I add assets to a safe?
           </Accordion.Header>
           <Accordion.Body>
             After creating a safe, you can add assets to it by selecting the desired safe. You can specifythe type and quantity of assets
@@ -117,7 +160,7 @@ export default function Home(){
 
         <Accordion.Item eventKey="6">
           <Accordion.Header>
-             Can I modify the details of a safe?
+            Can I modify the details of a safe?
           </Accordion.Header>
           <Accordion.Body>
             Yes, you can modify the details of a safe in FlowSafe. The holder of a safe can update information such as the maturity date, name, description, and the recipient's address.
@@ -127,7 +170,7 @@ export default function Home(){
 
         <Accordion.Item eventKey="7">
           <Accordion.Header>
-             What happens when I delete a safe?
+            What happens when I delete a safe?
           </Accordion.Header>
           <Accordion.Body>
             When you delete a safe in FlowSafe, the safe itself is permanently removed from your account, the deletion of a safe is not reversible.
@@ -140,7 +183,7 @@ export default function Home(){
 
         <Accordion.Item eventKey="8">
           <Accordion.Header>
-             What happens if the maturity date of a safe passes and they are not withdrawn?
+            What happens if the maturity date of a safe passes and they are not withdrawn?
           </Accordion.Header>
           <Accordion.Body>
             If the maturity date specified during the safe creation passes without the authorized recipient withdrawing the digital assets,
@@ -150,7 +193,7 @@ export default function Home(){
 
         <Accordion.Item eventKey="9">
           <Accordion.Header>
-             Is FlowSafe suitable for personal and organizational use?
+            Is FlowSafe suitable for personal and organizational use?
           </Accordion.Header>
           <Accordion.Body>
             Yes, FlowSafe can be used for both personal and organizational asset management.
@@ -159,6 +202,40 @@ export default function Home(){
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Safe</Modal.Title>
+        </Modal.Header>
+        {lockUp !== null && (<Modal.Body>
+          <Table striped bordered hover>
+            <tbody>
+              <tr>
+                <td>Holder:</td>
+                <td>{lockUp.holder}</td>
+              </tr>
+              <tr>
+                <td>Recipient:</td>
+                <td>{lockUp.recipient}</td>
+              </tr>
+              <tr>
+                <td>CreateAt:</td>
+                <td>{convertDate(Math.floor(lockUp.createdAt * 1000))}</td>
+              </tr>
+              <tr>
+                <td>MaturityDate:</td>
+                <td>{convertDate(Math.floor(lockUp.releasedAt * 1000))}</td>
+              </tr>
+            </tbody>
+          </Table>
+        </Modal.Body>)}
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <ToastContainer hideProgressBar />
     </div>
   )
 }
