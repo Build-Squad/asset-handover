@@ -4,10 +4,10 @@ import { isValidFlowAddress } from "../utils/utils";
 import { getAccountLockUp } from "../cadence/script/getAccountLockUp";
 import * as fcl from "@onflow/fcl";
 import { ToastContainer, toast } from 'react-toastify';
-import { Table } from "react-bootstrap";
+import { Table, Button } from "react-bootstrap";
+import { FaSearch } from "react-icons/fa";
 import { convertDate } from "../utils/utils";
 
-//const dateObject = new Date(convertDate(Math.floor(lockUp.releasedAt * 1000)));
 export default function Home() {
   const [searchAddress, setSearchAddress] = useState("");
   const [lockUp, setLockup] = useState(null);
@@ -59,8 +59,10 @@ export default function Home() {
             Search Safe By Account
           </h5>
           <div className="d-flex justify-content-center pb-2">
-            <Form onSubmit={onHandleSubmit}>
-              <Form.Control name="search" type="text" className="mt-2 search-input" onChange={onHandleChangeSearch} />
+            <Form onSubmit={onHandleSubmit} className="position-relative">
+              <FaSearch className="position-absolute top-50 translate-middle-y opacity-50" style={{ left: '15px' }} />
+              <button className="position-absolute top-50 translate-middle-y opacity-50 background-transparent " style={{ right: '15px', borderRadius: '0.75rem', border: '1px solid #0000007A' }}>Enter</button>
+              <Form.Control name="search" type="text" className="search-input" onChange={onHandleChangeSearch} style={{ padding: '10px 38px', paddingRight: 70 }} />
             </Form>
           </div>
           <div className="d-flex justify-content-center">
