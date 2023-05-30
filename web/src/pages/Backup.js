@@ -737,6 +737,7 @@ export default function Backup() {
     /* filter NFT collections from assets-hands-over */
     const nftIdentifiers = lockUp.nonFungibleTokens.map(({ identifier }) => `${identifier}.NFT`);
     const data = collection.filter(({ nftType }) => !nftIdentifiers.includes(nftType));
+
     setAddNFTCollectionsToSafe(data);
 
     setCollectionCanbeLockup(data.length > 0);
@@ -754,21 +755,22 @@ export default function Backup() {
       ],
     });
 
+    setNFT(nftRes);
 
-    if (lockUp.nonFungibleTokens.length === 0) {
-      setNFT(nftRes);
-    } else {
-      lockUp.nonFungibleTokens.forEach((token) => {
-        if (item.nftType.includes(token.identifier)) {
-          nftRes.map((nftItem) => {
-            if (!token.nftIDs.includes(nftItem.id)) {
-              availableNFT.push(nftItem);
-            }
-          })
-          setNFT(availableNFT);
-        }
-      });
-    }
+    // if (lockUp.nonFungibleTokens.length === 0) {
+    //   setNFT(nftRes);
+    // } else {
+    //   lockUp.nonFungibleTokens.forEach((token) => {
+    //     if (item.nftType.includes(token.identifier)) {
+    //       nftRes.map((nftItem) => {
+    //         if (!token.nftIDs.includes(nftItem.id)) {
+    //           availableNFT.push(nftItem);
+    //         }
+    //       })
+    //       setNFT(availableNFT);
+    //     }
+    //   });
+    // }
 
     setContractName(item.contractName);
     setContractAddress(item.contractAddress);
@@ -984,6 +986,7 @@ export default function Backup() {
     data.forEach((item, index) => {
       if (item === id) data.splice(index, 1);
     })
+
 
     setEditNFTIDs(data);
   };
@@ -1761,7 +1764,7 @@ export default function Backup() {
                               <div className='row'>
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                  <AddNftId lockUp={lockUp} item={item} />
+                                  <h5 className="justify-content-center text-center">({item.nftsCount})</h5>
                                 </div>
 
                                 <div className='col-9'>
@@ -1798,7 +1801,7 @@ export default function Backup() {
 
                   <div className='row'>
                     {ownCollection && ownCollection.map((item, index) => (
-                      <div className='col-md-4 pt-2' key={index}>
+                      <div className='col-md-4 pt-2 d-flex' key={index}>
                         <Card className='p-3 pb-1 cursor-pointer' onClick={() => editNFTCollection(item)}>
                           <Card.Img variant="top" src={item.collectionBannerImage} />
                           <Card.Body className='pb-0'>
@@ -1898,7 +1901,7 @@ export default function Backup() {
 
                   <div className='row p-3'>
                     {nft.length > 0 && nft.map((item, index) => showNFT[index] && (
-                      <div className='col-md-4' key={index}>
+                      <div className='col-md-4 d-flex' key={index}>
                         <div className='row grey-border p-2 me-2 mt-2'>
                           <div className='col-3 p-1'>
                             {item.thumbnail.includes("ipfs") ?
