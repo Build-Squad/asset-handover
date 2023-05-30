@@ -159,6 +159,7 @@ export default function Backup() {
   const [collection, setCollection] = useState(null);
   const [contractName, setContractName] = useState(null);
   const [contractAddress, setContractAddress] = useState(null);
+  const [addNFTCollectionsToSafe, setAddNFTCollectionsToSafe] = useState([]);
   const [publicType, setPublicType] = useState(null);
   const [privateType, setPrivateType] = useState(null);
   const [collectionID, setCollectionID] = useState(null);
@@ -304,11 +305,11 @@ export default function Backup() {
     const tempOwnCollection = [];
     if (lockUp && lockUp.nonFungibleTokens.length > 0 && collection) {
       lockUp.nonFungibleTokens.map((item) => {
-        collection.map((col) => {
+        for (const col of collection) {
           if (col.nftType.includes(item.identifier)) {
             tempOwnCollection.push(col);
           }
-        })
+        }
       })
 
       setOwnCollection(tempOwnCollection);
@@ -554,12 +555,12 @@ export default function Backup() {
       setFTMappingInfo(data);
       console.log("getBackup --> ft mapping info ----> ", data);
 
+      /* ---------- Getting NFT mapping info ----------- */
       const nftinfo = await fcl.query({
         cadence: getNonFungibleTokenInfoMapping
       });
       console.log("nftinfo - ", nftinfo);
 
-      /* ---------- Getting NFT mapping info ----------- */
       let nft_data = {};
       for (const key in nftinfo) {
         nft_data[getFTContractNameAddress(key).contractName] = nftinfo[key].name;
@@ -568,19 +569,21 @@ export default function Backup() {
       setNFTMappingInfo(nft_data);
       console.log("getBackup -> nftmappinginfo --->", nft_data);
 
+      /* --------- Getting Account's NFT hold list ------------ */
       const collection = await fcl.query({
         cadence: getCollectionsForAccount,
         args: (arg, t) => [arg(user.addr, t.Address)],
       });
-      console.log('collection - ', collection);
-      const nftCollection = [];
+      console.log('getBackup -> account hold nft collection - ', collection);
 
+      /* --------- Getting NFT collections which are in asset-hand-over registry --------- */
+      const nftCollection = [];
       Object.keys(nftinfo).map((info) => {
         collection.map((item) => {
-          if (item.nftType.includes(info)) nftCollection.push(item);
+          if (item.nftType.includes(info)) { nftCollection.push(item); }
         })
       });
-      // // console.log("nftCollection - ", nftCollection);
+      console.log("getBackup -> allowed collectoins in asset-hand-over registry - ", nftCollection);
       setCollection(nftCollection);
 
 
@@ -767,9 +770,15 @@ export default function Backup() {
     // 2. get the collection from the asset-hand-over registry
     // 3. filter -> 
     // 4. Does the user 
+    const nftIdentifiers = lockUp.nonFungibleTokens.map(({ identifier }) => `${identifier}.NFT`);
+    const data = collection.filter(({ nftType }) => !nftIdentifiers.includes(nftType));
+    console.log("getAllNFTCollectionInfo -> addNFTCollectionsToSafe", data);
+    setAddNFTCollectionsToSafe(data);
+
     let isShowCollection = [];
+
     let isCollectionCanbelockup = false;
-    collection.map((item, index) => {
+    for (const item of collection) {
       let length = 0;
 
       if (lockUp.nonFungibleTokens.length === 0) {
@@ -782,7 +791,7 @@ export default function Backup() {
         });
       }
       isShowCollection.push(length)
-    });
+    }
 
     isShowCollection.map((item) => { if (item > 0) isCollectionCanbelockup = true; });
     setCollectionCanbeLockup(isCollectionCanbelockup);
@@ -1127,7 +1136,7 @@ export default function Backup() {
     /* ------------- delete louptoken list from Account's token hold list ----------- */
     const data = _.omit(tokenHoldAmount, Object.keys(lockupTokenList));
     console.log("onClickHandleAddCoinsToSafe -> ", data);
-    
+
     /* ------------- Filter available token list from asset-hand-over-registry ----------- */
     const filter_ft_data = _.pick(data, Object.keys(ftMappingInfo));
     console.log("onClickHandleAddCoinToSafe -> filter_ft_data", filter_ft_data);
