@@ -1,26 +1,20 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Form, Accordion } from "react-bootstrap";
 import { isValidFlowAddress } from "../utils/utils";
 import { getAccountLockUp } from "../cadence/script/getAccountLockUp";
 import * as fcl from "@onflow/fcl";
 import { ToastContainer, toast } from 'react-toastify';
-import { Table, Modal, Button } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import { convertDate } from "../utils/utils";
 
 //const dateObject = new Date(convertDate(Math.floor(lockUp.releasedAt * 1000)));
 export default function Home() {
   const [searchAddress, setSearchAddress] = useState("");
   const [lockUp, setLockup] = useState(null);
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
   const onHandleChangeSearch = (e) => {
     setSearchAddress(e.target.value);
+    setLockup(null);
   }
-  useEffect(() => {
-  })
 
   const onHandleSubmit = async (e) => {
 
@@ -39,7 +33,6 @@ export default function Home() {
       return;
     }
     setLockup(res);
-    handleShow();
 
   }
   return (
@@ -65,10 +58,34 @@ export default function Home() {
           <h5 className="text-white">
             Search Safe By Account
           </h5>
-          <div className="d-flex justify-content-center">
+          <div className="d-flex justify-content-center pb-2">
             <Form onSubmit={onHandleSubmit}>
               <Form.Control name="search" type="text" className="mt-2 search-input" onChange={onHandleChangeSearch} />
             </Form>
+          </div>
+          <div className="d-flex justify-content-center">
+            {lockUp !== null ? (
+              <Table bordered hover className="text-white" style={{ backgroundColor: "#0f0f32" }} >
+                <tbody>
+                  <tr>
+                    <td>Holder:</td>
+                    <td>{lockUp.holder}</td>
+                  </tr>
+                  <tr>
+                    <td>Recipient:</td>
+                    <td>{lockUp.recipient}</td>
+                  </tr>
+                  <tr>
+                    <td>CreateAt:</td>
+                    <td>{convertDate(Math.floor(lockUp.createdAt * 1000))}</td>
+                  </tr>
+                  <tr>
+                    <td>MaturityDate:</td>
+                    <td>{convertDate(Math.floor(lockUp.releasedAt * 1000))}</td>
+                  </tr>
+                </tbody>
+              </Table>) : searchAddress !== "" &&
+            <h5 className="text-center text-white"> No Safe found for this account!</h5>}
           </div>
         </div>
       </div>
@@ -202,40 +219,7 @@ export default function Home() {
           </Accordion.Body>
         </Accordion.Item>
       </Accordion>
-      <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Safe</Modal.Title>
-        </Modal.Header>
-        {lockUp !== null && (<Modal.Body>
-          <Table striped bordered hover>
-            <tbody>
-              <tr>
-                <td>Holder:</td>
-                <td>{lockUp.holder}</td>
-              </tr>
-              <tr>
-                <td>Recipient:</td>
-                <td>{lockUp.recipient}</td>
-              </tr>
-              <tr>
-                <td>CreateAt:</td>
-                <td>{convertDate(Math.floor(lockUp.createdAt * 1000))}</td>
-              </tr>
-              <tr>
-                <td>MaturityDate:</td>
-                <td>{convertDate(Math.floor(lockUp.releasedAt * 1000))}</td>
-              </tr>
-            </tbody>
-          </Table>
-        </Modal.Body>)}
-
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
       <ToastContainer hideProgressBar />
-    </div>
+    </div >
   )
 }
