@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-// import { atom, useRecoilState } from "recoil";
 import * as fcl from "@onflow/fcl";
 
 import { TokenListProvider, ENV, Strategy } from 'flow-native-token-registry'

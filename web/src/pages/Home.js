@@ -11,14 +11,17 @@ import { convertDate } from "../utils/utils";
 export default function Home() {
   const [searchAddress, setSearchAddress] = useState("");
   const [lockUp, setLockup] = useState(null);
+  const [clicked, setClicked] = useState(false);
   const onHandleChangeSearch = (e) => {
     setSearchAddress(e.target.value);
     setLockup(null);
+    setClicked(false);
   }
 
   const onHandleSubmit = async (e) => {
 
     e.preventDefault();
+
 
     if (!isValidFlowAddress(searchAddress)) {
       toast.error("Please input correct flow address!");
@@ -28,6 +31,7 @@ export default function Home() {
       cadence: getAccountLockUp,
       args: (arg, t) => [arg(searchAddress, t.Address)],
     });
+    setClicked(true);
     if (!res) {
       toast.error("No Safe found for this account!");
       return;
@@ -67,7 +71,7 @@ export default function Home() {
           </div>
           <div className="d-flex justify-content-center">
             {lockUp !== null ? (
-              <Table bordered hover className="text-white" style={{ backgroundColor: "#0f0f32" }} >
+              <Table bordered className="text-white" style={{ backgroundColor: "#0f0f32" }} >
                 <tbody>
                   <tr>
                     <td>Holder:</td>
@@ -86,7 +90,7 @@ export default function Home() {
                     <td>{convertDate(Math.floor(lockUp.releasedAt * 1000))}</td>
                   </tr>
                 </tbody>
-              </Table>) : searchAddress !== "" &&
+              </Table>) : clicked &&
             <h5 className="text-center text-white"> No Safe found for this account!</h5>}
           </div>
         </div>
