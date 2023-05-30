@@ -766,39 +766,17 @@ export default function Backup() {
   */
 
   const getAllNFTCollectionInfo = () => {
-    // 1. get user's collection
-    // 2. get the collection from the asset-hand-over registry
-    // 3. filter -> 
-    // 4. Does the user 
+    /* filter NFT collections from assets-hands-over */
     const nftIdentifiers = lockUp.nonFungibleTokens.map(({ identifier }) => `${identifier}.NFT`);
     const data = collection.filter(({ nftType }) => !nftIdentifiers.includes(nftType));
     console.log("getAllNFTCollectionInfo -> addNFTCollectionsToSafe", data);
     setAddNFTCollectionsToSafe(data);
 
-    let isShowCollection = [];
-
-    let isCollectionCanbelockup = false;
-    for (const item of collection) {
-      let length = 0;
-
-      if (lockUp.nonFungibleTokens.length === 0) {
-        length = item.nftsCount;
-      } else {
-        lockUp.nonFungibleTokens.forEach((nft) => {
-          if (item.nftType.replace(".NFT", "") === nft.identifier) {
-            length = item.nftsCount - nft.nftIDs.length;
-          }
-        });
-      }
-      isShowCollection.push(length)
-    }
-
-    isShowCollection.map((item) => { if (item > 0) isCollectionCanbelockup = true; });
-    setCollectionCanbeLockup(isCollectionCanbelockup);
+    setCollectionCanbeLockup(data.length > 0);
     // // console.log("getAllNFT --- isShowCollection", isShowCollection);
-    setShowNFTCollection(isShowCollection);
     setStep("nftcollection")
   }
+
   const selectNFTCollection = async (item) => {
     let availableNFT = [];
 
@@ -809,7 +787,10 @@ export default function Backup() {
         arg(item.collectionIdentifier, t.String)
       ],
     });
-    // // console.log('nftRes - ', nftRes);
+    // console.log('selectNFTCollection -> getNFTsForAccount ', nftRes);
+    // console.log('selectNFTCollection -> addNFTCollectionsToSafe', addNFTCollectionsToSafe);
+    // console.log('selectNFTCollection -> lockup.nonFungibleTokens', lockUp.nonFungibleTokens);
+
 
     if (lockUp.nonFungibleTokens.length === 0) {
       setNFT(nftRes);
@@ -1055,17 +1036,20 @@ export default function Backup() {
 
     // // console.log("currentNFTIDs", currentNFTIDs);
 
-    currentNFTIDs.forEach((item, index) => {
-      if (item === id) currentNFTIDs.splice(index, 1);
+    let data = currentNFTIDs;
+    data.forEach((item, index) => {
+      if (item === id) data.splice(index, 1);
     })
 
-    setEditNFTIDs(currentNFTIDs);
+    console.log("toggleNFTVisibility -> editNFTIDs", editNFTIDs);
+    setEditNFTIDs(data);
   };
 
   const editNFT = async () => {
+    console.log("editNFT -> nft", nft);
     setTxProgress(true);
     setTxType("editNFT");
-
+    console.log("editNFT -> editNFTIDs", editNFTIDs);
     if (currentNFTIDs.length > 0) {
       try {
         const txid = await fcl.mutate({
@@ -1087,6 +1071,7 @@ export default function Backup() {
         toast.error(error);
       }
     } else {
+      toast.warning("Your collection ownership will be lock up!");
       try {
         const txid = await fcl.mutate({
           cadence: lockNonFungibleToken,
@@ -1852,8 +1837,8 @@ export default function Backup() {
                   </div>
 
                   <div className='row'>
-                    {collection && collection.map((item, index) => (
-                      showNFTCollection[index] > 0 && collectionCanbeLockup && (
+                    {addNFTCollectionsToSafe.length > 0 && addNFTCollectionsToSafe.map((item, index) => (
+                      (
                         <div className='col-md-4 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer' onClick={() => selectNFTCollection(item)}>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
