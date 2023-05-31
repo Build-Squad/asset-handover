@@ -1757,7 +1757,7 @@ export default function Backup() {
                   </div>
 
                   <div className='row'>
-                    {ownCollection && ownCollection.map((item, index) => (
+                    {ownCollection && ownCollection.map((item, index) => (pledgeItemNFTCount(lockUp, item) &&
                       <div className='col-md-4 pt-2 d-flex' key={index}>
                         <Card className='p-3 pb-1 cursor-pointer' onClick={() => editNFTCollection(item)}>
                           <Card.Img variant="top" src={item.collectionBannerImage} />
