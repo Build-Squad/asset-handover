@@ -2089,7 +2089,7 @@ export default function Backup() {
                       onClick={() => setPledgeStep("item")} />
                   </div>
 
-                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 &&
+                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
                     <div className='row p-3'>
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <>
@@ -2131,8 +2131,17 @@ export default function Backup() {
                         </>
                       )
                       )}
+                      <h5 className='text-warning'>
+                        <FaInfo />If you don’t enter quantity of Coin(s), You will withdraw all lockup coins.<br></br>
+                        <img className='withdraw-img p-1 cursor-pointer mt-1' src="withdraw-icon.png" width="30px" height="30px" />
+                        &nbsp;If you click, this button, you can withdraw coins.
+                      </h5>
                     </div>
+                    :
+                    <h5 className='text-warning'>There's no coin to withdraw</h5>
+
                   }
+
                 </Tab.Pane>
               }
 
