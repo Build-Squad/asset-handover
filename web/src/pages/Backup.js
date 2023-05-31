@@ -2147,15 +2147,17 @@ export default function Backup() {
                         </>
                       )
                       )}
-                      <h5 className='text-warning'>
-                        <FaInfo />If you don’t enter quantity of Coin(s), You will withdraw all lockup coins.<br></br>
-                        <img className='withdraw-img p-1 cursor-pointer mt-1' src="withdraw-icon.png" width="30px" height="30px" />
-                        &nbsp;If you click, this button, you can withdraw coins.
-                      </h5>
+
+                      <div className='d-flex mt-3'>
+                        <img className='mt-1 me-2' src="withdraw-icon.png" alt="" width="20px" height="20px" />
+                        <h5>= Press to withdraw</h5>
+                      </div>
+                      <p className='text-warning px-1'>
+                        <FaInfo />If you don’t enter quantity of Coin(s), You will withdraw all lockup coins
+                      </p>
                     </div>
                     :
                     <h5 className='text-warning'>There's no coins to withdraw!</h5>
-
                   }
 
                 </Tab.Pane>
@@ -2402,6 +2404,6 @@ export default function Backup() {
       </div>
 
       <ToastContainer hideProgressBar />
-    </Tab.Container>
+    </Tab.Container >
   )
 }
