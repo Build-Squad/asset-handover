@@ -1088,6 +1088,7 @@ export default function Backup() {
   const withDrawFT = async (holder, item) => {
     const [_, contractAddress, contractName] = item.identifier.split('.');
 
+    // withdrawCoinsAmount[contractName]
     let withdrawAmount;
     if (withdrawCoinsAmount[contractName] === "" || withdrawCoinsAmount[contractName] === undefined) {
       withdrawAmount = item.balance
@@ -1102,6 +1103,7 @@ export default function Backup() {
       return;
     }
 
+    console.log("withDrawFT---> withdrawAmount", withdrawAmount);
     setTxProgress(true);
     setTxType("withDrawFT");
     try {
@@ -1598,7 +1600,10 @@ export default function Backup() {
                                 </div>
 
                                 <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(key).contractAddress}</p>
-                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' name={key} disabled={!lockupTokensSelect[key]}
+                                <Form.Control className='mb-1' type="number" placeholder='Enter quantity of Coin(s)'
+                                  pattern="[0-9]*"
+                                  name={key}
+                                  disabled={!lockupTokensSelect[key]}
                                   onChange={onHandleChangeLockupTokenAmount} />
                               </div>
                             </div>
@@ -1671,7 +1676,10 @@ export default function Backup() {
 
                                     <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(item.identifier).contractAddress}</p>
 
-                                    <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)' value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName] || ""}
+                                    <Form.Control className='mb-1' type="number"
+                                      pattern="[0-9]*"
+                                      placeholder='Enter quantity of Coin(s)'
+                                      value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName] || ""}
                                       onChange={(e) => onHandleChangeEditLockupTokenAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
                                   </div>
                                 </div>
@@ -2124,7 +2132,8 @@ export default function Backup() {
 
                                   <div className='row'>
                                     <div className='col-9 pr-0'>
-                                      <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                      <Form.Control className='mb-1' type="number" placeholder='Enter quantity of Coin(s)'
+                                        pattern="[0-9]*"
                                         value={withdrawCoinsAmount[getFTContractNameAddress(item.identifier).contractName] || ""} onChange={(e) => onHandleChangeWithdrawCoinsAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
                                     </div>
 
