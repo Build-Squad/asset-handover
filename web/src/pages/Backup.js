@@ -1094,7 +1094,7 @@ export default function Backup() {
         args: (arg, t) => [
           arg(item.identifier, t.String),
           arg(holder, t.Address),
-          arg(parseFloat(withdrawAmount), t.UFix64)
+          arg(withdrawAmount, t.UFix64)
         ],
         proposer: fcl.currentUser,
         payer: fcl.currentUser,
