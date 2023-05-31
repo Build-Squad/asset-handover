@@ -1500,7 +1500,7 @@ export default function Backup() {
                   </h4>
                   {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
                     <div className='row'>
-                      {ownCollection && ownCollection.map((item, index) => (
+                      {ownCollection && ownCollection.map((item, index) => (pledgeItemNFTCount(lockUp, item) > 0 &&
                         <div className='col-md-3 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100'>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
