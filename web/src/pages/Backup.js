@@ -559,6 +559,7 @@ export default function Backup() {
           arg(user.addr, t.Address),
         ],
       });
+      console.log("getBackup -----> pledge", pledge);
       setPledge(pledge);
     }
   }
@@ -744,22 +745,6 @@ export default function Backup() {
     });
 
     setNFT(nftRes);
-
-    // if (lockUp.nonFungibleTokens.length === 0) {
-    //   setNFT(nftRes);
-    // } else {
-    //   lockUp.nonFungibleTokens.forEach((token) => {
-    //     if (item.nftType.includes(token.identifier)) {
-    //       nftRes.map((nftItem) => {
-    //         if (!token.nftIDs.includes(nftItem.id)) {
-    //           availableNFT.push(nftItem);
-    //         }
-    //       })
-    //       setNFT(availableNFT);
-    //     }
-    //   });
-    // }
-
     setContractName(item.contractName);
     setContractAddress(item.contractAddress);
     setPublicType(item.publicLinkedType.typeID);
@@ -900,38 +885,6 @@ export default function Backup() {
 
 
     }
-
-    // if (Object.keys(editLockupTokenAmount).length > 0) {
-    //   setTxProgress(true);
-    //   setTxType("editFT");
-    //   for (const key in editLockupTokenAmount) {
-    //     let _Amount = 0;
-    //     if (editLockupTokenAmount[key] === '') {
-    //       _Amount = tokenHoldAmount[key];
-    //     }
-    //     else _Amount = editLockupTokenAmount[key];
-
-    //     if (parseFloat(_Amount) !== parseFloat(lockupTokenList[key]) && parseFloat(_Amount) <= parseFloat(tokenHoldAmount[key])) {
-    //       try {
-    //         const txid = await fcl.mutate({
-    //           cadence: setLockUpBalance,
-    //           args: (arg, t) => [
-    //             arg(tokenID[key], t.String),
-    //             arg(parseFloat(editLockupTokenAmount[key]), t.UFix64)
-    //           ],
-    //           proposer: fcl.currentUser,
-    //           payer: fcl.currentUser,
-    //           authorizations: [fcl.currentUser],
-    //           limit: 999,
-    //         });
-    //         setTxId(txid);
-    //       } catch (error) {
-    //         setTxProgress(false);
-    //         toast.error(error);
-    //       }
-    //     }
-    //   }
-    // }
   }
 
 
@@ -1071,23 +1024,38 @@ export default function Backup() {
 
   //Pledges
   const clickPledge = async (item) => {
+    console.log("clickPledge -----> pledgeItem", item);
     setPledgeItem(item);
-    setPledgeStep("item");
     setHolder(item.holder);
     const pledgeCollection = await fcl.query({
       cadence: getCollectionsForAccount,
       args: (arg, t) => [arg(item.holder, t.Address)]
     });
+
+    /* ---------------- Getting NFT Collection info Asset-hand-over registry -------------- */
     const nftinfo = await fcl.query({
       cadence: getNonFungibleTokenInfoMapping
     });
+    console.log("clickPledge -----> nftinfo", nftinfo);
     const nftCollection = [];
     Object.keys(nftinfo).map((info) => {
       pledgeCollection.map((item) => {
         if (item.nftType.includes(info)) nftCollection.push(item);
       })
     });
+    console.log("clickPledge -----> PledgeCollection", nftCollection);
     setPledgeCollection(nftCollection);
+    setPledgeStep("item");
+  }
+
+  const pledgeItemNFTCount = (param1, item) => {
+    let length = 0;
+    param1.nonFungibleTokens.forEach((nft) => {
+      if (item.nftType.replace(".NFT", "") === nft.identifier) {
+        length = nft.nftIDs.length;
+      }
+    });
+    return length;
   }
 
   const withdrawCoins = () => {
@@ -1224,6 +1192,7 @@ export default function Backup() {
       }
     })
 
+    console.log("withdrawNFT -----> withdrawNFTids,holder, collectionID", withdrawNFTids, holder, collectionID);
     setWithdrawNFTIDs(withdrawNFTids);
     try {
       const txid = await fcl.mutate({
@@ -2069,7 +2038,7 @@ export default function Backup() {
                   </h4>
                   {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
                     <div className='row overflow-auto'>
-                      {pledgeCollection && pledgeCollection.map((item, index) =>
+                      {pledgeCollection && pledgeCollection.map((item, index) => pledgeItemNFTCount(pledgeItem, item) > 0 &&
                         <div className='col-lg-3 col-md-4 col-sm-6 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer'>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
