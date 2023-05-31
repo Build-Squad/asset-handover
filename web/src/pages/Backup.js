@@ -1074,7 +1074,7 @@ export default function Backup() {
 
     let withdrawAmount;
     if (withdrawCoinsAmount[contractName] === "" || withdrawCoinsAmount[contractName] === undefined) {
-      withdrawAmount = makeBalance(item.balance);
+      withdrawAmount = item.balance
       toast.warning("You will withdraw all amounts lockedup!");
     }
     else {
