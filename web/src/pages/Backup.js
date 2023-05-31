@@ -1023,8 +1023,24 @@ export default function Backup() {
   }
 
   //Pledges
+  const withdrawableFTCount = (item) => {
+    let result = 0;
+    if (item.fungibleTokens.length === 0) {
+      result = 0;
+    }
+    else {
+      for (const it of item.fungibleTokens) {
+        if (parseFloat(it.balance) > 0) {
+          result++;
+        }
+      }
+    }
+    return result;
+  }
   const clickPledge = async (item) => {
     console.log("clickPledge -----> pledgeItem", item);
+
+
     setPledgeItem(item);
     setHolder(item.holder);
     const pledgeCollection = await fcl.query({
@@ -2004,9 +2020,9 @@ export default function Backup() {
                   </div>
 
 
-                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
+                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 && withdrawableFTCount(pledgeItem) > 0 ?
                     <div className='row mt-2'>
-                      {pledgeItem.fungibleTokens.map((item, index) => (
+                      {pledgeItem.fungibleTokens.map((item, index) => (parseFloat(item.balance) > 0 &&
                         <React.Fragment key={index}>
                           <div className='col-md-1 col-3'>
                             <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" alt="token Logo" />
@@ -2027,7 +2043,7 @@ export default function Backup() {
                     :
                     <div className='d-flex mt-4 mb-5'>
                       <h5 className='blue-font mx-3 align-self-center'>
-                        NO COIN(S)
+                        There's No coins to withdraw!
                       </h5>
                     </div>
                   }
@@ -2089,7 +2105,7 @@ export default function Backup() {
                       onClick={() => setPledgeStep("item")} />
                   </div>
 
-                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
+                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 && withdrawableFTCount(pledgeItem) > 0 ?
                     <div className='row p-3'>
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <>
@@ -2138,7 +2154,7 @@ export default function Backup() {
                       </h5>
                     </div>
                     :
-                    <h5 className='text-warning'>There's no coin to withdraw</h5>
+                    <h5 className='text-warning'>There's no coins to withdraw!</h5>
 
                   }
 
