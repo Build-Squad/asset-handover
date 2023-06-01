@@ -108,6 +108,9 @@ const isInteger = (balance) => {
 }
 
 const makeBalance = (balance) => {
+  if (parseFloat(balance) < 1) {
+    return parseFloat(balance);
+  }
   return isInteger(balance) ? balance + ".0" : balance;
 }
 
@@ -664,6 +667,15 @@ export default function Backup() {
   */
   const addFT = async () => {
     for (const key in lockupTokensSelect) {
+      toast.error(lockupTokenAmount[key])
+      console.log("addFT -----> LockkupTokenAmount[key]", lockupTokenAmount[key]);
+      if (lockupTokenAmount[key] !== "" && lockupTokenAmount[key] !== undefined) {
+        toast.error("here");
+        if (!/[0-9]*\.?\,?[0-9]$/.test(lockupTokenAmount[key])) {
+          toast.error(`${key} :Invalid Input Type! You should input only numbers format! `)
+          return;
+        }
+      }
       setTxProgress(true);
       setTxType("addFT");
       if (lockupTokensSelect[key]) {
@@ -834,6 +846,13 @@ export default function Backup() {
     const remainItem = lockUp.fungibleTokens;
 
     for (const key in editLockupTokenAmount) {
+      let data = editLockupTokenAmount[key];
+      if (data !== "") {
+        if (!/[0-9]*\.?\,?[0-9]$/.test(data)) {
+          toast.error(`${key} :Invalid Input Type! You should input only numbers format! `)
+          return;
+        }
+      }
       if (parseFloat(editLockupTokenAmount[key]) > parseFloat(tokenHoldAmount[key])) {
         toast.error("You cannot lockup bigger than you hold!");
         return;
@@ -1088,22 +1107,26 @@ export default function Backup() {
   const withDrawFT = async (holder, item) => {
     const [_, contractAddress, contractName] = item.identifier.split('.');
 
-    // withdrawCoinsAmount[contractName]
+    let data = withdrawCoinsAmount[contractName];
     let withdrawAmount;
-    if (withdrawCoinsAmount[contractName] === "" || withdrawCoinsAmount[contractName] === undefined) {
+    if (data === "" || data === undefined) {
       withdrawAmount = item.balance
+      data = item.balance;
       toast.warning("You will withdraw all amounts lockedup!");
     }
     else {
-      withdrawAmount = makeBalance(withdrawCoinsAmount[contractName]);
+      if (!/[0-9]*\.?\,?[0-9]$/.test(data)) {
+        toast.error("Invalid Input Type! You should input only numbers format! ")
+        return;
+      }
+      withdrawAmount = makeBalance(data.replace(",", "."));
     }
+
 
     if (parseFloat(withdrawAmount) > parseFloat(item.balance)) {
       toast.error("You cannot withdraw coins bigger amount than locked!");
       return;
     }
-
-    console.log("withDrawFT---> withdrawAmount", withdrawAmount);
     setTxProgress(true);
     setTxType("withDrawFT");
     try {
@@ -1600,8 +1623,7 @@ export default function Backup() {
                                 </div>
 
                                 <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(key).contractAddress}</p>
-                                <Form.Control className='mb-1' type="number" placeholder='Enter quantity of Coin(s)'
-                                  pattern="[0-9]*"
+                                <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                                   name={key}
                                   disabled={!lockupTokensSelect[key]}
                                   onChange={onHandleChangeLockupTokenAmount} />
@@ -1676,8 +1698,7 @@ export default function Backup() {
 
                                     <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(item.identifier).contractAddress}</p>
 
-                                    <Form.Control className='mb-1' type="number"
-                                      pattern="[0-9]*"
+                                    <Form.Control className='mb-1' type="text"
                                       placeholder='Enter quantity of Coin(s)'
                                       value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName] || ""}
                                       onChange={(e) => onHandleChangeEditLockupTokenAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
@@ -2132,8 +2153,7 @@ export default function Backup() {
 
                                   <div className='row'>
                                     <div className='col-9 pr-0'>
-                                      <Form.Control className='mb-1' type="number" placeholder='Enter quantity of Coin(s)'
-                                        pattern="[0-9]*"
+                                      <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
                                         value={withdrawCoinsAmount[getFTContractNameAddress(item.identifier).contractName] || ""} onChange={(e) => onHandleChangeWithdrawCoinsAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
                                     </div>
 
