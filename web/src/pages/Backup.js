@@ -1518,7 +1518,7 @@ export default function Backup() {
                   </h4>
                   {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
                     <div className='row'>
-                      {ownCollection && ownCollection.map((item, index) => (pledgeItemNFTCount(lockUp, item) > 0 &&
+                      {ownCollection && ownCollection.map((item, index) => (
                         <div className='col-md-3 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100'>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
@@ -1781,7 +1781,7 @@ export default function Backup() {
                   </div>
 
                   <div className='row'>
-                    {ownCollection && ownCollection.map((item, index) => (pledgeItemNFTCount(lockUp, item) &&
+                    {ownCollection && ownCollection.map((item, index) => (
                       <div className='col-md-4 pt-2 d-flex' key={index}>
                         <Card className='p-3 pb-1 cursor-pointer' onClick={() => editNFTCollection(item)}>
                           <Card.Img variant="top" src={item.collectionBannerImage} />
@@ -2028,9 +2028,9 @@ export default function Backup() {
                   </div>
 
 
-                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 && withdrawableFTCount(pledgeItem) > 0 ?
+                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
                     <div className='row mt-2'>
-                      {pledgeItem.fungibleTokens.map((item, index) => (parseFloat(item.balance) > 0 &&
+                      {pledgeItem.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
                           <div className='col-md-1 col-3'>
                             <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" alt="token Logo" />
@@ -2062,7 +2062,7 @@ export default function Backup() {
                   </h4>
                   {pledgeItem && pledgeItem.nonFungibleTokens.length > 0 ?
                     <div className='row overflow-auto'>
-                      {pledgeCollection && pledgeCollection.map((item, index) => pledgeItemNFTCount(pledgeItem, item) > 0 &&
+                      {pledgeCollection && pledgeCollection.map((item, index) =>
                         <div className='col-lg-3 col-md-4 col-sm-6 pt-2' key={index}>
                           <Card className='p-3 pb-1 h-100 cursor-pointer'>
                             <Card.Img variant="top" src={item.collectionBannerImage} />
@@ -2113,7 +2113,7 @@ export default function Backup() {
                       onClick={() => setPledgeStep("item")} />
                   </div>
 
-                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 && withdrawableFTCount(pledgeItem) > 0 ?
+                  {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
                     <div className='row p-3'>
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <>
