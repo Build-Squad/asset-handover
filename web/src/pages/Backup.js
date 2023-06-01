@@ -667,10 +667,7 @@ export default function Backup() {
   */
   const addFT = async () => {
     for (const key in lockupTokensSelect) {
-      toast.error(lockupTokenAmount[key])
-      console.log("addFT -----> LockkupTokenAmount[key]", lockupTokenAmount[key]);
       if (lockupTokenAmount[key] !== "" && lockupTokenAmount[key] !== undefined) {
-        toast.error("here");
         if (!/[0-9]*\.?\,?[0-9]$/.test(lockupTokenAmount[key])) {
           toast.error(`${key} :Invalid Input Type! You should input only numbers format! `)
           return;
@@ -679,11 +676,12 @@ export default function Backup() {
       setTxProgress(true);
       setTxType("addFT");
       if (lockupTokensSelect[key]) {
-        if (parseFloat(tokenHoldAmount[key]) < parseFloat(lockupTokenAmount[key])) {
+        const data = lockupTokenAmount[key].replace(",", ".");
+        if (parseFloat(tokenHoldAmount[key]) < parseFloat(data)) {
           toast.error(key + " lockup amount cannot bigger than you hold!");
           setTxProgress(false);
         }
-        else if (lockupTokenAmount[key] === "" || lockupTokenAmount[key] === undefined) {
+        else if (data === "" || data === undefined) {
           toast.success(key + "'s ownership will be locked up!");
           let balance = makeBalance(tokenHoldAmount[key]);
           try {
@@ -706,7 +704,7 @@ export default function Backup() {
         }
         else {
           try {
-            let balance = makeBalance(lockupTokenAmount[key]);
+            let balance = makeBalance(data);
 
             const txid = await fcl.mutate({
               cadence: lockFungibleToken,
@@ -852,12 +850,13 @@ export default function Backup() {
           toast.error(`${key} :Invalid Input Type! You should input only numbers format! `)
           return;
         }
+        data = data.replace(",", ".");
       }
-      if (parseFloat(editLockupTokenAmount[key]) > parseFloat(tokenHoldAmount[key])) {
+      if (parseFloat(data) > parseFloat(tokenHoldAmount[key])) {
         toast.error("You cannot lockup bigger than you hold!");
         return;
       }
-      else if (parseFloat(editLockupTokenAmount[key]) !== parseFloat(lockupTokenList[key])) {
+      else if (parseFloat(data) !== parseFloat(lockupTokenList[key])) {
         isDataEdited = true;
       }
     }
@@ -876,7 +875,7 @@ export default function Backup() {
         const key = getFTContractNameAddress(item.identifier).contractName;
         let balance;
         if (key in editLockupTokenAmount) {
-          balance = editLockupTokenAmount[key];
+          balance = editLockupTokenAmount[key].replace(",", ".");
         }
         else {
           balance = item.balance;
