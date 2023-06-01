@@ -678,7 +678,7 @@ export default function Backup() {
   const addFT = async () => {
     for (const key in lockupTokensSelect) {
       if (lockupTokenAmount[key] !== "" && lockupTokenAmount[key] !== undefined) {
-        if (!/[0-9]*\.?\,?[0-9]$/.test(lockupTokenAmount[key])) {
+        if (!/^\d+([\.,]\d+)?$/.test(lockupTokenAmount[key])) {
           toast.error(`${key} :Invalid Input Type! You should input only numbers format! `)
           return;
         }
@@ -856,7 +856,7 @@ export default function Backup() {
     for (const key in editLockupTokenAmount) {
       let data = editLockupTokenAmount[key];
       if (data !== "") {
-        if (!/[0-9]*\.?\,?[0-9]$/.test(data)) {
+        if (!/^\d+([\.,]\d+)?$/.test(data)) {
           toast.error(`${key} :Invalid Input Type! You should input only numbers format! `)
           return;
         }
@@ -1124,7 +1124,7 @@ export default function Backup() {
       toast.warning("You will withdraw all amounts lockedup!");
     }
     else {
-      if (!/[0-9]*\.?\,?[0-9]$/.test(data)) {
+      if (!/^\d+([\.,]\d+)?$/.test(data)) {
         toast.error("Invalid Input Type! You should input only numbers format! ")
         return;
       }
