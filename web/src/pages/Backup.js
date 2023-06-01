@@ -111,7 +111,17 @@ const makeBalance = (balance) => {
   if (parseFloat(balance) < 1) {
     return parseFloat(balance);
   }
-  return isInteger(balance) ? balance + ".0" : balance;
+  if (isInteger(balance)) {
+    if (balance.includes(".")) {
+      return balance;
+    }
+    else {
+      return balance + ".0";
+    }
+  }
+  return balance;
+
+  // return isInteger(balance) ? balance.include(".") ? balance : balance + ".0" : balance;
 }
 
 
@@ -1120,7 +1130,6 @@ export default function Backup() {
       }
       withdrawAmount = makeBalance(data.replace(",", "."));
     }
-
 
     if (parseFloat(withdrawAmount) > parseFloat(item.balance)) {
       toast.error("You cannot withdraw coins bigger amount than locked!");
