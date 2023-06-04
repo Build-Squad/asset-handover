@@ -57,7 +57,7 @@ export default function Home() {
       <div className="col-md-4 mt-5 text-center d-flex search-pad">
         <div className="w-content">
           <h5 className="text-white">
-            Search Safe By Account
+            Explore Safe By Owner Address
           </h5>
           <div className="d-flex justify-content-center pb-2">
             <Form onSubmit={onHandleSubmit} className="position-relative">
@@ -71,7 +71,7 @@ export default function Home() {
               <Table bordered className="text-white" style={{ backgroundColor: "#0f0f32" }} >
                 <tbody>
                   <tr>
-                    <td>Holder:</td>
+                    <td>Owner:</td>
                     <td>{lockUp.holder}</td>
                   </tr>
                   <tr>
@@ -79,11 +79,11 @@ export default function Home() {
                     <td>{lockUp.recipient}</td>
                   </tr>
                   <tr>
-                    <td>CreateAt:</td>
+                    <td>Created At:</td>
                     <td>{convertDate(Math.floor(lockUp.createdAt * 1000))}</td>
                   </tr>
                   <tr>
-                    <td>MaturityDate:</td>
+                    <td>Maturity Date:</td>
                     <td>{convertDate(Math.floor(lockUp.releasedAt * 1000))}</td>
                   </tr>
                 </tbody>
