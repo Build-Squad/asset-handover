@@ -23,7 +23,6 @@ export default function Home() {
     e.preventDefault();
 
 
-    console.log("onHandleSubmit--> validFlowAddress", isValidFlowAddress(searchAddress));
     if (!isValidFlowAddress(searchAddress)) {
       toast.error("Please input correct flow address!");
       return;

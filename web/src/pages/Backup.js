@@ -313,7 +313,6 @@ export default function Backup() {
           }
         }
       })
-      console.log("ownCollectoin ----> ", tempOwnCollection);
       setOwnCollection(tempOwnCollection);
     }
 
@@ -452,7 +451,6 @@ export default function Backup() {
           // window.location.reload(false);
           await getBackup();
           const updatedPledgeItem = pledge.filter((item) => item.holder === pledgeItem.holder);
-          console.log("useEffect -----> updatedPledgeItem", updatedPledgeItem);
           setPledgeItem(...updatedPledgeItem);
           setPledgeStep("item");
 
@@ -481,7 +479,6 @@ export default function Backup() {
           const nftinfo = await fcl.query({
             cadence: getNonFungibleTokenInfoMapping
           });
-          console.log("clickPledge -----> nftinfo", nftinfo);
           const nftCollection = [];
           Object.keys(nftinfo).map((info) => {
             pledgeCollection.map((item) => {
@@ -606,7 +603,6 @@ export default function Backup() {
           arg(user.addr, t.Address),
         ],
       });
-      console.log("getBackup -----> pledge", pledge);
       setPledge(pledge);
     }
   }
@@ -1113,7 +1109,6 @@ export default function Backup() {
     return false;
   }
   const clickPledge = async (item) => {
-    console.log("clickPledge -----> pledgeItem", item);
 
 
     setPledgeItem(item);
@@ -1138,14 +1133,12 @@ export default function Backup() {
     const nftinfo = await fcl.query({
       cadence: getNonFungibleTokenInfoMapping
     });
-    console.log("clickPledge -----> nftinfo", nftinfo);
     const nftCollection = [];
     Object.keys(nftinfo).map((info) => {
       pledgeCollection.map((item) => {
         if (item.nftType.includes(info)) nftCollection.push(item);
       })
     });
-    console.log("clickPledge -----> PledgeCollection", nftCollection);
     setPledgeCollection(nftCollection);
     setPledgeStep("item");
   }
@@ -1299,7 +1292,6 @@ export default function Backup() {
       }
     })
 
-    console.log("withdrawNFT -----> withdrawNFTids,holder, collectionID", withdrawNFTids, holder, collectionID);
     setWithdrawNFTIDs(withdrawNFTids);
     try {
       const txid = await fcl.mutate({
