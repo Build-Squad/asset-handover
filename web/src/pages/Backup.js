@@ -1677,11 +1677,10 @@ export default function Backup() {
                   <div className='row mt-3 p-3'>
                     <div className='col-md-8'>
                       {coinCanBeLockup ? <h5 className='text-warning'>
-                        <FaInfo /> If you don’t enter quantity of Coin(s), whole ownership of
-                        the Coin(s) goes to the recipient.
+                        <FaInfo /> Not specifying an amount it implies max balance.
                       </h5>
                         : <h5 className='text-warning'>
-                          <FaInfo /> You have no coin to lockup!
+                          <FaInfo /> You have no tokens to add to the safe!
                         </h5>}
                     </div>
 
@@ -1762,8 +1761,7 @@ export default function Backup() {
                   <div className='row p-3 pt-0'>
                     <div className='col-md-8'>
                       <h5 className='text-warning'>
-                        <FaInfo /> If you don’t enter quantity of Coin(s), whole ownership of
-                        the Coin(s) goes to the recipient.
+                        <FaInfo /> By not specifying an amount you can add the maximum balance to the safe.
                       </h5>
                     </div>
 
@@ -1823,7 +1821,7 @@ export default function Backup() {
                     ))}
                     {!collectionCanbeLockup && (
                       <><h5 className='text-warning'>
-                        <FaInfo /> You have no NFT collection to lockup!
+                        <FaInfo /> You have no NFT collections to add to the safe!
                       </h5></>
                     )}
                   </div>
@@ -1977,7 +1975,7 @@ export default function Backup() {
                         <h5>= Remove NFT from Safe</h5>
                       </div>
                       <p className='text-warning px-1'>
-                        <FaInfo /> By removing all the NFTs you delegate ownership of your whole collection
+                        <FaInfo /> By removing all the NFTs you would delegate ownership of your whole collection
                       </p>
                     </div>
 
@@ -2166,7 +2164,7 @@ export default function Backup() {
                 <Tab.Pane eventKey="second">
                   <div className='d-flex justify-content-between border-bottom-green'>
                     <h4 className='p-2 mb-0 blue-font'>
-                      WITHDRAW COIN(S) FROM PLEDGE
+                      COIN(S)
                     </h4>
 
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
@@ -2221,7 +2219,7 @@ export default function Backup() {
                         <h5>= Press to withdraw</h5>
                       </div>
                       <p className='text-warning px-1'>
-                        <FaInfo />If you don’t enter quantity of Coin(s), You will withdraw all lockup coins
+                        <FaInfo />By not specifying an amount you can withdraw the maximum amount.
                       </p>
                     </div>
                     :
@@ -2396,7 +2394,7 @@ export default function Backup() {
                 <Tab.Pane eventKey="second">
                   <div className='d-flex justify-content-between border-bottom-green'>
                     <h4 className='blue-font p-2 mb-0'>
-                      WITHDRAW NFT(S) FROM PLEDGE
+                      NFT(S)
                     </h4>
                     <Form.Check type="checkbox" label="Select All NFTs" checked={checkWithdrawAllNFT}
                       onChange={(e) => selectAllWithdrawNFT(e)} />

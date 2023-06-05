@@ -56,8 +56,9 @@ body {
   font-weight: bold !important;
   border-radius: 20px !important;
 }
+
 .disconnect-wallet {
-  background-color: red !important;
+  background-color: white !important;
   color: #18184D !important;
   font-weight: bold !important;
   border-radius: 20px !important;
