@@ -448,6 +448,7 @@ export default function Backup() {
         setTxProgress(false);
         setTxStatus(null);
       } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        setPledgeStep("item");
         toast.success("Fungible Token is successfully withdrawed!");
         setTxProgress(false);
         setTxStatus(null);
