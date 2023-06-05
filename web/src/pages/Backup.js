@@ -882,7 +882,6 @@ export default function Backup() {
   const editFT = async () => {
     let isDataEdited = false;
     const remainItem = lockUp.fungibleTokens;
-
     for (const key in editLockupTokenAmount) {
       let data = editLockupTokenAmount[key];
       if (data !== "") {
@@ -900,9 +899,13 @@ export default function Backup() {
         isDataEdited = true;
       }
     }
-
+    if (remainItem.length > 0 && _.isEmpty(editLockupTokenAmount)) {
+      isDataEdited = true;
+      toast.success("You will lokcup all coins in your account!");
+    }
     if (Object.keys(removeLockupTokensList).length > 0)
       isDataEdited = true;
+
     if (isDataEdited === false) {
       toast.error("No data changed!");
       return;
@@ -917,10 +920,7 @@ export default function Backup() {
         if (key in editLockupTokenAmount) {
           balance = editLockupTokenAmount[key].replace(",", ".");
         }
-        else {
-          balance = item.balance;
-        }
-        if (balance === "") { balance = tokenHoldAmount[key]; }
+        if (balance === "" || balance === undefined) { balance = tokenHoldAmount[key]; }
         balance = makeBalance(balance);
         try {
           const txid = await fcl.mutate({
@@ -1769,7 +1769,7 @@ export default function Backup() {
 
                                   <Form.Control className='mb-1' type="text"
                                     placeholder='Enter quantity of Coin(s)'
-                                    value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName] || ""}
+                                    value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName || ""]}
                                     onChange={(e) => onHandleChangeEditLockupTokenAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
                                 </div>
                               </div>
