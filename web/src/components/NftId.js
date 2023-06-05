@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 
-export default function NftId ({ lockUp, item }) {
+export default function NftId({ lockUp, item }) {
   const [nftIDsLength, setNftIDsLength] = useState(0);
 
   useEffect(() => {
@@ -19,8 +19,8 @@ export default function NftId ({ lockUp, item }) {
   }, [lockUp, item]);
 
   return (
-    <h5 className='text-center'>
-      ({nftIDsLength})
+    <h5 className='d-inline text-center'>
+      {nftIDsLength}
     </h5>
   )
 }

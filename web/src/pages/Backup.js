@@ -313,7 +313,7 @@ export default function Backup() {
           }
         }
       })
-
+      console.log("ownCollectoin ----> ", tempOwnCollection);
       setOwnCollection(tempOwnCollection);
     }
 
@@ -1583,7 +1583,10 @@ export default function Backup() {
                               <div className='row'>
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                  <NftId lockUp={lockUp} item={item} />
+                                  <div className="d-inline">
+                                    <h5 className="d-inline text-center">{item.nftsCount}/</h5>
+                                    <NftId lockUp={lockUp} item={item} />
+                                  </div>
                                 </div>
 
                                 <div className='col-9'>
