@@ -1512,7 +1512,7 @@ export default function Backup() {
                   </div>
 
                   <div className='d-flex justify-content-between align-items-center border-bottom-green'>
-                    <div className='d-flex justify-content-start gap-3'>
+                    <div className='d-flex justify-content-start gap-2'>
                       <h4 className='p-2 blue-font mb-0'>
                         COIN(S)
                       </h4>
@@ -1535,27 +1535,28 @@ export default function Backup() {
 
 
                   {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                    <div className='d-flex gap-2 mt-2'>
+                    <div className='d-flex mt-2'>
                       {lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
                           <div className='text-center'>
                             <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="60px" height="auto" />
 
                             {item.balance === null ?
-                              <p className='blue-font font-bold text-center'>
+                              <h6 className='text-center'>
                                 (All)
-                              </p>
+                              </h6>
                               :
-                              <p className='blue-font font-bold text-center'>
+                              <h6 className='text-center'>
                                 (<span className="text-success">{parseInt(item.balance)}</span>/<span className='text-warning'>{parseFloat(tokenHoldAmount[getFTContractNameAddress(item.identifier).contractName]).toFixed(2)}</span>)
-                              </p>
+                              </h6>
                             }
                           </div>
                         </React.Fragment>
                       )
                       )}
-                      <div className=''>
+                      <div className='text-center ps-4'>
                         <div className='backup-date p-3 cursor-pointer m-auto' onClick={onClickHandleAddCoinsToSafe}>
+                          
                           <FaPlus className='blue-font' size={40} />
                         </div>
                       </div>
@@ -1593,10 +1594,10 @@ export default function Backup() {
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
                                   <div className="d-inline">
-                                    <h5 className="d-inline text-center">
-                                      (<span className='text-success'>{item.nftsCount}</span>/
-                                      <span className='text-warning'><NftId lockUp={lockUp} item={item} /></span>)
-                                    </h5>
+                                    <h6 className="d-inline text-center">
+                                      (<span className='text-success'><NftId lockUp={lockUp} item={item} /></span>/
+                                      <span className='text-warning'>{item.nftsCount}</span>)
+                                    </h6>
                                   </div>
                                 </div>
 
@@ -1617,7 +1618,7 @@ export default function Backup() {
                         </div>
                       ))}
 
-                      <div className='col-md-3 pt-2'>
+                      <div className='w-auto pt-2'>
                         <div className='center-pad'>
                           <div className='backup-date p-3 cursor-pointer m-auto' onClick={getAllNFTCollectionInfo}>
                             <FaPlus className='blue-font' size={40} />
