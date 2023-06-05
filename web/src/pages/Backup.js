@@ -2118,19 +2118,19 @@ export default function Backup() {
 
 
                   {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
-                    <div className='row mt-2'>
+                    <div className='d-flex mt-2'>
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
-                          <div className='col-md-1 col-3'>
-                            <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" alt="token Logo" />
+                          <div className='text-center'>
+                            <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="60px" height="auto" alt="token Logo" />
                             {parseFloat(item.balance) === parseFloat(tokenHoldAmount[getFTContractNameAddress(item.identifier).contractName]) ?
-                              <p className='blue-font font-bold text-center'>
+                              <h6 className='text-center'>
                                 (All)
-                              </p>
+                              </h6>
                               :
-                              <p className='blue-font font-bold text-center'>
+                              <h6 className='text-center'>
                                 ({parseInt(item.balance)})
-                              </p>
+                              </h6>
                             }
                           </div>
                         </React.Fragment>
@@ -2159,7 +2159,9 @@ export default function Backup() {
                               <div className='row'>
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                  <NftId lockUp={pledgeItem} item={item} />
+                                  <div className="d-inline">
+                                    <h6 className='d-inline'>(</h6><NftId lockUp={pledgeItem} item={item} /><h6 className='d-inline'>)</h6>
+                                  </div>
 
                                 </div>
 
