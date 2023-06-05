@@ -462,6 +462,8 @@ export default function Backup() {
         setTxProgress(false);
         setTxStatus(null);
       } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        window.location.reload();
+        setPledgeStep("item");
         toast.success("NonFungible Token is successfully withdrawed!");
         setTxProgress(false);
         setTxStatus(null);
@@ -2088,7 +2090,7 @@ export default function Backup() {
 
                   {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
                     <div className='row mt-2'>
-                      {pledgeItem.fungibleTokens.map((item, index) => (parseFloat(item.balance) > 0 &&
+                      {pledgeItem.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
                           <div className='col-md-1 col-3'>
                             <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" alt="token Logo" />
@@ -2105,9 +2107,6 @@ export default function Backup() {
                         </React.Fragment>
                       )
                       )}
-                      {countPledgeFTHasBalance(pledgeItem) && <h5 className='blue-font mx-3 align-self-center'>
-                        There's No coins to withdraw!
-                      </h5>}
                     </div>
                     :
                     <div className='d-flex mt-4 mb-5'>
@@ -2146,7 +2145,7 @@ export default function Backup() {
                                 <p className='text-grey font-14 d-block d-xl-none'>
                                   {item.collectionDescription}
                                 </p>
-                                <Button className='mw-50' variant="danger" size="sm" onClick={() => withdrawNFTCollection(item)}>
+                                <Button className='mw-50' disabled={!(pledgeItemNFTCount(pledgeItem, item) > 0)} variant="danger" size="sm" onClick={() => withdrawNFTCollection(item)}>
                                   WITHDRAW
                                 </Button>
                               </div>

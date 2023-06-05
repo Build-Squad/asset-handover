@@ -20,7 +20,7 @@ export default function NftId({ lockUp, item }) {
 
   return (
     <h5 className='d-inline text-center'>
-      {nftIDsLength}
+      ({nftIDsLength})
     </h5>
   )
 }
