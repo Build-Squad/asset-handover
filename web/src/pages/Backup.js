@@ -195,6 +195,7 @@ export default function Backup() {
   const [withdrawNFTIDs, setWithdrawNFTIDs] = useState([]);
   const [changeSelection, setChangeSelection] = useState([]);
   const [checkWithdrawAllNFT, setCheckWithdrawAllNFT] = useState(false);
+  const [coinWithdrawButtonDisable, setCoinWithdarwButtonDisable] = useState(false);
 
 
   /*
@@ -448,6 +449,7 @@ export default function Backup() {
         setTxProgress(false);
         setTxStatus(null);
       } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+        window.location.reload(false);
         setPledgeStep("item");
         toast.success("Fungible Token is successfully withdrawed!");
         setTxProgress(false);
@@ -1065,11 +1067,35 @@ export default function Backup() {
     }
     return result;
   }
+
+  const countPledgeFTHasBalance = (item) => {
+    const length = item.fungibleTokens.length;
+    let count = 0;
+    for (const data of item.fungibleTokens) {
+      if (parseFloat(data.balance) === 0) {
+        count++;
+      }
+    }
+    if (length === count) {
+      return true;
+    }
+    return false;
+  }
   const clickPledge = async (item) => {
     console.log("clickPledge -----> pledgeItem", item);
 
 
     setPledgeItem(item);
+    const length = item.fungibleTokens.length;
+    let count = 0;
+    for (const data of item.fungibleTokens) {
+      if (parseFloat(data.balance) === 0) {
+        count++;
+      }
+    }
+    if (count === length) {
+      setCoinWithdarwButtonDisable(true);
+    }
     setHolder(item.holder);
     const pledgeCollection = await fcl.query({
       cadence: getCollectionsForAccount,
@@ -1513,7 +1539,7 @@ export default function Backup() {
                               </p>
                               :
                               <p className='blue-font font-bold text-center'>
-                                ({parseInt(item.balance)})
+                                ({parseFloat(tokenHoldAmount[getFTContractNameAddress(item.identifier).contractName]).toFixed(2)}/{parseInt(item.balance)})
                               </p>
                             }
                           </div>
@@ -2047,7 +2073,7 @@ export default function Backup() {
                   <div className='d-flex justify-content-between border-bottom-green'>
                     <h4 className='p-2 blue-font mb-0'>
                       COIN(S)
-                      <Button className='mx-3' variant="danger" size="sm" onClick={() => withdrawCoins()}>
+                      <Button className='mx-3' disabled={coinWithdrawButtonDisable} variant="danger" size="sm" onClick={() => withdrawCoins()}>
                         WITHDRAW
                       </Button>
                     </h4>
@@ -2059,7 +2085,7 @@ export default function Backup() {
 
                   {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
                     <div className='row mt-2'>
-                      {pledgeItem.fungibleTokens.map((item, index) => (
+                      {pledgeItem.fungibleTokens.map((item, index) => (parseFloat(item.balance) > 0 &&
                         <React.Fragment key={index}>
                           <div className='col-md-1 col-3'>
                             <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" alt="token Logo" />
@@ -2076,6 +2102,9 @@ export default function Backup() {
                         </React.Fragment>
                       )
                       )}
+                      {countPledgeFTHasBalance(pledgeItem) && <h5 className='blue-font mx-3 align-self-center'>
+                        There's No coins to withdraw!
+                      </h5>}
                     </div>
                     :
                     <div className='d-flex mt-4 mb-5'>
