@@ -336,141 +336,170 @@ export default function Backup() {
   }, [txId]);
 
   useEffect(() => {
+    const getBackupAsync = async () => {
+      if (txStatus && txType === "createLockup") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("Lockup is successfully saved!");
+          setTxProgress(false);
+          setTxStatus(null);
+          setStep("default");
+        }
+      }
+      else if (txStatus && txType === "destoryLockup") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("Lockup is successfully destoryed!");
+          setTxProgress(false);
+          setTxStatus(null);
+        }
+      }
+      else if (txStatus && txType === "addFT") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("Fungible Token is successfully added!");
+          setTxProgress(false);
+          setTxStatus(null);
+          setStep("detail");
+        }
+      }
+      else if (txStatus && txType === "addNFT") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("NonFungible Token is successfully added!");
+          setTxProgress(false);
+          setTxStatus(null);
+          setStep("detail");
+        }
+      }
+      else if (txStatus && txType === "editFT") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("Fungible Token is successfully edited!");
+          setTxProgress(false);
+          setTxStatus(null);
+          setStep("detail");
+        }
+      }
+      else if (txStatus && txType === "removeFlow") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("Flow token is successfully removed!");
+          setTxProgress(false);
+          setTxStatus(null);
+        }
+      }
+      else if (txStatus && txType === "removeBlp") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("Blp token is successfully removed!");
+          setTxProgress(false);
+          setTxStatus(null);
+        }
+      }
+      else if (txStatus && txType === "editNFT") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("NonFungible Token is successfully edited!");
+          setTxProgress(false);
+          setTxStatus(null);
+          setStep("detail");
+        }
+      }
+      else if (txStatus && txType === "removeNFT") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          toast.success("NonFungible Token is successfully removed!");
+          setTxProgress(false);
+          setTxStatus(null);
+          setStep("detail");
+        }
+      }
 
-    if (txStatus && txType === "createLockup") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Lockup is successfully saved!");
-        setTxProgress(false);
-        setTxStatus(null);
-        setStep("default");
-      }
-    }
-    else if (txStatus && txType === "destoryLockup") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Lockup is successfully destoryed!");
-        setTxProgress(false);
-        setTxStatus(null);
-      }
-    }
-    else if (txStatus && txType === "addFT") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Fungible Token is successfully added!");
-        setTxProgress(false);
-        setTxStatus(null);
-        setStep("detail");
-      }
-    }
-    else if (txStatus && txType === "addNFT") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("NonFungible Token is successfully added!");
-        setTxProgress(false);
-        setTxStatus(null);
-        setStep("detail");
-      }
-    }
-    else if (txStatus && txType === "editFT") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Fungible Token is successfully edited!");
-        setTxProgress(false);
-        setTxStatus(null);
-        setStep("detail");
-      }
-    }
-    else if (txStatus && txType === "removeFlow") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Flow token is successfully removed!");
-        setTxProgress(false);
-        setTxStatus(null);
-      }
-    }
-    else if (txStatus && txType === "removeBlp") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("Blp token is successfully removed!");
-        setTxProgress(false);
-        setTxStatus(null);
-      }
-    }
-    else if (txStatus && txType === "editNFT") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("NonFungible Token is successfully edited!");
-        setTxProgress(false);
-        setTxStatus(null);
-        setStep("detail");
-      }
-    }
-    else if (txStatus && txType === "removeNFT") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        toast.success("NonFungible Token is successfully removed!");
-        setTxProgress(false);
-        setTxStatus(null);
-        setStep("detail");
-      }
-    }
+      else if (txStatus && txType === "withDrawFT") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          // window.location.reload(false);
+          await getBackup();
+          const updatedPledgeItem = pledge.filter((item) => item.holder === pledgeItem.holder);
+          console.log("useEffect -----> updatedPledgeItem", updatedPledgeItem);
+          setPledgeItem(...updatedPledgeItem);
+          setPledgeStep("item");
 
-    else if (txStatus && txType === "withDrawFT") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        // window.location.reload(false);
-        setPledgeStep("item");
-        toast.success("Fungible Token is successfully withdrawed!");
-        setTxProgress(false);
-        setTxStatus(null);
+          toast.success("Fungible Token is successfully withdrawed!");
+          setTxProgress(false);
+          setTxStatus(null);
+        }
       }
-    }
-    else if (txStatus && txType === "withdrawNFT") {
-      if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
-        toast.error(txStatus.errorMessage);
-        setTxProgress(false);
-        setTxStatus(null);
-      } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        // window.location.reload();
-        setPledgeStep("item");
-        toast.success("NonFungible Token is successfully withdrawed!");
-        setTxProgress(false);
-        setTxStatus(null);
-        setPledgeStep("item");
-      }
-    }
+      else if (txStatus && txType === "withdrawNFT") {
+        if (txStatus.statusString === "SEALED" && txStatus.errorMessage !== "") {
+          toast.error(txStatus.errorMessage);
+          setTxProgress(false);
+          setTxStatus(null);
+        } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
+          await getBackup();
+          const updatedPledgeItem = pledge.filter((item) => item.holder === pledgeItem.holder);
 
+          setPledgeItem(...updatedPledgeItem);
+
+          const pledgeCollection = await fcl.query({
+            cadence: getCollectionsForAccount,
+            args: (arg, t) => [arg(holder, t.Address)]
+          });
+
+          /* ---------------- Getting NFT Collection info Asset-hand-over registry -------------- */
+          const nftinfo = await fcl.query({
+            cadence: getNonFungibleTokenInfoMapping
+          });
+          console.log("clickPledge -----> nftinfo", nftinfo);
+          const nftCollection = [];
+          Object.keys(nftinfo).map((info) => {
+            pledgeCollection.map((item) => {
+              if (item.nftType.includes(info)) nftCollection.push(item);
+            })
+          });
+          setPledgeCollection(nftCollection);
+
+          setPledgeStep("item");
+
+          toast.success("NonFungible Token is successfully withdrawed!");
+          setTxProgress(false);
+          setTxStatus(null);
+          setPledgeStep("item");
+        }
+      }
+    }
+    getBackupAsync();
   }, [txStatus, txType]);
 
 
@@ -1556,7 +1585,7 @@ export default function Backup() {
                       )}
                       <div className='text-center ps-4'>
                         <div className='backup-date p-3 cursor-pointer m-auto' onClick={onClickHandleAddCoinsToSafe}>
-                          
+
                           <FaPlus className='blue-font' size={40} />
                         </div>
                       </div>
@@ -1572,8 +1601,8 @@ export default function Backup() {
                     </div>
                   }
 
-                  <h4 className='p-2 border-bottom-green blue-font mt-4 d-flex align-items-center gap-3'>
-                    NFT COLLECTION(S)
+                  <div className='d-flex align-items-center border-bottom-green gap-3'>
+                    <h4>NFT COLLECTION(S)</h4>
                     <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
                     {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
                       <Button variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
@@ -1582,7 +1611,7 @@ export default function Backup() {
                       :
                       <></>
                     }
-                  </h4>
+                  </div>
                   {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
                     <div className='row'>
                       {ownCollection && ownCollection.map((item, index) => (
@@ -2184,43 +2213,41 @@ export default function Backup() {
                   {pledgeItem !== null && pledgeItem.fungibleTokens.length > 0 ?
                     <div className='row p-3'>
                       {pledgeItem.fungibleTokens.map((item, index) => (
-                        <>
-                          <div className='col-md-4' key={index}>
-                            <div className='grey-border p-2'>
-                              <div className='row'>
+                        <div className='col-md-4' key={index}>
+                          <div className='grey-border p-2'>
+                            <div className='row'>
 
-                                <div className='col-md-3'>
-                                  <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
-                                  <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                                </div>
+                              <div className='col-md-3'>
+                                <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
+                                <h5 className='text-center'>({parseInt(item.balance)})</h5>
+                              </div>
 
-                                <div className='col-md-9'>
-                                  <h5 className='blue-font mb-0'>FLOW</h5>
-                                  <p className='text-grey mb-1'>{pledgeItem.holder}</p>
+                              <div className='col-md-9'>
+                                <h5 className='blue-font mb-0'>FLOW</h5>
+                                <p className='text-grey mb-1'>{pledgeItem.holder}</p>
 
-                                  <div className='row'>
-                                    <div className='col-9 pr-0'>
-                                      <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
-                                        value={withdrawCoinsAmount[getFTContractNameAddress(item.identifier).contractName] || ""} onChange={(e) => onHandleChangeWithdrawCoinsAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
-                                    </div>
+                                <div className='row'>
+                                  <div className='col-9 pr-0'>
+                                    <Form.Control className='mb-1' type="text" placeholder='Enter quantity of Coin(s)'
+                                      value={withdrawCoinsAmount[getFTContractNameAddress(item.identifier).contractName] || ""} onChange={(e) => onHandleChangeWithdrawCoinsAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
+                                  </div>
 
-                                    <div className='col-3'>
-                                      {txProgress && txType === "withDrawFT" ?
-                                        <Spinner animation="border" role="status">
-                                          <span className="visually-hidden">Loading...</span>
-                                        </Spinner>
-                                        :
-                                        <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
-                                          onClick={() => withDrawFT(pledgeItem.holder, item)} />
-                                      }
-                                    </div>
+                                  <div className='col-3'>
+                                    {txProgress && txType === "withDrawFT" ?
+                                      <Spinner animation="border" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                      </Spinner>
+                                      :
+                                      <img className='withdraw-img p-1 cursor-pointer' src="withdraw-icon.png" width="100%" height="auto"
+                                        onClick={() => withDrawFT(pledgeItem.holder, item)} />
+                                    }
                                   </div>
                                 </div>
-
                               </div>
+
                             </div>
                           </div>
-                        </>
+                        </div>
                       )
                       )}
 
