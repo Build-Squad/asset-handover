@@ -1007,7 +1007,6 @@ export default function Backup() {
   }
 
   const onHandleClickEditCoins = (e) => {
-    setEditLockupTokenAmount(lockupTokenList);
     setStep("removecoins")
   }
   const onHandleClickRemoveLockupToken = (e, key) => {
