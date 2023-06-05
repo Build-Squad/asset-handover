@@ -1735,8 +1735,11 @@ export default function Backup() {
               }
               {step === "removecoins" &&
                 <Tab.Pane eventKey="first">
-                  <div className='d-flex justify-content-between border-bottom-green'>
-                    <h4 className='blue-font p-2 mb-0'>EDIT COIN(S)</h4>
+                  <div className='d-flex justify-content-between align-items-center border-bottom-green'>
+                    <div className='d-flex justify-content-start align-items-center gap-2'>
+                      <h4 className='blue-font p-2 mb-0'>EDIT COIN(S)</h4>
+                      <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
+                    </div>
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
                       onClick={() => setStep("detail")} />
                   </div>
@@ -1747,31 +1750,27 @@ export default function Backup() {
                         <React.Fragment key={index}>
                           <>
                             <div className='col-lg-6 col-xl-4 pt-2'>
-                              <div className='grey-border p-2'>
-                                <div className='row'>
-                                  <div className='col-md-3'>
-                                    <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
-                                    {item.balance ?
-                                      <h5 className='text-center'>({parseInt(item.balance)})</h5>
-                                      :
-                                      <h5 className='text-center'>(All)</h5>
-                                    }
+                              <div className='row grey-border p-2 align-items-center'>
+                                <div className='col-md-4'>
+                                  <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
+                                  <h6 className='text-center'>
+                                    (<span className="text-success">{parseInt(item.balance)}</span>/<span className='text-warning'>{parseFloat(tokenHoldAmount[getFTContractNameAddress(item.identifier).contractName]).toFixed(2)}</span>)
+                                  </h6>
+                                </div>
+
+                                <div className='col-md-8'>
+                                  <div className='d-flex justify-content-between'>
+                                    <h5 className='blue-font mb-0'>{getFTContractNameAddress(item.identifier).contractName}</h5>
+                                    <img className='cursor-pointer' onClick={(e) => onHandleClickRemoveLockupToken(e, item.identifier)} src="remove-button.png" alt="" width="20px" height="20px"
+                                    />
                                   </div>
 
-                                  <div className='col-md-9'>
-                                    <div className='d-flex justify-content-between'>
-                                      <h5 className='blue-font mb-0'>{getFTContractNameAddress(item.identifier).contractName}</h5>
-                                      <img className='cursor-pointer' onClick={(e) => onHandleClickRemoveLockupToken(e, item.identifier)} src="remove-button.png" alt="" width="20px" height="20px"
-                                      />
-                                    </div>
+                                  <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(item.identifier).contractAddress}</p>
 
-                                    <p className='text-grey mb-1 font-14'>{getFTContractNameAddress(item.identifier).contractAddress}</p>
-
-                                    <Form.Control className='mb-1' type="text"
-                                      placeholder='Enter quantity of Coin(s)'
-                                      value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName] || ""}
-                                      onChange={(e) => onHandleChangeEditLockupTokenAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
-                                  </div>
+                                  <Form.Control className='mb-1' type="text"
+                                    placeholder='Enter quantity of Coin(s)'
+                                    value={editLockupTokenAmount[getFTContractNameAddress(item.identifier).contractName] || ""}
+                                    onChange={(e) => onHandleChangeEditLockupTokenAmount(e, getFTContractNameAddress(item.identifier).contractName)} />
                                 </div>
                               </div>
                             </div>
