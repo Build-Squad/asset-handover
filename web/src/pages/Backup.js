@@ -449,7 +449,7 @@ export default function Backup() {
         setTxProgress(false);
         setTxStatus(null);
       } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        window.location.reload(false);
+        // window.location.reload(false);
         setPledgeStep("item");
         toast.success("Fungible Token is successfully withdrawed!");
         setTxProgress(false);
@@ -462,7 +462,7 @@ export default function Backup() {
         setTxProgress(false);
         setTxStatus(null);
       } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
-        window.location.reload();
+        // window.location.reload();
         setPledgeStep("item");
         toast.success("NonFungible Token is successfully withdrawed!");
         setTxProgress(false);
@@ -1095,6 +1095,7 @@ export default function Backup() {
         count++;
       }
     }
+    setCoinWithdarwButtonDisable(false);
     if (count === length) {
       setCoinWithdarwButtonDisable(true);
     }
@@ -1510,18 +1511,23 @@ export default function Backup() {
                     </div>
                   </div>
 
-                  <div className='d-flex justify-content-between border-bottom-green'>
-                    <h4 className='p-2 blue-font mb-0'>
-                      COIN(S)
+                  <div className='d-flex justify-content-between align-items-center border-bottom-green'>
+                    <div className='d-flex justify-content-start gap-3'>
+                      <h4 className='p-2 blue-font mb-0'>
+                        COIN(S)
+                      </h4>
                       {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                        <Button className='mx-3' variant="danger" size="sm"
-                          onClick={onHandleClickEditCoins}>
-                          Edit
-                        </Button>
+                        <div className="d-flex align-items-center">
+                          <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
+                          <Button className='mx-3' variant="danger" size="sm"
+                            onClick={onHandleClickEditCoins}>
+                            Edit
+                          </Button>
+                        </div>
                         :
                         <></>
                       }
-                    </h4>
+                    </div>
 
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
                       onClick={() => setStep("default")} />
@@ -1529,11 +1535,11 @@ export default function Backup() {
 
 
                   {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
-                    <div className='row mt-2'>
+                    <div className='d-flex gap-2 mt-2'>
                       {lockUp.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
-                          <div className='col-md-1 col-3'>
-                            <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="100%" height="auto" />
+                          <div className='text-center'>
+                            <img src={logoURI[getFTContractNameAddress(item.identifier).contractName]} width="60px" height="auto" />
 
                             {item.balance === null ?
                               <p className='blue-font font-bold text-center'>
@@ -1541,14 +1547,14 @@ export default function Backup() {
                               </p>
                               :
                               <p className='blue-font font-bold text-center'>
-                                ({parseFloat(tokenHoldAmount[getFTContractNameAddress(item.identifier).contractName]).toFixed(2)}/{parseInt(item.balance)})
+                                (<span className="text-success">{parseInt(item.balance)}</span>/<span className='text-warning'>{parseFloat(tokenHoldAmount[getFTContractNameAddress(item.identifier).contractName]).toFixed(2)}</span>)
                               </p>
                             }
                           </div>
                         </React.Fragment>
                       )
                       )}
-                      <div className='col-md-1 pt-2'>
+                      <div className=''>
                         <div className='backup-date p-3 cursor-pointer m-auto' onClick={onClickHandleAddCoinsToSafe}>
                           <FaPlus className='blue-font' size={40} />
                         </div>
@@ -1565,10 +1571,11 @@ export default function Backup() {
                     </div>
                   }
 
-                  <h4 className='p-2 border-bottom-green blue-font mt-4'>
+                  <h4 className='p-2 border-bottom-green blue-font mt-4 d-flex align-items-center gap-3'>
                     NFT COLLECTION(S)
+                    <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
                     {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
-                      <Button className='mx-3' variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
+                      <Button variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
                         Edit
                       </Button>
                       :
@@ -1586,8 +1593,10 @@ export default function Backup() {
                                 <div className='col-3 p-0'>
                                   <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
                                   <div className="d-inline">
-                                    <h5 className="d-inline text-center">{item.nftsCount}/</h5>
-                                    <NftId lockUp={lockUp} item={item} />
+                                    <h5 className="d-inline text-center">
+                                      (<span className='text-success'>{item.nftsCount}</span>/
+                                      <span className='text-warning'><NftId lockUp={lockUp} item={item} /></span>)
+                                    </h5>
                                   </div>
                                 </div>
 
