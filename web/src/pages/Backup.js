@@ -1388,12 +1388,14 @@ export default function Backup() {
                               <p className='text-grey mb-0'>
                                 {lockUp.recipient}
                               </p>
+                              <p className='mt-3 blue-font text-warning'>{lockUp.description}</p>
                               <p className='font-14 mb-0 blue-font'>
                                 Created at
                               </p>
                               <p className='mb-1 blue-font'>
                                 {convertDate(Math.floor(lockUp.createdAt * 1000))}
                               </p>
+
 
                               {Math.floor(Date.now() / 1000) >= lockUp.releasedAt ?
                                 <>
