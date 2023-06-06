@@ -284,6 +284,35 @@ export default function Backup() {
   }, []);
 
   useEffect(() => {
+    const updatePledgeAsync = async () => {
+      if (pledge !== null && pledgeItem !== null) {
+        const updatedPledgeItem = pledge.filter((item) => item.holder === pledgeItem.holder);
+        setPledgeItem(...updatedPledgeItem);
+      }
+      if (pledge !== null && pledgeCollection !== null) {
+        const pledgeCollection = await fcl.query({
+          cadence: getCollectionsForAccount,
+          args: (arg, t) => [arg(holder, t.Address)]
+        });
+
+        /* ---------------- Getting NFT Collection info Asset-hand-over registry -------------- */
+        const nftinfo = await fcl.query({
+          cadence: getNonFungibleTokenInfoMapping
+        });
+        const nftCollection = [];
+        Object.keys(nftinfo).map((info) => {
+          pledgeCollection.map((item) => {
+            if (item.nftType.includes(info)) nftCollection.push(item);
+          })
+        });
+        setPledgeCollection(nftCollection);
+
+      }
+    }
+    updatePledgeAsync();
+  }, [pledge])
+
+  useEffect(() => {
     getBackup();
     /* ----------- Getting Account's TokenList --------- */
     getAccountTokenList();
@@ -450,8 +479,7 @@ export default function Backup() {
         } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
           // window.location.reload(false);
           await getBackup();
-          const updatedPledgeItem = pledge.filter((item) => item.holder === pledgeItem.holder);
-          setPledgeItem(...updatedPledgeItem);
+
           setPledgeStep("item");
 
           toast.success("Fungible Token is successfully withdrawed!");
@@ -466,26 +494,6 @@ export default function Backup() {
           setTxStatus(null);
         } else if (txStatus.statusString === "SEALED" && txStatus.errorMessage === "") {
           await getBackup();
-          const updatedPledgeItem = pledge.filter((item) => item.holder === pledgeItem.holder);
-
-          setPledgeItem(...updatedPledgeItem);
-
-          const pledgeCollection = await fcl.query({
-            cadence: getCollectionsForAccount,
-            args: (arg, t) => [arg(holder, t.Address)]
-          });
-
-          /* ---------------- Getting NFT Collection info Asset-hand-over registry -------------- */
-          const nftinfo = await fcl.query({
-            cadence: getNonFungibleTokenInfoMapping
-          });
-          const nftCollection = [];
-          Object.keys(nftinfo).map((info) => {
-            pledgeCollection.map((item) => {
-              if (item.nftType.includes(info)) nftCollection.push(item);
-            })
-          });
-          setPledgeCollection(nftCollection);
 
           setPledgeStep("item");
 
@@ -1859,11 +1867,13 @@ export default function Backup() {
               }
               {step === "editnftcollection" &&
                 <Tab.Pane eventKey="first">
-                  <div className='d-flex justify-content-between border-bottom-green'>
-                    <h4 className='blue-font p-2 mb-0'>
-                      EDIT NFT COLLECTION(S)
-                    </h4>
-
+                  <div className='d-flex justify-content-between align-items-center border-bottom-green'>
+                    <div className='d-flex justify-content-start align-items-center gap-2'>
+                      <h4 className='blue-font p-2 mb-0'>
+                        EDIT NFT COLLECTION(S)
+                      </h4>
+                      <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
+                    </div>
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
                       onClick={() => setStep("detail")} />
                   </div>
@@ -1877,7 +1887,12 @@ export default function Backup() {
                             <div className='row'>
                               <div className='col-3 p-0'>
                                 <img className='nft-img' src={item.collectionSquareImage} width="100%" height="auto" />
-                                <NftId lockUp={lockUp} item={item} />
+                                <div className="d-inline">
+                                  <h6 className="d-inline text-center">
+                                    (<span className='text-success'><NftId lockUp={lockUp} item={item} /></span>/
+                                    <span className='text-warning'>{item.nftsCount}</span>)
+                                  </h6>
+                                </div>
                               </div>
 
                               <div className='col-9'>
