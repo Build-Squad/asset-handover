@@ -1603,11 +1603,13 @@ export default function Backup() {
 
                   <div className='d-flex align-items-center border-bottom-green gap-3'>
                     <h4>NFT COLLECTION(S)</h4>
-                    <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
                     {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
-                      <Button variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
-                        Edit
-                      </Button>
+                      <div>
+                        <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
+                        <Button variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
+                          Edit
+                        </Button>
+                      </div>
                       :
                       <></>
                     }
