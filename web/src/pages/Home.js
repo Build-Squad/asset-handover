@@ -4,7 +4,7 @@ import { isValidFlowAddress } from "../utils/utils";
 import { getAccountLockUp } from "../cadence/script/getAccountLockUp";
 import * as fcl from "@onflow/fcl";
 import { ToastContainer, toast } from 'react-toastify';
-import { Table, Button } from "react-bootstrap";
+import { Table } from "react-bootstrap";
 import { FaSearch } from "react-icons/fa";
 import { convertDate } from "../utils/utils";
 
