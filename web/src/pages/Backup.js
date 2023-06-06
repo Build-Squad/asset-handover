@@ -1545,7 +1545,7 @@ export default function Backup() {
 
                   <div className='d-flex justify-content-between align-items-center border-bottom-green'>
                     <div className='d-flex justify-content-start gap-2'>
-                      <h4 className='p-2 blue-font mb-0'>
+                      <h4 className='blue-font mb-0'>
                         COIN(S)
                       </h4>
                       {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
