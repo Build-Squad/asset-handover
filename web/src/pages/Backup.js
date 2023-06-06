@@ -724,12 +724,15 @@ export default function Backup() {
       setTxProgress(true);
       setTxType("addFT");
       if (lockupTokensSelect[key]) {
-        const data = lockupTokenAmount[key].replace(",", ".");
+        console.log("addFT ----> lockupTOkenAmount", lockupTokenAmount[key]);
+        let data;
+        if (lockupTokenAmount[key] !== undefined)
+          data = lockupTokenAmount[key].replace(",", ".");
         if (parseFloat(tokenHoldAmount[key]) < parseFloat(data)) {
           toast.error(key + " lockup amount cannot bigger than you hold!");
           setTxProgress(false);
         }
-        else if (data === "" || data === undefined) {
+        else if (data === "" || data === undefined || lockupTokenAmount[key] === undefined) {
           toast.success(key + "'s ownership will be locked up!");
           let balance = makeBalance(tokenHoldAmount[key]);
           try {
@@ -1080,9 +1083,9 @@ export default function Backup() {
         }
       }
     }
-
     setWithdrawNFTIDs([]);
     setCoinCanBeLockup(isCoinCanBeLockup);
+    console.log("onClickHandleAddCoinsToSafe----->isCoinCanBeLockup", isCoinCanBeLockup);
     setLockupTokensSelect({});
     setStep("coins")
   }
@@ -1604,7 +1607,7 @@ export default function Backup() {
                   <div className='d-flex align-items-center border-bottom-green gap-3'>
                     <h4>NFT COLLECTION(S)</h4>
                     {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
-                      <div>
+                      <div className='d-flex gap-3 align-items-center'>
                         <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
                         <Button variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
                           Edit
