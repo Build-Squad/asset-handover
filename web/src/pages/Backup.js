@@ -1192,7 +1192,7 @@ export default function Backup() {
     if (data === "" || data === undefined) {
       withdrawAmount = item.balance
       data = item.balance;
-      toast.warning("You will withdraw all amounts lockedup!");
+      toast.warning("You will withdraw max amount in safe!");
     }
     else {
       if (!/^\d+([\.,]\d+)?$/.test(data)) {
@@ -1203,7 +1203,7 @@ export default function Backup() {
     }
 
     if (parseFloat(withdrawAmount) > parseFloat(item.balance)) {
-      toast.error("You cannot withdraw coins bigger amount than locked!");
+      toast.error("You cannot withdraw more than exists in safe!");
       return;
     }
     setTxProgress(true);
@@ -1815,7 +1815,7 @@ export default function Backup() {
                   <div className='row p-3 pt-0'>
                     <div className='col-md-8'>
                       <h5 className='text-warning'>
-                        <FaInfo /> By not specifying an amount you can add the maximum balance to the safe.
+                        <FaInfo /> By not specifying an amount you can add account's current balance to the safe.
                       </h5>
                     </div>
 
@@ -2036,7 +2036,7 @@ export default function Backup() {
                         <h5>= Remove NFT from Safe</h5>
                       </div>
                       <p className='text-warning px-1'>
-                        <FaInfo /> By removing all the NFTs you would delegate ownership of your whole collection
+                        <FaInfo /> By removing all the NFTs you would delegate wondership of all your collection's NFTs.
                       </p>
                     </div>
 
