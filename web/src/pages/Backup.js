@@ -289,22 +289,22 @@ export default function Backup() {
         const updatedPledgeItem = pledge.filter((item) => item.holder === pledgeItem.holder);
         setPledgeItem(...updatedPledgeItem);
       }
-      if (pledge !== null && pledgeCollection !== null) {
+      if (pledge !== null && pledgeCollection !== null && pledgeItem !== null) {
+        const updatedPledgeItem = pledge.filter((item) => item.holder === pledgeItem.holder);
         const pledgeCollection = await fcl.query({
           cadence: getCollectionsForAccount,
           args: (arg, t) => [arg(holder, t.Address)]
         });
 
-        /* ---------------- Getting NFT Collection info Asset-hand-over registry -------------- */
-        const nftinfo = await fcl.query({
-          cadence: getNonFungibleTokenInfoMapping
-        });
         const nftCollection = [];
-        Object.keys(nftinfo).map((info) => {
-          pledgeCollection.map((item) => {
-            if (item.nftType.includes(info)) nftCollection.push(item);
-          })
-        });
+
+        for (const collection of pledgeCollection) {
+          for (const data of updatedPledgeItem.nonFungibleTokens) {
+            if (collection.nftType.includes(data.identifier)) {
+              nftCollection.push(collection);
+            }
+          }
+        }
         setPledgeCollection(nftCollection);
 
       }
@@ -1144,12 +1144,24 @@ export default function Backup() {
     const nftinfo = await fcl.query({
       cadence: getNonFungibleTokenInfoMapping
     });
+    console.log("clickPledge ----> pledgeItem", item);
+    console.log("clickPledge----->nftinfo", pledgeCollection);
     const nftCollection = [];
-    Object.keys(nftinfo).map((info) => {
-      pledgeCollection.map((item) => {
-        if (item.nftType.includes(info)) nftCollection.push(item);
-      })
-    });
+
+    for (const collection of pledgeCollection) {
+      for (const data of item.nonFungibleTokens) {
+        if (collection.nftType.includes(data.identifier)) {
+          nftCollection.push(collection);
+        }
+      }
+    }
+
+    console.log("clickPledge ----> nftCollection", nftCollection);
+    // pledgeCollection.map((item) => {
+
+    //   if (item.nftType.includes(item.)) nftCollection.push(item);
+    // })
+
     setPledgeCollection(nftCollection);
     setPledgeStep("item");
   }
