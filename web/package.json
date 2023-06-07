@@ -46,6 +46,7 @@
     ]
   },
   "devDependencies": {
+    "dotenv": "^16.1.4",
     "font-awesome": "^4.7.0"
   }
 }
