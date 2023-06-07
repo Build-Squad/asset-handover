@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 
 export default function NftId({ lockUp, item }) {
@@ -18,9 +17,5 @@ export default function NftId({ lockUp, item }) {
     updateNftIDsLength();
   }, [lockUp, item]);
 
-  return (
-    <h6 className='d-inline text-center'>
-      {nftIDsLength}
-    </h6>
-  )
+  return <h6 className="d-inline text-center">{nftIDsLength}</h6>;
 }
