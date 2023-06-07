@@ -18,11 +18,9 @@ import { updateLockUp } from '../cadence/transaction/updateLockUp';
 import { destroyLockup } from '../cadence/transaction/destroyLockup';
 import { getAccountLockUp } from '../cadence/script/getAccountLockUp';
 import { getFungibleTokenInfoMapping } from '../cadence/script/getFungibleTokenInfoMapping';
-import { getAccountBalance } from '../cadence/script/getAccountBalance';
 
 import { lockFungibleToken } from '../cadence/transaction/lockFungibleToken';
 import { lockFungibleTokens } from '../cadence/transaction/lockFungibleTokens';
-import { setLockUpBalance } from '../cadence/transaction/setLockUpBalance';
 import { getNonFungibleTokenInfoMapping } from '../cadence/script/getNonFungibleTokenInfoMapping';
 import { getCollectionsForAccount } from '../cadence/script/getCollectionsForAccount';
 import { getNFTsForAccountCollection } from '../cadence/script/getNFTsForAccountCollection';
@@ -37,9 +35,8 @@ import { withdrawNonFungibleToken } from '../cadence/transaction/withdrawNonFung
 import { isValidFlowAddress } from '../utils/utils';
 import { convertDate } from '../utils/utils';
 import NftId from '../components/NftId';
-import AddNftId from '../components/AddNftId';
 
-/* 
+/*
 * @dev Getting TokenList for Users functions
 * start
 */
@@ -1195,7 +1192,7 @@ export default function Backup() {
     if (data === "" || data === undefined) {
       withdrawAmount = item.balance
       data = item.balance;
-      toast.warning("You will withdraw all amounts lockedup!");
+      toast.warning("You will withdraw max amount in safe!");
     }
     else {
       if (!/^\d+([\.,]\d+)?$/.test(data)) {
@@ -1206,7 +1203,7 @@ export default function Backup() {
     }
 
     if (parseFloat(withdrawAmount) > parseFloat(item.balance)) {
-      toast.error("You cannot withdraw coins bigger amount than locked!");
+      toast.error("You cannot withdraw more than exists in safe!");
       return;
     }
     setTxProgress(true);
@@ -1564,7 +1561,7 @@ export default function Backup() {
                       </h4>
                       {lockUp !== null && lockUp.fungibleTokens.length > 0 ?
                         <div className="d-flex align-items-center">
-                          <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
+                          <h6 className="text-center m-0">(<span className='text-success'>Withdrawable</span> / <span className='text-warning'>Account's Balance</span>)</h6>
                           <Button className='mx-3' variant="danger" size="sm"
                             onClick={onHandleClickEditCoins}>
                             Edit
@@ -1622,7 +1619,7 @@ export default function Backup() {
                     <h4>NFT COLLECTION(S)</h4>
                     {lockUp !== null && lockUp.nonFungibleTokens.length > 0 ?
                       <div className='d-flex gap-3 align-items-center'>
-                        <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
+                        <h6 className="text-center m-0">(<span className='text-success'>Withdrawable</span> / <span className='text-warning'>Account's NFTs</span>)</h6>
                         <Button variant="danger" size="sm" onClick={() => setStep("editnftcollection")}>
                           Edit
                         </Button>
@@ -1765,7 +1762,7 @@ export default function Backup() {
                   <div className='d-flex justify-content-between align-items-center border-bottom-green'>
                     <div className='d-flex justify-content-start align-items-center gap-2'>
                       <h4 className='blue-font p-2 mb-0'>EDIT COIN(S)</h4>
-                      <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
+                      <h6 className="text-center m-0">(<span className='text-success'>Withdrawable</span> / <span className='text-warning'>Account's Balance</span>)</h6>
                     </div>
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
                       onClick={() => setStep("detail")} />
@@ -1818,7 +1815,7 @@ export default function Backup() {
                   <div className='row p-3 pt-0'>
                     <div className='col-md-8'>
                       <h5 className='text-warning'>
-                        <FaInfo /> By not specifying an amount you can add the maximum balance to the safe.
+                        <FaInfo /> By not specifying an amount you can add account's current balance to the safe.
                       </h5>
                     </div>
 
@@ -1891,7 +1888,7 @@ export default function Backup() {
                       <h4 className='blue-font p-2 mb-0'>
                         EDIT NFT COLLECTION(S)
                       </h4>
-                      <h6 className="text-center m-0">(<span className='text-success'>Max Balance</span> / <span className='text-warning'>Account Balance</span>)</h6>
+                      <h6 className="text-center m-0">(<span className='text-success'>Withdrawable</span> / <span className='text-warning'>Account's NFTs</span>)</h6>
                     </div>
                     <FaArrowLeft className='blue-font cursor-pointer mt-10' size={24}
                       onClick={() => setStep("detail")} />
@@ -2039,7 +2036,7 @@ export default function Backup() {
                         <h5>= Remove NFT from Safe</h5>
                       </div>
                       <p className='text-warning px-1'>
-                        <FaInfo /> By removing all the NFTs you would delegate ownership of your whole collection
+                        <FaInfo /> By removing all the NFTs you would delegate wondership of all your collection's NFTs.
                       </p>
                     </div>
 
