@@ -1385,10 +1385,10 @@ export default function Backup() {
                               <Card.Title className="blue-font">
                                 {lockUp.name}
                               </Card.Title>
-                              <p className='text-grey mb-0'>
+                              <p className='text-grey mb-1'>
                                 {lockUp.recipient}
                               </p>
-                              <p className='mt-3 blue-font text-warning'>{lockUp.description}</p>
+                              <p className='text-warning mb-1'>{lockUp.description}</p>
                               <p className='font-14 mb-0 blue-font'>
                                 Created at
                               </p>
