@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { FaPlus, FaArrowLeft, FaInfo } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import _ from "lodash";
@@ -142,9 +143,7 @@ export default function Backup() {
   const [backupName, setBackupName] = useState("");
   const [recipient, setRecipient] = useState("");
   const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const [maturity, setMaturity] = useState(tomorrow);
+  const [maturity, setMaturity] = useState(today.getTime());
   const [description, setDescription] = useState("");
 
   const [lockUp, setLockUp] = useState(null);
@@ -669,15 +668,13 @@ export default function Backup() {
     setBackupName(lockUp.name);
     setRecipient(lockUp.recipient);
     setDescription(lockUp.description);
-    const dateObject = new Date(
-      convertDate(Math.floor(lockUp.releasedAt * 1000))
-    );
+    const dateObject = Math.floor(lockUp.releasedAt * 1000);
     setMaturity(dateObject);
   };
 
   const createBackup = async () => {
     // in seconds
-    const releaseDate = Math.floor(maturity.getTime() / 1000).toString();
+    const releaseDate = Math.floor(maturity / 1000).toString();
     if (!isValidFlowAddress(recipient)) {
       toast.error("Please input correct flow address!");
       return;
@@ -1578,10 +1575,13 @@ export default function Backup() {
                           </Form.Label>
                           <DatePicker
                             className="form-control"
-                            selected={maturity}
+                            selected={new Date(maturity)}
                             minDate={new Date()}
                             excludeDates={[new Date()]}
-                            onChange={(date) => setMaturity(date)}
+                            dateFormat="MM-DD-YYYY" // set the date format
+                            onChange={(date) => {
+                              setMaturity(date.getTime());
+                            }}
                           />
                         </Form.Group>
 
