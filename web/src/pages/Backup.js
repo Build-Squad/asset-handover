@@ -1578,7 +1578,7 @@ export default function Backup() {
                             selected={new Date(maturity)}
                             minDate={new Date()}
                             excludeDates={[new Date()]}
-                            dateFormat="MM-DD-YYYY" // set the date format
+                            dateFormat="MM-dd-yyyy" // set the date format
                             onChange={(date) => {
                               setMaturity(date.getTime());
                             }}
