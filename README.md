@@ -23,6 +23,18 @@ We also hope to help you understand the main concepts and best practices of Cade
 
 `AssetHandover` is a dapp where account `holders` can grant a `recipient` the ability to `withdraw` specific `tokens` that they own (both `FungibleToken` and `NonFungibleToken`), at a future release date. Each account can only declare one recipient, as this removes the complexity of handling race conditions upon withdrawals. However, an account can be the recipient of multiple handovers. The account holder can specify which fungible tokens will be handed over and a maximum amount for each token. It is also possible to specify which non-fungible tokens will be handed over and a specific list of NFT IDs from each `NFT` Collection. The above tokens are not locked for the account holder, meaning that they can still be utilized/transferred. The recipient (or any other account) can attempt to withdraw them, at any given time, however, this will only be successful after the release date has passed, and only for the authorized recipient. One real-world scenario would be to create a digital `"will"` for one's account, or to simply add another account as a backup, in case the account holder loses access to his/her account or is no longer able to interact with it.
 
+## Project Overview
+
+Below is a description of the Dapp's components.
+
+### 1. Web Server | [asset-handover/api](https://github.com/Build-Squad/asset-handover/tree/master/api)
+
+The API demonstrates how to send transactions and queries to the Flow blockchain. By using the API you would be able to interact with the 3 main smart contracts of [Asset-Handover](https://github.com/Build-Squad/asset-handover/blob/master/cadence/contracts/AssetHandover.cdc), [BlpToken](https://github.com/Build-Squad/asset-handover/blob/master/cadence/contracts/tokens/BlpToken.cdc) and [Domains](https://github.com/Build-Squad/asset-handover/blob/master/cadence/contracts/nfts/Domains.cdc).
+
+### 2. Cadence Code | [asset-handover/cadence](https://github.com/onflow/asset-handover/tree/master/cadence)
+
+[Cadence](https://docs.onflow.org/cadence) This folder contains all of the blockchain logic for the application, meaning, smart contracts, smart contract implementations, as well as the scripts and transactions that interact with them.
+
 ## ✨ Getting Started
 
 ### 1. Install Dependencies
