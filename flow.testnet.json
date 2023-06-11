@@ -42,6 +42,18 @@
         "testnet": "0x9a0766d93b6608b7"
       }
     },
+    "MonsterMaker": {
+      "source": "./cadence/contracts/nfts/MonsterMaker.cdc",
+      "aliases": {
+        "testnet": "0xfd3d8fe2c8056370"
+      }
+    },
+    "KittyItems": {
+      "source": "./cadence/contracts/nfts/KittyItems.cdc",
+      "aliases": {
+        "testnet": "0xf253e72c9b37f4ef"
+      }
+    },
     "BlpToken": "./cadence/contracts/tokens/BlpToken.cdc",
     "Domains": "./cadence/contracts/nfts/Domains.cdc",
     "AssetHandover": "./cadence/contracts/AssetHandover.cdc"

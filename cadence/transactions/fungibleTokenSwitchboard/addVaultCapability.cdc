@@ -37,3 +37,4 @@ transaction(identifier: String) {
         self.switchboardRef.addNewVault(capability: self.vaultCapabilty)
     }
 }
+ 

@@ -1,0 +1,292 @@
+body {
+  background: linear-gradient(to bottom, #0d0d2b, #18184d);
+  height: 100%;
+}
+
+@font-face {
+  font-family: 'bahnschrift';
+  src: url('../public/Fonts/Headings/bahnschrift.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'calibri';
+  src: url('../public/Fonts/calibri.ttf') format('truetype');
+}
+
+.header-font{
+  font-family: 'bahnschrift', sans-serif;
+}
+.blue-font{
+  color: #18184D !important;
+}
+.red-font{
+  color: #E31E24!important;
+}
+.blue-bg{
+  background-color: #18184D !important;
+}
+.red-bg{
+  background-color: #E31E24!important;
+}
+.border-none{
+  border: 0px solid black!important;
+}
+
+.container {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  padding-left: calc(var(--bs-gutter-x) * 0.5);
+}
+
+.flex-reverse {
+  flex-direction: row-reverse;
+}
+
+.connect-wallet {
+  background-color: white !important;
+  color: #18184D !important;
+  font-weight: bold !important;
+  border-radius: 20px !important;
+}
+
+.disconnect-wallet {
+  background-color: white !important;
+  color: #18184D !important;
+  font-weight: bold !important;
+  border-radius: 20px !important;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.font-80 {
+  font-size: 80px;
+}
+
+.font-50 {
+  font-size: 50px;
+}
+
+.search-input {
+  border-radius: 20px !important;
+}
+
+.accordion-button {
+  border-radius: 20px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  font-weight: bold !important;
+  color: #18184D !important;
+}
+
+.accordion-item {
+  margin-top: 15px;
+  background-color: transparent !important;
+  border: 0px solid white !important;
+}
+
+.accordion-body {
+  background-color: transparent !important;
+  color: white;
+}
+
+.w-content {
+  width: fit-content;
+}
+
+.search-pad {
+  justify-content: space-between;
+  gap: 14px;
+}
+
+
+@media screen and (max-width: 768px) {
+  .search-pad {
+    justify-content: center;
+  }
+  
+  .maturity-date, .backup-date {
+    margin: 10px auto;
+  }
+
+  .main-avatar {
+    width: 70% !important;
+    margin: auto;
+  }
+}
+
+@media (max-width: 425px) {
+  .main-avatar {
+    width: 100% !important;
+  }
+}
+
+.type-pad {
+  padding-bottom: 10px;
+}
+
+.type {
+  background-color: white;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.type a {
+  background-color: transparent !important;
+  color: black !important;
+  border-radius: 10px !important;
+  border: 5px transparent solid !important;
+}
+
+.type a.active {
+  background-color: transparent !important;
+  color: black !important;
+  border: 5px #a2da41 solid !important;
+  border-radius: 10px !important;
+}
+
+.text-grey {
+  color: grey;
+}
+
+.tab-pane {
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px;
+  height: 100%;
+}
+
+.item-img {
+  width: 100px !important;
+  height: 100px;
+  margin: auto;
+}
+
+.font-12{
+  font-size: 12px;
+}
+.font-14 {
+  font-size: 14px;
+}
+.font-15{
+  font-size: 15px;
+}
+
+.btn-dark {
+  padding-left: 21px !important;
+  padding-right: 21px !important;
+}
+
+.card {
+  border: 1px black solid !important;
+  border-radius: 10px !important;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.cursor-pointer{
+  cursor: pointer;
+}
+
+.form-control{
+  background-color: #ececec!important;
+  border: none!important;
+  border-radius: 20px!important;
+}
+
+.border-radius-none{
+  border-radius: 0px!important;
+  padding-left: 15px!important;
+  padding-right: 15px!important;
+  float: right;
+}
+
+.green-border{
+  border: 1px solid #a2da41;
+  border-radius: 10px;
+}
+
+.backup-date{
+  padding: 10px 15px 10px 15px;
+  width: fit-content;
+  border: 1px solid #a2da41;
+  background-color: #ececec;
+  border-radius: 5px;
+}
+.maturity-date{
+  padding: 10px 10px 10px 10px;
+  width: fit-content;
+  border: 1px solid red;
+  background-color: red;
+  color: white;
+  border-radius: 5px;
+}
+
+.text-webkit-right{
+  text-align: -webkit-right;
+}
+
+.border-bottom-green{
+  border-bottom: 1px solid #a2da41;
+}
+
+.grey-border{
+  border: 1px solid #c5c1c1;
+  border-radius: 10px;
+}
+
+.btn{
+  font-weight: bold!important;
+}
+
+.nft-img{
+  border: 2px solid #a2da41;
+  border-radius: 5px;
+  margin-top: -50px;
+}
+
+.badge{
+  font-size: 14px!important;
+}
+
+.withdraw-img{
+  border: 1px solid #9D9E9E;
+  border-radius: 50px;
+}
+
+.pr-0{
+  padding-right: 0px!important;
+}
+
+input::placeholder {
+  font-size: 12px;
+}
+
+#left-tabs-example-tabpane-first{
+  align-items: center;
+}
+
+.center-pad{
+  height: 100%;
+  display: grid;
+  align-items: center;
+}
+
+.mt-10{
+  margin-top: 10px!important;
+}
+
+.display-none{
+  display: none!important;
+}
