@@ -35,6 +35,10 @@ The API demonstrates how to send transactions and queries to the Flow blockchain
 
 [Cadence](https://docs.onflow.org/cadence) This folder contains all of the blockchain logic for the application, meaning, smart contracts, smart contract implementations, as well as the scripts and transactions that interact with them.
 
+### 3. Web App (flowsafe) |  [asset-handover/web](https://github.com/onflow/asset-handover/tree/master/web)
+
+A true dapp, client-only web app. This is a complete web application built with React and connects directly to the Flow blockchain using @onflow/fcl. @onflow/fcl handles authentication and authorization of Flow accounts, signing transactions, and querying data using using Cadence scripts.
+
 ## ✨ Getting Started
 
 ### 1. Install Dependencies
