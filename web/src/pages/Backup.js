@@ -200,8 +200,9 @@ export default function Backup() {
       .resolve(Strategy.GitHub, ENV.Testnet)
       .then((tokens) => {
         const tokenList = tokens.getList().map((token) => {
-          token.id = `${token.address.replace("0x", "A.")}.${token.contractName
-            }`;
+          token.id = `${token.address.replace("0x", "A.")}.${
+            token.contractName
+          }`;
           return token;
         });
         setTokenRegistry(tokenList);
@@ -298,7 +299,7 @@ export default function Backup() {
         const nftCollection = [];
 
         for (const collection of pledgeCollection) {
-          for (const data of updatedPledgeItem.nonFungibleTokens) {
+          for (const data of updatedPledgeItem[0].nonFungibleTokens) {
             if (collection.nftType.includes(data.identifier)) {
               nftCollection.push(collection);
             }
@@ -343,7 +344,7 @@ export default function Backup() {
             tempOwnCollection.push(col);
           }
         }
-      };
+      }
       setOwnCollection(tempOwnCollection);
     }
 
@@ -573,7 +574,7 @@ export default function Backup() {
     setCurrentNFTIDs(ids);
   }, [nft]);
 
-  useEffect(() => { }, [step]);
+  useEffect(() => {}, [step]);
 
   const logout = () => {
     fcl.unauthenticate();
@@ -1283,7 +1284,8 @@ export default function Backup() {
     });
 
     var ownNFTIDs = [];
-    for (const token of pledgeItem) {
+
+    for (const token of pledgeItem.nonFungibleTokens) {
       if (item.nftType.includes(token.identifier)) ownNFTIDs = token.nftIDs;
     }
 
@@ -1437,7 +1439,7 @@ export default function Backup() {
                               </p>
 
                               {Math.floor(Date.now() / 1000) >=
-                                lockUp.releasedAt ? (
+                              lockUp.releasedAt ? (
                                 <>
                                   <p className="text-success font-14 mb-0">
                                     Maturity Date
@@ -1708,8 +1710,8 @@ export default function Backup() {
                             <img
                               src={
                                 logoURI[
-                                getFTContractNameAddress(item.identifier)
-                                  .contractName
+                                  getFTContractNameAddress(item.identifier)
+                                    .contractName
                                 ]
                               }
                               width="60px"
@@ -1729,8 +1731,8 @@ export default function Backup() {
                                 <span className="text-warning">
                                   {parseFloat(
                                     tokenHoldAmount[
-                                    getFTContractNameAddress(item.identifier)
-                                      .contractName
+                                      getFTContractNameAddress(item.identifier)
+                                        .contractName
                                     ]
                                   ).toFixed(2)}
                                 </span>
@@ -2005,9 +2007,9 @@ export default function Backup() {
                                   <img
                                     src={
                                       logoURI[
-                                      getFTContractNameAddress(
-                                        item.identifier
-                                      ).contractName
+                                        getFTContractNameAddress(
+                                          item.identifier
+                                        ).contractName
                                       ]
                                     }
                                     width="100%"
@@ -2023,9 +2025,9 @@ export default function Backup() {
                                     <span className="text-warning">
                                       {parseFloat(
                                         tokenHoldAmount[
-                                        getFTContractNameAddress(
-                                          item.identifier
-                                        ).contractName
+                                          getFTContractNameAddress(
+                                            item.identifier
+                                          ).contractName
                                         ]
                                       ).toFixed(2)}
                                     </span>
@@ -2070,9 +2072,9 @@ export default function Backup() {
                                     placeholder="Enter quantity of Coin(s)"
                                     value={
                                       editLockupTokenAmount[
-                                      getFTContractNameAddress(
-                                        item.identifier
-                                      ).contractName || ""
+                                        getFTContractNameAddress(
+                                          item.identifier
+                                        ).contractName || ""
                                       ]
                                     }
                                     onChange={(e) =>
@@ -2505,7 +2507,7 @@ export default function Backup() {
                               </p>
 
                               {Math.floor(Date.now() / 1000) >=
-                                item.releasedAt ? (
+                              item.releasedAt ? (
                                 <>
                                   <p className="text-success font-14 mb-0">
                                     Maturity Date
@@ -2596,7 +2598,7 @@ export default function Backup() {
                   </div>
 
                   {pledgeItem !== null &&
-                    pledgeItem.fungibleTokens.length > 0 ? (
+                  pledgeItem.fungibleTokens.length > 0 ? (
                     <div className="d-flex mt-2">
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <React.Fragment key={index}>
@@ -2604,8 +2606,8 @@ export default function Backup() {
                             <img
                               src={
                                 logoURI[
-                                getFTContractNameAddress(item.identifier)
-                                  .contractName
+                                  getFTContractNameAddress(item.identifier)
+                                    .contractName
                                 ]
                               }
                               width="60px"
@@ -2613,12 +2615,12 @@ export default function Backup() {
                               alt="token Logo"
                             />
                             {parseFloat(item.balance) ===
-                              parseFloat(
-                                tokenHoldAmount[
+                            parseFloat(
+                              tokenHoldAmount[
                                 getFTContractNameAddress(item.identifier)
                                   .contractName
-                                ]
-                              ) ? (
+                              ]
+                            ) ? (
                               <h6 className="text-center">(All)</h6>
                             ) : (
                               <h6 className="text-center">
@@ -2724,7 +2726,7 @@ export default function Backup() {
                   </div>
 
                   {pledgeItem !== null &&
-                    pledgeItem.fungibleTokens.length > 0 ? (
+                  pledgeItem.fungibleTokens.length > 0 ? (
                     <div className="row p-3">
                       {pledgeItem.fungibleTokens.map((item, index) => (
                         <div className="col-md-4" key={index}>
@@ -2734,8 +2736,8 @@ export default function Backup() {
                                 <img
                                   src={
                                     logoURI[
-                                    getFTContractNameAddress(item.identifier)
-                                      .contractName
+                                      getFTContractNameAddress(item.identifier)
+                                        .contractName
                                     ]
                                   }
                                   width="100%"
@@ -2761,9 +2763,9 @@ export default function Backup() {
                                       placeholder="Enter quantity of Coin(s)"
                                       value={
                                         withdrawCoinsAmount[
-                                        getFTContractNameAddress(
-                                          item.identifier
-                                        ).contractName
+                                          getFTContractNameAddress(
+                                            item.identifier
+                                          ).contractName
                                         ] || ""
                                       }
                                       onChange={(e) =>
