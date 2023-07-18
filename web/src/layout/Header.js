@@ -3,7 +3,7 @@ import { Nav, Navbar, Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import * as fcl from "@onflow/fcl";
 import { FaBars, FaSignOutAlt } from "react-icons/fa";
-
+import { FaPlay } from "react-icons/fa";
 import "./Header.css";
 export default function Header() {
   const [user, setUser] = useState({ loggedIn: null });
@@ -30,9 +30,10 @@ export default function Header() {
         </Link>
         <Link
           to="https://www.youtube.com/watch?v=LKxovRGib-M&ab_channel=BuildSquad"
-          className="css-youtube d-flex text-decoration-none text-white"
+          className="css-youtube d-flex text-decoration-none text-white align-items-center"
         >
-          watch how it works
+          watch how it works &nbsp;
+          <FaPlay className=" align-items-center"></FaPlay>
         </Link>
       </Navbar.Brand>
 
