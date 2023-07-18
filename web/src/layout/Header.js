@@ -30,6 +30,7 @@ export default function Header() {
         </Link>
         <Link
           to="https://www.youtube.com/watch?v=LKxovRGib-M&ab_channel=BuildSquad"
+          target="_blank"
           className="css-youtube d-flex text-decoration-none text-white align-items-center"
         >
           watch how it works &nbsp;
