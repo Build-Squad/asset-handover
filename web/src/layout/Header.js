@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import * as fcl from "@onflow/fcl";
 import { FaBars, FaSignOutAlt } from "react-icons/fa";
 
+import "./Header.css";
 export default function Header() {
   const [user, setUser] = useState({ loggedIn: null });
   const navigate = useNavigate();
@@ -22,10 +23,16 @@ export default function Header() {
 
   return (
     <Navbar expand="lg">
-      <Navbar.Brand>
+      <Navbar.Brand className="d-flex flex-col gap-3 align-items-center">
         <Link to="/" className="d-flex text-decoration-none">
           <img src="Logo.png" width="40px" height="52px" alt="Logo" />
           <h1 className="header-font text-white mx-2 mt-1">flowsafe</h1>
+        </Link>
+        <Link
+          to="https://www.youtube.com/watch?v=LKxovRGib-M&ab_channel=BuildSquad"
+          className="css-youtube d-flex text-decoration-none text-white"
+        >
+          watch how it works
         </Link>
       </Navbar.Brand>
 
